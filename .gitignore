@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Rproj
+.DS_Store
+*Rproj
+ampir_0.1.0_data
+raw_data
+cache

@@ -1,0 +1,125 @@
+---
+title: "get_amps_for_ampir"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ampir)
+library(tidyverse)
+source("R/remove_nonstandard_aa.R")
+```
+
+# Obtaining the positive dataset for ampir
+
+## Using dbAMP as resource for next ampir version
+
+```{bash}
+# 	updated 2019-06-15 15:23:24
+wget http://140.138.77.240/~dbamp/download/dbAMPv1.4.tar.gz -O raw_data/dbAMPv1.4.tar.gz
+
+tar -xf raw_data/dbAMPv1.4.tar.gz -C raw_data
+```
+
+Import AMPs from [dbAMP](http://140.138.77.240/~dbamp/download.php) (total 4271 sequences)
+```{r}
+dbAMP_val <- read_faa("raw_data/dbAMPv1.4_validated.fasta")
+```
+
+```{r}
+#calculate length of sequences between positive dataset for ampir v1.0.0 and dbAMP_val
+
+dbAMP_val_len <- mutate(dbAMP_val, seq_len = nchar(dbAMP_val$seq_aa))
+unique_amps_long_len <- mutate(unique_amps_long, seq_len = nchar(unique_amps_long$seq_aa))
+
+ggplot(dbAMP_val_len) + 
+  geom_histogram(aes(x=seq_len))
+
+ggplot(unique_amps_long_len) + 
+  geom_histogram(aes(x=seq_len))
+
+#defintely a lot more variation in length in unique_amps_long and contains longer sequences
+```
+
+Remove nonstandard aa (which leaves 4118 sequences)
+```{r}
+dbAMP_val_standardaa <- remove_nonstandard_aa(dbAMP_val)
+```
+
+```{r}
+#save file as fasta
+df_to_faa(dbAMP_val_standardaa, "cache/dbAMPsMarch2020.fasta")
+```
+
+Use cd-hit to remove highly similar sequences  (which leaves 3210 AMPs)
+```{bash}
+cd-hit -i cache/dbAMPsMarch2020.fasta -o cache/dbAMPs0320_98.fasta -c 0.98 -g 1
+```
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+## For ampir version 0.1.0
+```{r}
+#read in data
+APD <- read_faa("raw_data/APD_natural.fasta")
+
+swissprot_amps <- read_faa("raw_data/swissprot-antimicrobial-peptide-MAY.fasta")
+
+CAMP_exp <- read_faa("raw_data/CAMP_exp_validated.fasta")
+
+DRAMP_nat <- read_faa("raw_data/dramp_nat_tidy.fasta")
+
+LAMP <- read_faa("raw_data/LAMP_all.fasta")
+```
+
+```{r}
+#get only natural sequences in LAMP
+LAMP_nat <- LAMP[grep("Natural",LAMP$seq_name),]
+```
+
+```{r}
+#remove predicted sequences (i.e. not experimentally validated)
+LAMP_nat_exp <- LAMP_nat[-grep("Predicted",LAMP_nat$seq_name),]
+
+DRAMP_nat_exp <- DRAMP_nat[-grep("Predicted", DRAMP_nat$seq_name),]
+
+```
+
+```{r}
+#combine AMP databases
+combined_dbs <- rbind(APD, CAMP_exp, DRAMP_nat_exp, LAMP_nat_exp, swissprot_amps)
+
+#remove nonstandard aa
+combined_dbs_clean <- remove_nonstandard_aa(combined_dbs)
+```
+
+```{r}
+#remove duplicated sequences 
+unique_amps <- combined_dbs_clean[!duplicated(combined_dbs_clean$seq_aa),]
+
+#can also do this in the tidyverse
+# library(tidyverse)
+# distinct(combined_dbs_clean, seq_aa, .keep_all = TRUE)
+```
+
+AMPs shorter than 20aa were removed in the release version of ampir. This was done because the pseudo amino acid function was not adapted to deal with shorter sequences. This function will be amended in the next release and the model will be updated to include these short sequences.
+```{r}
+#keep AMPs equal or longer than 20 aa long
+unique_amps_long <- unique_amps[nchar(unique_amps$seq_aa) >=20,]
+```
+
+
+```{r}
+#save file as fasta
+df_to_faa(unique_amps_long, "cache/amps_sp_ampdbs.fasta")
+```
+
+Use cd-hit to remove highly similar sequences
+```{bash}
+cd-hit -i cache/amps_sp_ampdbs.fasta -o cache/amps_sp_ampdbs98.fasta -c 0.98 -g 1
+```
+
