@@ -21,3 +21,12 @@ This repository contains code used for the
   - [04\_alpha\_prcurve.Rmd](https://github.com/Legana/AMP_pub/blob/master/04_alpha_prcurve.Rmd)
       - creates the alpha curve and also combines the ROC curve plot to
         make Figure1
+
+The files required to run the code in these Rmd files can be obtained
+[here](https://cloudstor.aarnet.edu.au/plus/s/e2MsuyZPwZOOuBe/download?path=%2F&files=data.tgz)
+or by using the
+command:
+
+``` bash
+wget https://cloudstor.aarnet.edu.au/plus/s/e2MsuyZPwZOOuBe/download?path=%2F&files=data.tgz -O data.tgz
+```
