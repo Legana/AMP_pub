@@ -145,6 +145,7 @@ combined_dbs <- rbind(APD, dbAMP, DRAMP, swissprot) %>%
 
 ``` r
 combined_filtered_dbs <- combined_dbs %>%
+  filter(nchar(seq_aa)<300) %>% 
   distinct(seq_aa, .keep_all = TRUE) %>%
   as.data.frame() %>%
   remove_nonstandard_aa()

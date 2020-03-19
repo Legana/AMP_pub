@@ -1,0 +1,50 @@
+---
+title: "Model tuning"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+```{r}
+library(ampir)
+library(tidyverse)
+library(caret)
+source("R/remove_nonstandard_aa.R")
+```
+
+# Data preparation 
+
+To use the `tune_model.R` command-line script we need to prepare a target and background database that is balanced and free from invalid entries.  By default the minimum length is 20 so we filter both databases for this.  In addition, we apply the same size filter (<300AA's) to the background that we applied to the target in 01_collate_databases.Rmd
+
+```{r}
+tg <- read_faa("cache/positive032020_98.fasta") %>%
+  add_column(Label = "Tg")
+
+bg <- read_faa("raw_data/swissprot_all_MAY98.fasta") %>%
+  add_column(Label = "Bg")
+
+bg <- bg[!bg$seq_aa %in% tg$seq_aa,]
+
+bg <- remove_nonstandard_aa(bg) %>%
+  filter(nchar(seq_aa) < 300) %>% 
+  filter(nchar(seq_aa)> 20) %>% 
+  sample_n(nrow(tg))
+
+df_to_faa(bg, "cache/negative032020.fasta")
+```
+
+# Running the tuning script
+
+This needs to be run on an HPC system with R installed and with packages `caret`, `ampir`, `doParallel`, and `R.utils` installed
+
+```bash
+module load R/3.6.1
+Rscript tune_model.R outfile=tuned.rds target=cache/positive032020_98.fasta background=cache/negative032020.fasta
+```
+
+Or to run on the PBSPro batch system. Edit the tune_model.sh script and then submit using
+```bash
+qsub tune_model.sh
+```
