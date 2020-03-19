@@ -13,7 +13,7 @@ library(patchwork)
 ```
 
 ```{r}
-ampir_prob_data <- readRDS("cache/ampir_prob_data.rds")
+ampir_prob_data <- readRDS("ampir_0.1.0_data/ampir_prob_data.rds")
 
 source("R/calc_cm_metrics.R")
 ```

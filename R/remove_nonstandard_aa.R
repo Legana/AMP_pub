@@ -25,10 +25,10 @@
 #todo: edit function to remove terminal stop codons automatically and give warning if stop codons are present within the sequence
 remove_nonstandard_aa <- function(df) {
 
-  seq <- df[,2]
-  seq.name <- df[,1]
+  seq_aa <- df[,2]
+  seq_name <- df[,1]
 
-  standard_aa_indices <-grepl('^[ARNDCEQGHILKMFPSTWYV]+$', seq)
+  standard_aa_indices <-grepl('^[ARNDCEQGHILKMFPSTWYV]+$', seq_aa)
 
   df[standard_aa_indices,]
 
