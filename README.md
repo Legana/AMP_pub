@@ -4,10 +4,9 @@
 # AMP prediction
 
 This repository contains code used for the
-[ampir](https://github.com/Legana/ampir) R package
-    paper
+[ampir](https://github.com/Legana/ampir) R package paper
 
-  - [01\_collate\_databases.Rmd](https://github.com/Legana/AMP_pub/blob/master/01_collate_databases.Rmd)
+  - [01\_collate\_databases](01_collate_databases.md)
       - combines AMPs obtained from online AMP databases for positive
         training
     set
@@ -28,5 +27,6 @@ or by using the
 command:
 
 ``` bash
-wget https://cloudstor.aarnet.edu.au/plus/s/e2MsuyZPwZOOuBe/download?path=%2F&files=data.tgz -O data.tgz
+wget 'https://cloudstor.aarnet.edu.au/plus/s/e2MsuyZPwZOOuBe/download?path=%2F&files=data.tgz' -O data.tgz
+tar -zxvf data.tgz 
 ```
