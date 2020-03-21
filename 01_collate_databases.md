@@ -28,8 +28,7 @@ locations
 | Database Name | File                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------- |
 | APD 3         | `raw_data/APD_032020.xlsx`                                                            |
-| DRAMP General | `raw_data/DRAMP_general_amps.xlsx`                                                    |
-| DRAMP Natural | `dramp_nat_tidy.fasta`                                                                |
+| DRAMP Natural | `raw_data/dramp_nat_tidy.fasta`                                                       |
 | dbAMP         | `raw_data/dbAMPv1.4.xlsx`                                                             |
 | SwissProt     | `raw_data/uniprot-keyword__Antimicrobial+[KW-0929]_+OR+_antimicrobial+peptide%--.tab` |
 
@@ -131,24 +130,31 @@ combined_dbs <- rbind(APD, dbAMP, DRAMP, swissprot) %>%
   select(seq_name, seq_aa, description, database)
 ```
 
+Write the combined\_dbs to file
+
+``` r
+saveRDS(combined_dbs, "cache/combined_dbs.rds")
+```
+
 **Apply filters**
 
-  - Very large proteins are excluded because in some cases (eg Swissprot
-    derived proteins) they are not true AMPs and even in rare cases
-    where large proteins are genuine AMPs their physicochemical
-    properties are likely to be wildly different from the majority
-    (which have lengths between 50 and 300AA).
-  - Identical sequences are also removed at this stage
-  - Sequences with non standard amino acids are also removed
+  - Very large proteins (\> 700 amino acids) are excluded because in
+    some cases (e.g. SwissProt derived proteins) they are not true AMPs
+    and even in rare cases where large proteins are genuine AMPs their
+    physicochemical properties are likely to be wildly different from
+    the majority. Further excluded are:
+  - very small sequences (\< 20 amino acids)
+  - Identical sequences
+  - Sequences with non standard amino acids
 
 <!-- end list -->
 
 ``` r
 combined_filtered_dbs <- combined_dbs %>%
-  filter(nchar(seq_aa)<300) %>% 
   distinct(seq_aa, .keep_all = TRUE) %>%
-  as.data.frame() %>%
-  remove_nonstandard_aa()
+  as.data.frame() %>% 
+  remove_nonstandard_aa() %>%
+  filter(between(nchar(seq_aa),20,700))
 ```
 
 Write file to FASTA
@@ -157,7 +163,7 @@ Write file to FASTA
 df_to_faa(combined_filtered_dbs, "cache/positive032020.fasta")
 ```
 
-Use cd-hit to remove highly similar sequences (which leaves 5673
+Use cd-hit to remove highly similar sequences (which leaves 5,134
 AMPs)
 
 ``` bash
