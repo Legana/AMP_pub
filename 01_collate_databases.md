@@ -1,7 +1,7 @@
 Databases used for testing and training ampir
 ================
 
-# Public AMP databases
+## Public AMP databases
 
 The following databases were accessed as of March 2020. All ampir models
 were trained using data from one or more of these databases (see details
@@ -93,7 +93,7 @@ AMPs were collected from UniProt using the following search terms:
 “keyword:”Antimicrobial \[KW-0929\]" OR “antimicrobial peptide” AND
 reviewed:yes" (3,546 sequences).
 
-# Database used for the ampir default model
+## Database used for the ampir default model
 
 The default SVM model included with ampir is trained on a high quality
 general database consisting of verified natural AMPs from across all of
@@ -103,20 +103,10 @@ training and testing.
 
 **Read raw data**
 
-Read all raw public databases, convert to a common format and combine
-into a single
-table
+Read raw public databases, convert to a common format and combine into a
+single table
 
 ``` r
-APD <- readxl::read_xlsx("raw_data/APD_032020.xlsx", col_names = c("seq_name", "description", "seq_aa")) %>% 
-  mutate(database = "APD") %>% 
-  filter(!grepl("Synthetic|synthetic", description))
-
-DRAMP <- read_faa("raw_data/dramp_nat_tidy.fasta") %>%
-  separate(seq_name, into = c("seq_name","description"), sep ="\\|") %>% 
-  filter(!grepl("Predicted", seq_name)) %>% 
-  mutate(database = "DRAMP")
-
 dbAMP <- readxl::read_xlsx("raw_data/dbAMPv1.4.xlsx") %>%
   filter(!grepl('Synthetic|synthetic', dbAMP_Taxonomy)) %>%
   select(seq_name = dbAMP_ID, description = Activity, seq_aa = Sequence) %>% 
@@ -126,7 +116,7 @@ swissprot <- read_tsv("raw_data/uniprot-keyword__Antimicrobial+[KW-0929]_+OR+_an
   select(seq_name = Entry, description =  `Protein names`, seq_aa = Sequence) %>% 
   mutate(database = "SwissProt") 
 
-combined_dbs <- rbind(APD, dbAMP, DRAMP, swissprot) %>% 
+combined_dbs <- rbind(dbAMP, swissprot) %>% 
   select(seq_name, seq_aa, description, database)
 ```
 
@@ -163,8 +153,9 @@ Write file to FASTA
 df_to_faa(combined_filtered_dbs, "cache/positive032020.fasta")
 ```
 
-Use cd-hit to remove highly similar sequences (which leaves 5,134
-AMPs)
+Use cd-hit to remove highly similar sequences (which leaves 5,134 AMPs)
+(4,238 minus APD and
+DRAMP)
 
 ``` bash
 cd-hit -i cache/positive032020.fasta -o cache/positive032020_98.fasta -c 0.98 -g 1
