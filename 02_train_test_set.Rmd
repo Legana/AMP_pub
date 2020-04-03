@@ -1,165 +1,112 @@
 ---
-title: "Untitled"
-output: html_document
+title: Create the train and test set
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, message = FALSE)
 ```
 
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 library(ampir)
 library(tidyverse)
 library(caret)
 library(pROC)
 source("R/remove_nonstandard_aa.R")
+set.seed(8)
 ```
 
-# Train and test model for ampir using AMPs from [dbAMP](http://140.138.77.240/~dbamp/download.php)
 
 ## Data preparation 
 
-Read in positive (tg98) and negative (bg98) data and add y variable label
+Read in positive (tg) and negative (bg) data and add y variable label
 ```{r}
-tg98 <- read_faa("cache/dbAMPs0320_98.fasta") %>%
+tg <- read_faa("cache/positive032020_98.fasta") %>%
   add_column(Label = "Tg")
-bg98 <- read_faa("raw_data/swissprot_all_MAY98.fasta") %>%
+
+bg <- read_faa("raw_data/swissprot_all_MAY98.fasta") %>%
   add_column(Label = "Bg")
 ```
 
-Remove sequences in bg98 that are present in tg98
-```{r}
-bg98 <- bg98[!bg98$seq_aa %in% tg98$seq_aa,]
-```
+Filter the background dataset using similar criteria to how the positive dataset in `01_collate_databases.Rmd` got filtered:
 
-Remove nonstandard amino acids and get a random sample equal to the number of tg98 sequences
+ - Remove non standard amino acids
+ - Remove proteins between 20 and 700 amino acids long
+ 
+and also,
+
+ - remove sequences in the background dataset that are present in the positive dataset 
+ - obtain a random subset of the filtered background dataset that match the number of rows in the positive dataset
+ 
 ```{r}
-bg98 <- remove_nonstandard_aa(bg98) %>%
-  sample_n(3210)
+bg <- bg %>% 
+  remove_nonstandard_aa() %>%
+  filter(between(nchar(seq_aa),20,700)) %>%
+  filter(!seq_aa %in% tg$seq_aa) %>%
+  sample_n(nrow(tg))
 ```
 
 Combine positive and negative datasets 
 ```{r}
-bg_tg98 <- rbind(bg98, tg98)
-rownames(bg_tg98) <- NULL
+bg_tg <- rbind(bg, tg)
+rownames(bg_tg) <- NULL
 ```
 
-Calculate features and specify minimum length to be 5 
-(currently this is set as default 20 which will be changed to 5 in the next ampir version)
+Calculate features 
 ```{r}
-features98 <- ampir:::calculate_features(bg_tg98, 5)
-#add Label column for y variable
-features98$Label <- as.factor(bg_tg98$Label)
+features <- ampir:::calculate_features(bg_tg)
 ```
 
+add Label column for y variable
+
+```{r}
+features$Label <- as.factor(bg_tg$Label)
+```
+
+```{r, echo = FALSE, eval = FALSE}
+#saveRDS(features, "cache/features032020_98.rds")
+```
 
 ## Train model 
 
 Split feature set data 80/20 and create train and test set
 ```{r}
-trainIndex <-createDataPartition(y=features98$Label, p=.8, list = FALSE)
-features98Train <-features98[trainIndex,]
-features98Test <-features98[-trainIndex,]
+trainIndex <-createDataPartition(y=features$Label, p=.8, list = FALSE)
+featuresTrain <-features[trainIndex,]
+featuresTest <-features[-trainIndex,]
 ```
 
-Use repeated cross validation as a resampling method and add in probability calculation
-
-```{r}
-trctrl_prob <- trainControl(method = "repeatedcv", number = 10, repeats = 3, classProbs = TRUE)
+```{r, echo = FALSE, eval = FALSE}
+#saveRDS(featuresTrain, "cache/featuresTrain032020_98.rds")
+#saveRDS(featuresTest, "cache/featuresTest032020_98.rds")
 ```
+
+Normalise data and train a support vector machine model with radial kernel (rSVM) using repeated cross validation as a resampling method and add in probability calculation
 
 ```{r}
 rsvm98 <- train(Label~.,
-                       data = features98Train[,-c(1,27:45)], #without names and lamda values
+                       data = featuresTrain[,-c(1,27:45)],
                        method="svmRadial",
-                       trControl = trctrl_prob,
-                       preProcess = c("center", "scale"),
-                       tuneLength = 10)
+                       trControl = trainControl(method = "repeatedcv",
+                            number = 10, repeats = 3,
+                            classProbs = TRUE), 
+                       preProcess = c("center", "scale"))
 ```
-
->rsvm98
-
-Support Vector Machines with Radial Basis Function Kernel 
-
-5136 samples
-  25 predictor
-   2 classes: 'Bg', 'Tg' 
-
-Pre-processing: centered (25), scaled (25) 
-Resampling: Cross-Validated (10 fold, repeated 3 times) 
-Summary of sample sizes: 4622, 4622, 4623, 4622, 4623, 4622, ... 
-Resampling results across tuning parameters:
-
-  C       Accuracy   Kappa    
-    0.25  0.9419764  0.8839531
-    0.50  0.9452865  0.8905729
-    1.00  0.9484012  0.8968026
-    2.00  0.9513229  0.9026462
-    4.00  0.9533355  0.9066714
-    8.00  0.9516483  0.9032976
-   16.00  0.9508695  0.9017397
-   32.00  0.9483383  0.8966774
-   64.00  0.9462625  0.8925260
-  128.00  0.9441869  0.8883746
-
-Tuning parameter 'sigma' was held constant at a value of 0.07706069
-Accuracy was used to select the optimal model using the largest value.
-The final values used for the model were sigma = 0.07706069 and C = 4.
 
 
 ## Test model
 
 Use model to classify proteins in the test set and calculation confusion matrix
 ```{r}
-test_pred <- predict(rsvm98, features98Test)
-confusionMatrix(test_pred, features98Test$Label, positive = "Tg", mode = "everything")
+test_pred <- predict(rsvm98, featuresTest)
+confusionMatrix(test_pred, featuresTest$Label, positive = "Tg", mode = "everything")
 ```
 
-Confusion Matrix and Statistics
 
-          Reference
-Prediction  Bg  Tg
-        Bg 610  37
-        Tg  32 605
-                                         
-               Accuracy : 0.9463         
-                 95% CI : (0.9325, 0.958)
-    No Information Rate : 0.5            
-    P-Value [Acc > NIR] : <2e-16         
-                                         
-                  Kappa : 0.8925         
-                                         
- Mcnemar's Test P-Value : 0.6301         
-                                         
-            Sensitivity : 0.9424         
-            Specificity : 0.9502         
-         Pos Pred Value : 0.9498         
-         Neg Pred Value : 0.9428         
-              Precision : 0.9498         
-                 Recall : 0.9424         
-                     F1 : 0.9461         
-             Prevalence : 0.5000         
-         Detection Rate : 0.4712         
-   Detection Prevalence : 0.4961         
-      Balanced Accuracy : 0.9463         
-                                         
-       'Positive' Class : Tg      
-       
-       
 Use the probability scores from the model prediction and calculate the AUROC
 ```{r}
-test_pred_prob <- predict(rsvm98, features98Test, type = "prob")
-roc(features98Test$Label, test_pred_prob$Tg)
-```
-
-Setting levels: control = Bg, case = Tg
-Setting direction: controls < cases
-
-Call:
-roc.default(response = features98Test$Label, predictor = test_pred_prob$Tg)
-
-Data: test_pred_prob$Tg in 642 controls (features98Test$Label Bg) < 642 cases (features98Test$Label Tg).
-Area under the curve: 0.9771
-
+test_pred_prob <- predict(rsvm98, featuresTest, type = "prob")
+roc(featuresTest$Label, test_pred_prob$Tg)
+````
 
