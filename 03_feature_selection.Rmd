@@ -33,7 +33,8 @@ svmProfile <- rfe(features[,2:45],
 #                   preProcess = c("center", "scale"))
 ```
 
-Read RFE results (obtained from code block above which was run on an HPC)
+Read RFE results 
+rfe.rds was obtained from running the `rfe.R` and `rfe.sh` scripts on the HPC using identical code that would create the `svmProfile` variable as shown above.
 
 ```{r}
 svmProfile <- readRDS("cache/rfe.rds")
