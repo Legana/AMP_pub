@@ -11,4 +11,4 @@ echo "Job identifier is $PBS_JOBID"
 echo "Working directory is $PBS_O_WORKDIR"
 
 module load R/3.6.1
-Rscript tune_model.R outfile=tuned.rds target=cache/positive032020_98.fasta background=cache/negative032020.fasta
+Rscript tune_model.R outfile=tuned.rds train=cache/featuresTrain032020_98.rds test=cache/featuresTest032020_98.rds ncores=24

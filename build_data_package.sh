@@ -2,7 +2,6 @@
 # AMP databases
 
 echo raw_data/APD_032020.xlsx > data_list
-echo raw_data/DRAMP_general_amps.xlsx >> data_list
 echo raw_data/dramp_nat_tidy.fasta >> data_list
 echo raw_data/dbAMPv1.4.xlsx >> data_list
 echo raw_data/uniprot-keyword__Antimicrobial+\[KW-0929\]_+OR+_antimicrobial+peptide%--.tab >> data_list

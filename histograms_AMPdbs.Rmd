@@ -1,0 +1,115 @@
+---
+title: "AMP databases sequence length histograms"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+```{r, echo=FALSE}
+library(ampir)
+library(tidyverse)
+```
+
+```{r}
+APD <- readxl::read_xlsx("raw_data/APD_032020.xlsx", col_names = c("seq_name", "description", "seq_aa")) %>% 
+  mutate(database = "APD") %>% 
+  filter(!grepl("Synthetic|synthetic", description))
+
+DRAMP <- read_faa("raw_data/dramp_nat_tidy.fasta") %>%
+  separate(seq_name, into = c("seq_name","description"), sep ="\\|") %>% 
+  filter(!grepl("Predicted", seq_name)) %>% 
+  mutate(database = "DRAMP")
+
+dbAMP <- readxl::read_xlsx("raw_data/dbAMPv1.4.xlsx") %>%
+  filter(!grepl('Synthetic|synthetic', dbAMP_Taxonomy)) %>%
+  select(seq_name = dbAMP_ID, description = Activity, seq_aa = Sequence) %>% 
+  mutate(database = "dbAMP")
+
+swissprot <- read_tsv("raw_data/uniprot-keyword__Antimicrobial+[KW-0929]_+OR+_antimicrobial+peptide%--.tab") %>%
+  select(seq_name = Entry, description =  `Protein names`, seq_aa = Sequence) %>% 
+  mutate(database = "SwissProt") 
+
+combined_dbs <- rbind(APD, dbAMP, DRAMP, swissprot) %>% 
+  select(seq_name, seq_aa, description, database)
+```
+
+```{r}
+mutate(unique_amps_long, seq_len = nchar(unique_amps_long$seq_aa))
+
+filter(Length <= 300)
+
+combined_dbs <- combined_dbs %>%
+  mutate(seq_len = nchar(combined_dbs$seq_aa))
+
+ggplot(combined_dbs) +
+  geom_histogram(aes(x = seq_len)) +
+  facet_wrap(~database, scales = "free_x") +
+  labs(x = "Sequence length", y = "Frequency")
+
+ggsave("figures/combined_dbs_seqlen_hist.png")
+```
+
+```{r}
+sp <- filter(combined_dbs, database == "SwissProt")
+
+ggplot(sp) +
+  geom_histogram(aes(x = seq_len)) +
+  labs(x = "Sequence length", y = "Frequency") +
+  scale_x_continuous(breaks = c(0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000),
+                                limits = c(0, 1000))
+
+
+ggsave("figures/sp_amps_seq_len_hist.png")
+
+```
+
+exploring sp proteins between 700 and 800 seq_len
+```{r}
+sp700800 <- sp %>%
+  filter(between(seq_len, 700, 800))
+
+sp600 <- sp %>%
+  filter(between(seq_len, 600, 700))
+
+sp8001000 <- sp %>%
+  filter(between(seq_len, 800, 1000))
+
+sp %>% filter(between(nchar(seq_aa), 20,700))
+```
+
+
+
+
+
+```{r}
+combined_filtered_dbs <- combined_filtered_dbs %>%
+  mutate(seq_len = nchar(combined_filtered_dbs$seq_aa))
+
+ggplot(combined_filtered_dbs) +
+  geom_histogram(aes(x = seq_len)) +
+  facet_wrap(~database, scales = "free_x")
+```
+
+
+### Compare positive and negative for model trained without using APD and DRAMP 
+
+```{r}
+tg_no_APD_DRAMP <- read_faa("cache/positive032020_98.fasta") %>%
+  add_column(Label = "Tg") 
+
+bg_no_APD_DRAMP  <- read_faa("cache/negative032020_98.fasta") %>%
+  add_column(Label = "Bg")
+
+bg_tg_no_APD_DRAMP <- rbind(tg_no_APD_DRAMP, bg_no_APD_DRAMP)
+
+bg_tg_no_APD_DRAMP <- mutate(bg_tg_no_APD_DRAMP, seq_len = nchar(bg_tg_no_APD_DRAMP$seq_aa))
+
+ggplot(bg_tg_no_APD_DRAMP) +
+  geom_histogram(aes(x = seq_len)) +
+  facet_wrap(~Label, scales = "free_x")
+```
+
+
+

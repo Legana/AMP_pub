@@ -1,40 +1,36 @@
----
-title: "alpha_plot"
-output: html_document
----
+Precision-recall curve
+================
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r}
+``` r
 library(tidyverse)
 library(patchwork)
-```
-
-```{r}
-ampir_prob_data <- readRDS("ampir_0.1.0_data/ampir_prob_data.rds")
-
 source("R/calc_cm_metrics.R")
 ```
 
-```{r}
+``` r
+ampir_prob_data <- readRDS("ampir_0.1.0_data/ampir_prob_data.rds")
+```
+
+``` r
 ampir_roc_data <- as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics, ampir_prob_data)))
 ```
 
-
 ## Theoretical AMP content
 
-A new variable, $\alpha$, was introduced to represent the percentage of AMPs in the test set to more easily create precision-recall curves for various AMP proportions. The calculation for the recall metric for $\alpha$ remains the same but the precision metric has been slightly modified (see below):
+A new variable, \(\alpha\), was introduced to represent the percentage
+of AMPs in the test set to more easily create precision-recall curves
+for various AMP proportions. The calculation for the recall metric for
+\(\alpha\) remains the same but the precision metric has been slightly
+modified (see below):
 
+\[Precision_{\alpha} = \frac{TP\alpha}{TP\alpha + FP(1-\alpha)}\]
 
+\[Recall_{\alpha} = \frac{TP}{TP + FN}\]
 
-$$Precision_{\alpha} = \frac{TP\alpha}{TP\alpha + FP(1-\alpha)}$$
+Function that uses the recall-precision metric calculations for any
+\(alpha\) value
 
-$$Recall_{\alpha} = \frac{TP}{TP + FN}$$
-
-Function that uses the recall-precision metric calculations for any $alpha$ value
-```{r}
+``` r
 calc_precision_recall <- function(df,alpha) {
   df %>% 
   mutate(Recall = Recall) %>% 
@@ -43,18 +39,21 @@ calc_precision_recall <- function(df,alpha) {
 }
 ```
 
-Use the function for a range of $alpha$ values and collapse to data frame
+Use the function for a range of \(alpha\) values and collapse to data
+frame
 
-```{r}
+``` r
 pr_data <- do.call(rbind,lapply(c(0.01,0.05,0.1,0.5),function(alpha) {
   calc_precision_recall(ampir_roc_data,alpha) %>% add_column(alpha=alpha)
 }))
 ```
 
+Plot an explicit axis for `p_threshold`. This is useful for choosing the
+threshold value. Also note that as \(\alpha\) gets smaller and smaller
+the Precision curve shifts so that high values of precision are only
+achieved for very high `p_threshold` values.
 
-Plot an explicit axis for `p_threshold`. This is useful for choosing the threshold value. Also note that as $\alpha$ gets smaller and smaller the Precision curve shifts so that high values of precision are only achieved for very high `p_threshold` values.
-
-```{r}
+``` r
 pr_data_long <- pr_data %>% gather("metric","value",-p_threshold,-alpha)
 
 
@@ -62,7 +61,9 @@ variable_names <- c("0.01" = "Proportion of AMPs in genome: 0.01",
                     "0.05" = "Proportion of AMPs in genome: 0.05",
                     "0.1" = "Proportion of AMPs in genome: 0.10",
                     "0.5" = "Proportion of AMPs in genome: 0.50")
+```
 
+``` r
 ggplot(pr_data_long,aes(x=p_threshold,y=value)) + 
   geom_line(aes(linetype=metric)) + facet_wrap(~alpha, labeller= as_labeller(variable_names)) +
   labs(x = "Probability threshold", y = "", linetype = "") +
@@ -80,17 +81,18 @@ ggplot(pr_data_long,aes(x=p_threshold,y=value)) +
   guides(linetype = guide_legend(reverse=TRUE))
 ```
 
-
-```{r}
+``` r
 ggsave("figures/alphas.png", width = 7, height=5)
 ```
 
-Extract 1% alpha value
-```{r}
+Extract 1% alpha
+value
+
+``` r
 pr_data_alpha1_long <- pr_data_long %>% filter(alpha == 0.01)
 ```
 
-```{r}
+``` r
 ggplot(filter(pr_data_alpha1_long, p_threshold >= 0.5), aes(x=p_threshold, y=value)) + 
   geom_line(aes(colour = metric)) + 
   labs(x = "Probability threshold", y = "", colour = "") +
@@ -102,12 +104,9 @@ ggplot(filter(pr_data_alpha1_long, p_threshold >= 0.5), aes(x=p_threshold, y=val
         legend.key=element_blank(),
         axis.line = element_line(colour = "grey")) +
   guides(colour = guide_legend(reverse = TRUE))
-
 ```
 
-
-
-```{r}
+``` r
 #for bioinformatics paper, black and white and figure must be .tif and high resolution (1200 dpi for line drawing 350 d.p.i. for colour and half-tone artwork) https://academic.oup.com/bioinformatics/pages/instructions_for_authors
 
 alpha1 <- ggplot(filter(pr_data_alpha1_long, p_threshold >= 0.5), aes(x=p_threshold, y=value)) + 
@@ -123,8 +122,9 @@ alpha1 <- ggplot(filter(pr_data_alpha1_long, p_threshold >= 0.5), aes(x=p_thresh
   ggtitle("B")
 ```
 
-# From benchmark_auroc.Rmd
-```{r}
+# From benchmark\_auroc.Rmd
+
+``` r
 benchmark_roc <- ggplot(models_roc) + 
   geom_line(aes(x = FPR, y = TPR, colour = model)) + 
   xlim(0,1) +
@@ -140,19 +140,15 @@ benchmark_roc <- ggplot(models_roc) +
         panel.background = element_blank(),
         axis.line = element_line(colour = "grey")) +
   ggtitle("A")
-
 ```
-
 
 Combine the plots for ampir paper
 
-```{r}
-
+``` r
 benchmark_roc | alpha1
 roc_and_alpha1 <- benchmark_roc | alpha1
-
-
-ggsave("figures/roc_and_alpha1.jpg", roc_and_alpha1, width = 7, height=4)
-
 ```
 
+``` r
+ggsave("figures/roc_and_alpha1.jpg", roc_and_alpha1, width = 7, height=4)
+```
