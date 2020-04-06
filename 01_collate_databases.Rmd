@@ -73,9 +73,9 @@ wget http://140.138.77.240/~dbamp/download/dbAMPv1.4.tar.gz -O raw_data/dbAMPv1.
 tar -xf raw_data/dbAMPv1.4.tar.gz -C raw_data
 ```
 
-### SwissProt
+### Uniprot
 
-AMPs were collected from UniProt using the following search terms: "keyword:"Antimicrobial [KW-0929]" OR "antimicrobial peptide" AND reviewed:yes" (3,546 sequences).
+AMPs were downloaded from UniProt on 2-April-2020 using the search term: "keyword:"Antimicrobial [KW-0929]"".  This included both reviewed and unreviewed proteins
 
 # Database used for the ampir default model
 
