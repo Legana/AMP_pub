@@ -1,21 +1,12 @@
----
-title: "AMP databases sequence length histograms"
-output: github_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
-```
-
-```{r, echo=FALSE}
-library(ampir)
-library(tidyverse)
-```
+AMP databases sequence length histograms
+================
 
 #### Compare sequence lengths of AMP databases
 
-Read AMP databases
-```{r}
+Read AMP
+databases
+
+``` r
 APD <- readxl::read_xlsx("raw_data/APD_032020.xlsx", col_names = c("seq_name", "description", "seq_aa")) %>% 
   mutate(database = "APD") %>% 
   filter(!grepl("Synthetic|synthetic", description))
@@ -36,7 +27,8 @@ swissprot <- read_tsv("raw_data/uniprot-keyword__Antimicrobial+[KW-0929]_+OR+_an
 ```
 
 Combine databases and calculate sequence length
-```{r}
+
+``` r
 combined_dbs <- rbind(APD, dbAMP, DRAMP, swissprot) %>% 
   select(seq_name, seq_aa, description, database)
 
@@ -44,20 +36,19 @@ combined_dbs <- mutate(combined_dbs, seq_len = nchar(combined_dbs$seq_aa))
 ```
 
 Plot sequence lengths of AMP databases
-```{r}
+
+``` r
 ggplot(combined_dbs) +
   geom_histogram(aes(x = seq_len)) +
   facet_wrap(~database, scales = "free_x") +
   labs(x = "Sequence length", y = "Frequency")
 ```
 
-
-```{r, echo=FALSE, eval=FALSE}
-ggsave("figures/combined_dbs_seqlen_hist.png")
-```
+![](histograms_AMPdbs_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 SwissProt only
-```{r}
+
+``` r
 sp <- filter(combined_dbs, database == "SwissProt")
 
 ggplot(sp) +
@@ -67,15 +58,13 @@ ggplot(sp) +
                                 limits = c(0, 1000))
 ```
 
+![](histograms_AMPdbs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-```{r, echo = FALSE, eval = FALSE}
-ggsave("figures/sp_amps_seq_len_hist.png")
-```
+#### Compare positive and negative data without using APD and DRAMP
 
-#### Compare positive and negative data without using APD and DRAMP 
+Read and combine data and calculate sequence length
 
-Read and combine data and calculate sequence length 
-```{r}
+``` r
 tg_no_APD_DRAMP <- read_faa("cache/positive032020_98.fasta") %>%
   add_column(Label = "Tg") 
 
@@ -87,13 +76,14 @@ bg_tg_no_APD_DRAMP <- rbind(tg_no_APD_DRAMP, bg_no_APD_DRAMP)
 bg_tg_no_APD_DRAMP <- mutate(bg_tg_no_APD_DRAMP, seq_len = nchar(bg_tg_no_APD_DRAMP$seq_aa))
 ```
 
-Plot the sequence length of the negative and positive background obtained from SwissProt and dbAMP 
-```{r}
+Plot the sequence length of the negative and positive background
+obtained from SwissProt and dbAMP
+
+``` r
 ggplot(bg_tg_no_APD_DRAMP) +
   geom_histogram(aes(x = seq_len)) +
   labs(x = "Sequence length", y = "Frequency") +
   facet_wrap(~Label, scales = "free_x") 
 ```
 
-
-
+![](histograms_AMPdbs_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
