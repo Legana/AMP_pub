@@ -25,17 +25,17 @@ for this repository. After unpacking they should be present at the
 following file
 locations
 
-| Database Name | File                                                                                  |
-| ------------- | ------------------------------------------------------------------------------------- |
-| APD 3         | `raw_data/APD_032020.xlsx`                                                            |
-| DRAMP Natural | `raw_data/dramp_nat_tidy.fasta`                                                       |
-| dbAMP         | `raw_data/dbAMPv1.4.xlsx`                                                             |
-| SwissProt     | `raw_data/uniprot-keyword__Antimicrobial+[KW-0929]_+OR+_antimicrobial+peptide%--.tab` |
+| Database Name | File                                                                    |
+| ------------- | ----------------------------------------------------------------------- |
+| APD 3         | `raw_data/amp_databases/APD_032020.xlsx`                                |
+| DRAMP Natural | `raw_data/amp_databases/dramp_nat_tidy.fasta`                           |
+| dbAMP         | `raw_data/amp_databases/dbAMPv1.4.xlsx`                                 |
+| Uniprot       | `raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx` |
 
 ### APD
 
 The [Antimicrobial Peptide Database](http://aps.unmc.edu/AP/main.php)
-was last updated March 16 2020 and contains 3,177 AMPs. An outdated
+was last updated March 16 2020 and contains 3177 AMPs. An outdated
 (2017) AMP sequence list is downloadable from
 <http://aps.unmc.edu/AP/downloads.php> which currently contains 2,338
 sequences. To include the updated AMP list, the [web query
@@ -52,110 +52,97 @@ according to the “news and events” section, the [natural
 dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php) has been
 updated several times since then. Because the natural dataset contains
 the AMPs we are interested in, and is also more regularly updated (it
-currently contains 4,394 sequences), the natural AMP data was obtained
-using a scrape script.
-
-``` bash
-for i in $(seq -s ' ' 1 220);do
-
-curl "http://dramp.cpu-bioinfor.org/browse/NaturalData.php?&end=5&begin=1&pageNow=${i}" -o p${i}.html
-amp_ids=$(cat p${i}.html | grep -oE '(DRAMP[0-9]+)' | sort -u | tr '\n' ' ' | sed 's/ /%20/g')
-curl "http://dramp.cpu-bioinfor.org/down_load/download.php?load_id=${amp_ids}&format=fasta" -o p${i}.fasta
-
-done
-```
-
-This scrape script results in a html file for each webpage plus a FASTA
-file containing the sequences in FASTA format for each page. The FASTA
-files were concatenated into a single FASTA file and tidied up to remove
-blank lines in the files.
-
-``` bash
-cat *.fasta >> dramp_nat.fasta
-sed '/^$/d' dramp_nat.fasta > dramp_nat_tidy.fasta
-```
+currently contains 4394 sequences), the natural AMP data was obtained
+using a [scrape script](scripts/scrape_dramp.sh).
 
 ### dbAMP
 
 The latest release of dbAMP is from 06/2019 and was downloaded from
 their [download page](http://140.138.77.240/~dbamp/download.php). It
-contains 4,270 experimentally verified natural and synthetic
-AMPs.
+contains 4213 experimentally verified natural AMPs. (Synthetic AMPs were
+removed).
 
-``` bash
-wget http://140.138.77.240/~dbamp/download/dbAMPv1.4.tar.gz -O raw_data/dbAMPv1.4.tar.gz
-tar -xf raw_data/dbAMPv1.4.tar.gz -C raw_data
-```
+### Uniprot
 
-### SwissProt
+AMPs were downloaded from UniProt on 2-April-2020 using the search term:
+“keyword:”Antimicrobial \[KW-0929\]". This included 3221 reviewed and
+19288 proteins.
 
-AMPs were collected from UniProt using the following search terms:
-“keyword:”Antimicrobial \[KW-0929\]" OR “antimicrobial peptide” AND
-reviewed:yes" (3,546 sequences).
+## Summary of AMP databases
+
+One of the most striking differences between AMP databases becomes clear
+simply by looking at the length distributions. The `APD` and `DRAMP`
+databases emphasise short peptides (mostly \< 50AA) which reflects their
+focus on mature peptides rather than full length precursor proteins.
+
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+The SwissProt database provides a `Peptide` field which allows us to
+distinguish between entries for mature peptides and precursors. If the
+Peptide length is the same as the total length it is a mature peptide.
+For entries where such information is available we see a very clear
+split with mature peptides having a typical length of 25AA whereas
+precursors are slightly longer at around 60-75AA. Note that the length
+distribution of mature peptides matches the APD length distribution very
+well but all other databases, including DRAMP include longer sequences
+and therefore are likely to include some fraction of precursors. Note
+that there are a total of 768 mature peptides, 806 precursors with
+peptide annotation information, and 1647 reviewed AMPs without Peptide
+information. The `NA` has a notably broader distribution of lengths
+reflecting the possibility that it includes a mix of both
+types.
+
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+Another indicator that a protein is an AMP precursor is the presence of
+a signal peptide. 706 of the 806 precursors identified above have well
+defined signal peptide sequences. The length distribution plot below
+shows that only precursors longer than about 60AA are likely to have a
+signal peptide. Manual inspection of precursors without signal peptides
+revealed that many are annotated with a pro-peptide indicating that even
+in this group there is some post-translational processing to produce a
+mature
+product.
+
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+SwissProt also includes a small number of larger proteins (\>800AA) that
+are listed under the keyword Antimicrobial but which are not strictly
+AMPs. These include some large viral proteins (eg
+[EXLYS\_BPDPK](https://www.uniprot.org/uniprot/Q8SCY1)) which show
+evidence of antibacterial activity but are clearly very different in
+physicochemical properties to the bulk of AMPs.
 
 ## Database used for the ampir default model
 
-The default SVM model included with ampir is trained on a high quality
-general database consisting of verified natural AMPs from across all of
-the public databases listed above. It is as inclusive as possible in
-order to capture a range of AMP types and ensure a large database for
-training and testing.
+Since our goal with ampir is to obtain the maximum possible utility for
+genome-wide scans we sought to build a positive AMP dataset consisting
+entirely of precursor proteins. In typical genome-scanning operations
+this is the only information available.
 
-**Read raw data**
+To achieve this we used the following criteria to design our database;
 
-Read raw public databases, convert to a common format and combine into a
-single table
+Firstly we start with the uniprot database and only include proteins if
+they are present in either the reviewed or unreviewed elements of this.
+Although this removes a small number of proteins from custom AMP
+databases it allows us to make use of extensive metadata included for
+all proteins in Uniprot. The following filters are then applied;
 
-``` r
-dbAMP <- readxl::read_xlsx("raw_data/dbAMPv1.4.xlsx") %>%
-  filter(!grepl('Synthetic|synthetic', dbAMP_Taxonomy)) %>%
-  select(seq_name = dbAMP_ID, description = Activity, seq_aa = Sequence) %>% 
-  mutate(database = "dbAMP")
+1.  Exclude all mature peptides
+2.  Exclude unreviewed proteins unless they also appear in APD, DRAMP or
+    dbAMP
+3.  Remove proteins with lengths \< 50AA since these might be mature
+    peptides included in APD, DRAMP or dbAMP
+4.  Remove very large proteins (\>500AA) since these are likely to have
+    very different physicochemical properties and are not amenable to
+    prediction by this method
 
-swissprot <- read_tsv("raw_data/uniprot-keyword__Antimicrobial+[KW-0929]_+OR+_antimicrobial+peptide%--.tab") %>%
-  select(seq_name = Entry, description =  `Protein names`, seq_aa = Sequence) %>% 
-  mutate(database = "SwissProt") 
+This leaves a final database with 2155 entries, of which 69 are
+unreviewed
 
-combined_dbs <- rbind(dbAMP, swissprot) %>% 
-  select(seq_name, seq_aa, description, database)
-```
+    ## Warning: Removed 6 rows containing missing values (geom_bar).
 
-Write the combined\_dbs to file
-
-``` r
-saveRDS(combined_dbs, "cache/combined_dbs.rds")
-```
-
-**Apply filters**
-
-  - Very large proteins (\> 700 amino acids) are excluded because in
-    some cases (e.g. SwissProt derived proteins) they are not true AMPs
-    and even in rare cases where large proteins are genuine AMPs their
-    physicochemical properties are likely to be wildly different from
-    the majority. Further excluded are:
-  - very small sequences (\< 20 amino acids)
-  - Identical sequences
-  - Sequences with non standard amino acids
-
-<!-- end list -->
-
-``` r
-combined_filtered_dbs <- combined_dbs %>%
-  distinct(seq_aa, .keep_all = TRUE) %>%
-  as.data.frame() %>% 
-  remove_nonstandard_aa() %>%
-  filter(between(nchar(seq_aa),20,700))
-```
-
-Write file to FASTA
-
-``` r
-df_to_faa(combined_filtered_dbs, "cache/positive032020.fasta")
-```
-
-Use cd-hit to remove highly similar sequences (which leaves 5,134 AMPs)
-(4,238 minus APD and
-DRAMP)
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` bash
 cd-hit -i cache/positive032020.fasta -o cache/positive032020_98.fasta -c 0.98 -g 1

@@ -4,10 +4,10 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 ```
 
-```{r, echo= FALSE, message=FALSE}
+```{r}
 library(ampir)
 library(tidyverse)
 source("R/remove_nonstandard_aa.R")
@@ -29,103 +29,208 @@ Raw downloads for these databases are included in the data distribution for this
 
 | Database Name | File |
 | ------------------------ | --------------- |
-| APD 3 | `raw_data/APD_032020.xlsx` |
-| DRAMP Natural | `raw_data/dramp_nat_tidy.fasta` |
-| dbAMP | `raw_data/dbAMPv1.4.xlsx` |
-| SwissProt | `raw_data/uniprot-keyword__Antimicrobial+[KW-0929]_+OR+_antimicrobial+peptide%--.tab` |
+| APD 3 | `raw_data/amp_databases/APD_032020.xlsx` |
+| DRAMP Natural | `raw_data/amp_databases/dramp_nat_tidy.fasta` |
+| dbAMP | `raw_data/amp_databases/dbAMPv1.4.xlsx` |
+| Uniprot | `raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx` |
 
 
 
 ### APD
 
-The [Antimicrobial Peptide Database](http://aps.unmc.edu/AP/main.php) was last updated March 16 2020 and contains 3,177 AMPs. An outdated (2017) AMP sequence list is downloadable from http://aps.unmc.edu/AP/downloads.php which currently contains 2,338 sequences. To include the updated AMP list, the [web query interface](http://aps.unmc.edu/AP/database/mysql.php) was used to obtain the full 3,177 AMPs along with sufficient metadata to filter unwanted entries. 
+```{r}
+apd <- readxl::read_excel("raw_data/amp_databases/APD_032020.xlsx", col_names = c("ID","description","seq")) %>% 
+  mutate(uniprot = str_match(description,"(^[A-Z][0-9][A-Z,0-9]*),")[,2]) %>% 
+  mutate(length = nchar(seq)) %>% 
+  add_column(database = "APD")
+```
 
+
+The [Antimicrobial Peptide Database](http://aps.unmc.edu/AP/main.php) was last updated March 16 2020 and contains `r nrow(apd)` AMPs. An outdated (2017) AMP sequence list is downloadable from http://aps.unmc.edu/AP/downloads.php which currently contains 2,338 sequences. To include the updated AMP list, the [web query interface](http://aps.unmc.edu/AP/database/mysql.php) was used to obtain the full 3,177 AMPs along with sufficient metadata to filter unwanted entries. 
 
 ### DRAMP
 
-[DRAMP's download page](http://dramp.cpu-bioinfor.org/downloads/), provides access to a general AMP dataset (which contains both natural and synthetic AMPs). This general dataset was posted on 06/08/2019 but according to the "news and events" section, the [natural dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php) has been updated several times since then. Because the natural dataset contains the AMPs we are interested in, and is also more regularly updated (it currently contains 4,394 sequences), the natural AMP data was obtained using a scrape script.
-
-```bash
-for i in $(seq -s ' ' 1 220);do
-
-curl "http://dramp.cpu-bioinfor.org/browse/NaturalData.php?&end=5&begin=1&pageNow=${i}" -o p${i}.html
-amp_ids=$(cat p${i}.html | grep -oE '(DRAMP[0-9]+)' | sort -u | tr '\n' ' ' | sed 's/ /%20/g')
-curl "http://dramp.cpu-bioinfor.org/down_load/download.php?load_id=${amp_ids}&format=fasta" -o p${i}.fasta
-
-done
+```{r}
+dramp <- read_faa("raw_data/amp_databases/dramp_nat_tidy.fasta") %>% 
+  separate(seq_name,into = c("ID","description"),sep = "\\|") %>% 
+  add_column(uniprot = NA) %>% 
+  mutate(length = nchar(seq_aa)) %>% 
+  rename(seq = seq_aa) %>% 
+  add_column(database = "DRAMP")
 ```
 
-This scrape script results in a html file for each webpage plus a FASTA file containing the sequences in FASTA format for each page.
-The FASTA files were concatenated into a single FASTA file and tidied up to remove blank lines in the files. 
 
-```bash
-cat *.fasta >> dramp_nat.fasta
-sed '/^$/d' dramp_nat.fasta > dramp_nat_tidy.fasta
-```
+[DRAMP's download page](http://dramp.cpu-bioinfor.org/downloads/), provides access to a general AMP dataset (which contains both natural and synthetic AMPs). This general dataset was posted on 06/08/2019 but according to the "news and events" section, the [natural dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php) has been updated several times since then. Because the natural dataset contains the AMPs we are interested in, and is also more regularly updated (it currently contains `r nrow(dramp)` sequences), the natural AMP data was obtained using a [scrape script](scripts/scrape_dramp.sh).
+
 
 ### dbAMP 
 
-The latest release of dbAMP is from 06/2019 and was downloaded from their [download page](http://140.138.77.240/~dbamp/download.php). It contains 4,270 experimentally verified natural and synthetic AMPs. 
+```{r}
+dbamp <- readxl::read_excel("raw_data/amp_databases/dbAMPv1.4.xlsx") %>% 
+  filter(!grepl('Synthetic|synthetic', dbAMP_Taxonomy)) %>%
+  select(ID = dbAMP_ID, description = Activity, seq = Sequence, uniprot = dbAMP_UniProt,length=Length) %>%
+  add_column(database = "dbAMP")
+```
 
-```bash
-wget http://140.138.77.240/~dbamp/download/dbAMPv1.4.tar.gz -O raw_data/dbAMPv1.4.tar.gz
-tar -xf raw_data/dbAMPv1.4.tar.gz -C raw_data
+
+The latest release of dbAMP is from 06/2019 and was downloaded from their [download page](http://140.138.77.240/~dbamp/download.php). It contains `r nrow(dbamp)` experimentally verified natural AMPs. (Synthetic AMPs were removed).
+
+```{bash, include=FALSE, eval = FALSE}
+wget http://140.138.77.240/~dbamp/download/dbAMPv1.4.tar.gz -O raw_data/amp_databases/dbAMPv1.4.tar.gz
+tar -xf raw_data/amp_databases/dbAMPv1.4.tar.gz -C raw_data/amp_databases
 ```
 
 ### Uniprot
 
-AMPs were downloaded from UniProt on 2-April-2020 using the search term: "keyword:"Antimicrobial [KW-0929]"".  This included both reviewed and unreviewed proteins
+```{r}
+uniprot <- readxl::read_excel("raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx")
+
+swissprot <- uniprot %>% 
+  filter(Status == "reviewed") %>% 
+  rename(uniprot = Entry) %>% 
+  select(ID = `Entry name`,description = `Protein names`, seq = Sequence,uniprot, length = Length) %>% 
+  add_column(database = "SwissProt")
+```
+
+
+AMPs were downloaded from UniProt on 2-April-2020 using the search term: "keyword:"Antimicrobial [KW-0929]".  This included `r uniprot %>% filter(Status=="reviewed") %>% nrow()` reviewed and `r uniprot %>% filter(Status=="unreviewed") %>% nrow()` proteins.
+
+```{r}
+combined <- rbind(apd,dramp,dbamp,swissprot)
+```
+
+## Summary of AMP databases
+
+One of the most striking differences between AMP databases becomes clear simply by looking at the length distributions. The `APD` and `DRAMP` databases emphasise short peptides (mostly < 50AA) which reflects their focus on mature peptides rather than full length precursor proteins.
+
+```{r}
+ggplot(combined,aes(x=length)) + geom_histogram() +
+  facet_wrap(~database, scales = "free")
+```
+
+
+
+```{r}
+uniprot_peptides <- uniprot %>% 
+  mutate(pep_start = as.integer(str_match(Peptide, "PEPTIDE.*?([0-9]+)")[,2])) %>% 
+  mutate(pep_end = as.integer(str_match(Peptide, "PEPTIDE.*?([0-9]+)..([0-9]+)")[,3])) %>% 
+  mutate(pep_length = pep_end - pep_start + 1) %>% 
+  mutate(is_mature_peptide = abs(pep_length - Length)<3) 
+```
+
+The SwissProt database provides a `Peptide` field which allows us to distinguish between entries for mature peptides and precursors.  If the Peptide length is the same as the total length it is a mature peptide. For entries where such information is available we see a very clear split with mature peptides having a typical length of 25AA whereas precursors are slightly longer at around 60-75AA. Note that the length distribution of mature peptides matches the APD length distribution very well but all other databases, including DRAMP include longer sequences and therefore are likely to include some fraction of precursors. Note that there are a total of `r uniprot_peptides %>% filter(is_mature_peptide) %>% nrow()` mature peptides, `r uniprot_peptides %>% filter(!is_mature_peptide) %>% nrow()` precursors with peptide annotation information, and `r uniprot_peptides %>% filter(is.na(is_mature_peptide)) %>% filter(Status=="reviewed") %>% nrow()` reviewed AMPs without Peptide information.  The `NA` has a notably broader distribution of lengths reflecting the possibility that it includes a mix of both types.  
+
+```{r, warning=FALSE, message=FALSE}
+ggplot(uniprot_peptides %>% filter(Status=="reviewed") ,aes(x=Length)) + geom_density(aes(color=is_mature_peptide)) + xlim(0,300)
+```
+
+
+```{r}
+swissprot_mature <- uniprot_peptides %>% filter(Status=="reviewed") %>% filter(is_mature_peptide) %>% mutate(signal = !is.na(`Signal peptide`))
+swissprot_precursor <- uniprot_peptides %>% filter(Status=="reviewed") %>% filter(!is_mature_peptide) %>% mutate(signal = !is.na(`Signal peptide`))
+swissprot_unknown <- uniprot_peptides %>% filter(Status=="reviewed") %>% filter(is.na(is_mature_peptide)) %>% mutate(signal = !is.na(`Signal peptide`))
+
+
+```
+
+Another indicator that a protein is an AMP precursor is the presence of a signal peptide. `r swissprot_precursor %>% filter(signal) %>% nrow` of the `r swissprot_precursor %>% nrow` precursors identified above have well defined signal peptide sequences. The length distribution plot below shows that only precursors longer than about 60AA are likely to have a signal peptide.  Manual inspection of precursors without signal peptides revealed that many are annotated with a pro-peptide indicating that even in this group there is some post-translational processing to produce a mature product. 
+
+
+```{r, warning=FALSE, message=FALSE}
+uniprot_peptides %>% 
+  filter(Status=="reviewed") %>% 
+  mutate(signal = !is.na(`Signal peptide`)) %>% 
+  mutate(maturity = ifelse(is.na(is_mature_peptide),"Unknown",is_mature_peptide)) %>% 
+  mutate(maturity = ifelse(maturity==FALSE,"Precursor",maturity)) %>% 
+  mutate(maturity = ifelse(maturity==TRUE,"Mature",maturity)) %>% 
+  ggplot(aes(x=Length)) + 
+  geom_density(aes(color=signal)) + 
+  facet_wrap(~maturity, scales = "free", ncol = 1) + xlim(0,500)
+```
+
+
+SwissProt also includes a small number of larger proteins (>500AA) that are listed under the keyword Antimicrobial but are very different from classical AMPs.  These include some large viral proteins (eg [EXLYS_BPDPK](https://www.uniprot.org/uniprot/Q8SCY1)) which show evidence of antibacterial activity but their mode of action and vast difference in size makes them outliers from the point of view of building a machine learning model.
+
 
 ## Database used for the ampir default model
 
-The default SVM model included with ampir is trained on a high quality general database consisting of verified natural AMPs from across all of the public databases listed above. It is as inclusive as possible in order to capture a range of AMP types and ensure a large database for training and testing.
+Since our goal with ampir is to obtain the maximum possible utility for genome-wide scans we sought to build a positive AMP dataset consisting entirely of precursor proteins.  In typical genome-scanning operations this is the only information available.  
 
-**Read raw data**
+To achieve this we used the following criteria to design our database;
 
-Read raw public databases, convert to a common format and combine into a single table
+Firstly we start with the uniprot database and only include proteins if they are present in either the reviewed or unreviewed elements of this.  Although this removes a small number of proteins from custom AMP databases it allows us to make use of extensive metadata included for all proteins in Uniprot. The following filters are then applied;
 
-```{r}
-dbAMP <- readxl::read_xlsx("raw_data/dbAMPv1.4.xlsx") %>%
-  filter(!grepl('Synthetic|synthetic', dbAMP_Taxonomy)) %>%
-  select(seq_name = dbAMP_ID, description = Activity, seq_aa = Sequence) %>% 
-  mutate(database = "dbAMP")
-
-swissprot <- read_tsv("raw_data/uniprot-keyword__Antimicrobial+[KW-0929]_+OR+_antimicrobial+peptide%--.tab") %>%
-  select(seq_name = Entry, description =  `Protein names`, seq_aa = Sequence) %>% 
-  mutate(database = "SwissProt") 
-
-combined_dbs <- rbind(dbAMP, swissprot) %>% 
-  select(seq_name, seq_aa, description, database)
-```
-Write the combined_dbs to file
-```{r}
-saveRDS(combined_dbs, "cache/combined_dbs.rds")
-```
-
-**Apply filters**
-
-  - Very large proteins (> 700 amino acids) are excluded because in some cases (e.g. SwissProt derived proteins) they are not true AMPs and even in rare cases where large proteins are genuine AMPs their physicochemical properties are likely to be wildly different from the majority. Further excluded are:
-  - very small sequences (< 20 amino acids) 
-  - Identical sequences 
-  - Sequences with non standard amino acids 
+1. Exclude all mature peptides
+2. Exclude unreviewed proteins unless they also appear in APD, DRAMP or dbAMP
+3. Remove proteins with lengths < 50AA since these might be mature peptides included in APD, DRAMP or dbAMP
+4. Remove very large proteins (>500AA) since these are likely to have very different physicochemical properties and are not amenable to prediction by this method
+5. Remove identical sequences
+6. Remove sequences with nonstandard amino acids
 
 ```{r}
-combined_filtered_dbs <- combined_dbs %>%
-  distinct(seq_aa, .keep_all = TRUE) %>%
-  as.data.frame() %>% 
-  remove_nonstandard_aa() %>%
-  filter(between(nchar(seq_aa),20,700))
+uniprot_overlap <- uniprot_peptides %>% 
+  mutate(signal = !is.na(`Signal peptide`)) %>% 
+  mutate(maturity = ifelse(is.na(is_mature_peptide),"Unknown",is_mature_peptide)) %>% 
+  mutate(maturity = ifelse(maturity==FALSE,"Precursor",maturity)) %>% 
+  mutate(maturity = ifelse(maturity==TRUE,"Mature",maturity))  %>% 
+  mutate(in_apd = (Entry %in% apd$uniprot) | (Sequence %in% apd$seq)) %>% 
+  mutate(in_dramp = (Entry %in% dramp$uniprot) | (Sequence %in% dramp$seq)) %>% 
+  mutate(in_dbAMP = (Entry %in% dbamp$uniprot) | (Sequence %in% dbamp$seq)) %>% 
+  mutate(in_amp_database = in_apd | in_dramp | in_dbAMP)
+
+ampir_db <- uniprot_overlap %>% 
+  filter(!is_mature_peptide | is.na(is_mature_peptide)) %>%   # Filtering criterion 1
+  filter(Status == "reviewed" | in_amp_database) %>%          # Filtering criterion 2
+  filter(Length < 500) %>% filter(Length > 50)  %>%           # Filtering criteria 3 & 4
+  distinct(Sequence, .keep_all = TRUE)   %>%                  # Filtering criterion 5
+  filter(grepl(Sequence,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) # Filtering criterion 6
 ```
 
-Write file to FASTA
+This leaves an initial database with `r ampir_db %>% nrow` entries, of which `r ampir_db %>% filter(Status=="unreviewed") %>% nrow` are unreviewed.  
+
+As a final step we write the database to a FASTA file and then use `cd-hit` to cluster sequences to 50% identity, keeping only a single representative sequence for each cluster.  This reduces the database size dramatically but roughly maintains the same length distribution.
 
 ```{r}
-df_to_faa(combined_filtered_dbs, "cache/positive032020.fasta")
-```
+# Main DB
+df_to_faa(ampir_db %>% select(Entry, Sequence) %>% as.data.frame(), "cache/positive070420.fasta")
 
-Use cd-hit to remove highly similar sequences (which leaves 5,134 AMPs)
-(4,238 minus APD and DRAMP)
+# DB for testing
+df_to_faa(ampir_db %>% 
+            filter(!(Organism %in% c("Arabidopsis thaliana (Mouse-ear cress)","Homo sapiens (Human)"))) %>% 
+            select(Entry, Sequence) %>%  
+            as.data.frame(), "cache/positive070420_test.fasta")
+```
 
 ```bash
-cd-hit -i cache/positive032020.fasta -o cache/positive032020_98.fasta -c 0.98 -g 1
+cd-hit -i cache/positive070420.fasta -o cache/positive070420_50.fasta -c 0.50 -g 1 -n 2
+cd-hit -i cache/positive070420_test.fasta -o cache/positive070420_test_50.fasta -c 0.50 -g 1 -n 2
 ```
+
+```{r}
+ampir_50 <- read_faa("cache/positive070420_50.fasta")
+
+ampir_db_50 <- ampir_db %>% mutate(in_50 = (Entry %in% ampir_50$seq_name))
+
+ggplot(ampir_db_50,aes(x=Length)) + geom_histogram() + facet_wrap(~in_50,ncol = 1)
+```
+
+Certain organisms are particularly well annotated for AMPs.  We find that our final database contains a large number of Arabidopsis sequences, human, mouse, chicken and rat sequences. 
+
+```{r}
+ampir_db_50 %>% group_by(Organism) %>% 
+  summarise(nentries = n(), n50_entries = sum(in_50)) %>% arrange(desc(n50_entries)) %>% head()
+```
+
+Later, we will use the human and arabidopsis genomes as independent test cases.  We therefore produce a separate version of the training database where these sequences are excluded. 
+
+### Database files
+
+- Full database (prior to cd-hit clustering) along with Swissprot metadata is available at `raw_data/amp_databases/ampir_db.tsv`
+- A FASTA formatted file with 50% clustered sequences `cache/positive070420_50.fasta`
+- A FASTA formatted file with 50% clustered sequences excluding test species, Human and Arabidopsis `cache/positive070420_test_50.fasta`
+
+```{r}
+write_tsv(ampir_db,"raw_data/amp_databases/ampir_db.tsv")
+```
+
+
