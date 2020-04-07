@@ -22,6 +22,10 @@ echo ampir_0.1.0_data/features98TrainNov19.rds >> data_list
 echo ampir_0.1.0_data/features98TestNov19.rds >> data_list
 echo ampir_0.1.0_data/1000_test_sqns98_new.fasta >> data_list
 
+# RFE and tuned model results
+echo cache/rfe.rds >> data_list
+echo cache/tuned.rds >> data_list
+
 # benchmark data
 
 echo raw_data/amp_scannerresultsNov19.csv >> data_list
@@ -29,6 +33,8 @@ echo raw_data/iamppredresults.csv >> data_list
 echo raw_data/iamp2LMarch2020.txt >> data_list
 echo raw_data/ampepresultsNov19.csv >> data_list
 echo ampir_0.1.0_data/ampir_prob_data.rds >> data_list
+echo cache/models_roc.rds >> data_list 
+
 
 tar -zcvf data.tgz -T data_list
 
