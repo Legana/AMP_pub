@@ -177,6 +177,10 @@ Combine the performance metrics for each model
 models_roc <- rbind(amp_scanner_roc, ampir_roc_1000, amppred_1000_roc, ampep_1000_roc)
 ```
 
+```{r, eval=FALSE, echo=FALSE}
+saveRDS(models_roc, "cache/models_roc.rds")
+```
+
 Calculate the area under the receiver operating characteristics curve (AUROC) for each model
 ```{r, eval = FALSE}
 roc(featuresTest98_1000$Label, ampir_1000$Tg) #0.9622 ampir
@@ -190,7 +194,7 @@ roc(featuresTest98_1000$Label, amppred_1000$Tg)  #0.5856 iammpred
 
 
 Plot the ROC for each model and display the AUROC 
-```{r, eval = FALSE}
+```{r}
 ggplot(models_roc) + 
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
   xlim(0,1) +
@@ -205,7 +209,7 @@ ggplot(models_roc) +
         axis.line = element_line(colour = "grey"))
 ```
 
-Save figure
-```{r, eval = FALSE}
+
+```{r, eval = FALSE, echo = FALSE}
 ggsave("figures/model_roc.png", height = 100, width = 140, units = "mm")
 ```

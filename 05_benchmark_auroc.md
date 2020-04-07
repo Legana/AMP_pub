@@ -147,31 +147,31 @@ confusionMatrix(test_pred_1000, featuresTest98_1000$Label, mode = "everything")
     ## 
     ##           Reference
     ## Prediction  Bg  Tg
-    ##         Bg 465  50
-    ##         Tg  35 450
-    ##                                          
-    ##                Accuracy : 0.915          
-    ##                  95% CI : (0.896, 0.9315)
-    ##     No Information Rate : 0.5            
-    ##     P-Value [Acc > NIR] : <2e-16         
-    ##                                          
-    ##                   Kappa : 0.83           
-    ##                                          
-    ##  Mcnemar's Test P-Value : 0.1289         
-    ##                                          
-    ##             Sensitivity : 0.9300         
-    ##             Specificity : 0.9000         
-    ##          Pos Pred Value : 0.9029         
-    ##          Neg Pred Value : 0.9278         
-    ##               Precision : 0.9029         
-    ##                  Recall : 0.9300         
-    ##                      F1 : 0.9163         
-    ##              Prevalence : 0.5000         
-    ##          Detection Rate : 0.4650         
-    ##    Detection Prevalence : 0.5150         
-    ##       Balanced Accuracy : 0.9150         
-    ##                                          
-    ##        'Positive' Class : Bg             
+    ##         Bg 468  50
+    ##         Tg  32 450
+    ##                                           
+    ##                Accuracy : 0.918           
+    ##                  95% CI : (0.8992, 0.9343)
+    ##     No Information Rate : 0.5             
+    ##     P-Value [Acc > NIR] : < 2e-16         
+    ##                                           
+    ##                   Kappa : 0.836           
+    ##                                           
+    ##  Mcnemar's Test P-Value : 0.06047         
+    ##                                           
+    ##             Sensitivity : 0.9360          
+    ##             Specificity : 0.9000          
+    ##          Pos Pred Value : 0.9035          
+    ##          Neg Pred Value : 0.9336          
+    ##               Precision : 0.9035          
+    ##                  Recall : 0.9360          
+    ##                      F1 : 0.9194          
+    ##              Prevalence : 0.5000          
+    ##          Detection Rate : 0.4680          
+    ##    Detection Prevalence : 0.5180          
+    ##       Balanced Accuracy : 0.9180          
+    ##                                           
+    ##        'Positive' Class : Bg              
     ## 
 
 ``` r
@@ -274,8 +274,4 @@ ggplot(models_roc) +
         axis.line = element_line(colour = "grey"))
 ```
 
-Save figure
-
-``` r
-ggsave("figures/model_roc.png", height = 100, width = 140, units = "mm")
-```
+![](05_benchmark_auroc_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
