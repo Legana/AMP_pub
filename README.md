@@ -17,7 +17,7 @@ This repository contains code used for the
   - [Benchmarks `ampir` to other predictors](05_benchmark_auroc.md) :
     Rmd file [05\_benchmark\_auroc.Rmd](05_benchmark_auroc.Rmd)
   - [Creates precision-recall curve](06_alpha_prcurve.md) : Rmd file
-    [04\_alpha\_prcurve.Rmd](06_alpha_prcurve.Rmd)
+    [06\_alpha\_prcurve.Rmd](06_alpha_prcurve.Rmd)
 
 The files required to run the code in these Rmd files can be obtained
 [here](https://cloudstor.aarnet.edu.au/plus/s/e2MsuyZPwZOOuBe/download?path=%2F&files=data.tgz)
