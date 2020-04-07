@@ -1,21 +1,20 @@
 Precision-recall curve
 ================
 
-``` r
-library(tidyverse)
-library(patchwork)
-source("R/calc_cm_metrics.R")
-```
+Read in predicted probabilities data
 
 ``` r
 ampir_prob_data <- readRDS("ampir_0.1.0_data/ampir_prob_data.rds")
 ```
 
+Calculate performance metrics over a range of
+probabilities
+
 ``` r
 ampir_roc_data <- as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics, ampir_prob_data)))
 ```
 
-## Theoretical AMP content
+### Theoretical AMP content
 
 A new variable, \(\alpha\), was introduced to represent the percentage
 of AMPs in the test set to more easily create precision-recall curves
@@ -47,6 +46,30 @@ pr_data <- do.call(rbind,lapply(c(0.01,0.05,0.1,0.5),function(alpha) {
   calc_precision_recall(ampir_roc_data,alpha) %>% add_column(alpha=alpha)
 }))
 ```
+
+Plot using a traditional precision vs recall curve. This is useful in
+the sense that it very clearly shows the tradeoff between the two. A
+useful way to think of Precision is that it defines the “Purity” of our
+predicted set of AMPs whereas the Sensitivity or Recall defines the
+“Completeness” of the predicted AMP set. We want to choose the
+p\_threshold so that there is a balance or Purity and Completeness. When
+`alpha` is high this is easy to do, but when it is low it becomes a very
+difficult tradeoff.
+
+``` r
+ggplot(pr_data, aes(x=Recall, y=Precision)) +
+  geom_line(aes(group=as.factor(alpha), colour = as.factor(alpha))) + 
+  scale_color_viridis(discrete = TRUE) +
+  theme(legend.key = element_rect(fill = "white"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "grey")) +
+  labs(colour = "alpha") +
+   guides(color = guide_legend(reverse=TRUE))
+```
+
+![](06_alpha_prcurve_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 Plot an explicit axis for `p_threshold`. This is useful for choosing the
 threshold value. Also note that as \(\alpha\) gets smaller and smaller
@@ -81,9 +104,7 @@ ggplot(pr_data_long,aes(x=p_threshold,y=value)) +
   guides(linetype = guide_legend(reverse=TRUE))
 ```
 
-``` r
-ggsave("figures/alphas.png", width = 7, height=5)
-```
+![](06_alpha_prcurve_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 Extract 1% alpha
 value
@@ -93,22 +114,6 @@ pr_data_alpha1_long <- pr_data_long %>% filter(alpha == 0.01)
 ```
 
 ``` r
-ggplot(filter(pr_data_alpha1_long, p_threshold >= 0.5), aes(x=p_threshold, y=value)) + 
-  geom_line(aes(colour = metric)) + 
-  labs(x = "Probability threshold", y = "", colour = "") +
-  scale_colour_manual(values = c("blueviolet", "forestgreen")) +
-  scale_x_continuous(breaks=c(0.50, 0.60, 0.70, 0.80, 0.90, 1.00)) +
-  scale_y_continuous(breaks=c(0.10, 0.50, 1.00)) +
-  theme(legend.position = c(0.2, 0.5),
-        panel.background = element_blank(),
-        legend.key=element_blank(),
-        axis.line = element_line(colour = "grey")) +
-  guides(colour = guide_legend(reverse = TRUE))
-```
-
-``` r
-#for bioinformatics paper, black and white and figure must be .tif and high resolution (1200 dpi for line drawing 350 d.p.i. for colour and half-tone artwork) https://academic.oup.com/bioinformatics/pages/instructions_for_authors
-
 alpha1 <- ggplot(filter(pr_data_alpha1_long, p_threshold >= 0.5), aes(x=p_threshold, y=value)) + 
   geom_line(aes(colour = metric)) + 
   labs(x = "Probability threshold", y = "", colour = "") +
@@ -122,15 +127,22 @@ alpha1 <- ggplot(filter(pr_data_alpha1_long, p_threshold >= 0.5), aes(x=p_thresh
   ggtitle("B")
 ```
 
-# From benchmark\_auroc.Rmd
+### From `benchmark_auroc.Rmd`
+
+Read performance metrics for different models over a range of range of
+probability thresholds
+
+``` r
+models_roc <- readRDS("cache/models_roc.rds")
+```
 
 ``` r
 benchmark_roc <- ggplot(models_roc) + 
-  geom_line(aes(x = FPR, y = TPR, colour = model)) + 
+  geom_line(aes(x = FPR, y = Recall, colour = model)) + 
   xlim(0,1) +
   labs(x = "False positive rate", y = "True positive rate", colour = "Model and AUC") +
-  scale_colour_manual(breaks= c("ampir", "amp_scanner", "ampep", "iamppred"),
-                      labels=c("ampir - 96%", "amp scanner - 86%", "ampep - 67%", "iamppred - 58%"),
+  scale_colour_manual(breaks= c("ampir", "amp_scanner", "amPEP", "iAMPpred"),
+                      labels=c("ampir - 96%", "amp scanner - 86%", "amPEP - 67%", "iAMPpred - 58%"),
                       values = c("blueviolet", "goldenrod2", "blue4", "cyan")) +
   theme(legend.position = c(0.76, 0.25),
         legend.key=element_blank(),
@@ -142,13 +154,14 @@ benchmark_roc <- ggplot(models_roc) +
   ggtitle("A")
 ```
 
-Combine the plots for ampir paper
+Combine the AUROC benchmark and the 1% alpha plots
 
 ``` r
 benchmark_roc | alpha1
-roc_and_alpha1 <- benchmark_roc | alpha1
 ```
 
+![](06_alpha_prcurve_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
 ``` r
-ggsave("figures/roc_and_alpha1.jpg", roc_and_alpha1, width = 7, height=4)
+roc_and_alpha1 <- benchmark_roc | alpha1
 ```
