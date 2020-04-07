@@ -58,10 +58,6 @@ ggplot(sp) +
                                 limits = c(0, 1000))
 ```
 
-    ## Warning: Removed 21 rows containing non-finite values (stat_bin).
-
-    ## Warning: Removed 2 rows containing missing values (geom_bar).
-
 ![](histograms_AMPdbs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 #### Compare positive and negative data without using APD and DRAMP
