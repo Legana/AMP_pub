@@ -1,58 +1,61 @@
 Model tuning
 ================
 
-## Data preparation
+## Model Tuning
 
-The training and test set were created in `02_train_test_set.Rmd` and
-used for training the model that was trained and tuned with
-`tune_model.R` and `tune_model.sh`.
-
-``` r
-featuresTest032020_98 <- readRDS("cache/featuresTest032020_98.rds")
-featuresTest032020_98 <- readRDS("cache/featuresTest032020_98.rds")
-```
-
-## Running the tuning script
+The default model included with ampir is an svm and has two tuning
+parameters, sigma and C (cost). Optimal values for these tuning
+parameters were obtained by using model tuning functions available in
+`caret`. Since this is computationally intensive it was performed on an
+HPC system. The R script `scripts/tune_model.R` provides a convenient
+wrapper for the required functions and allows it to be run easily on an
+HPC system.
 
 This needs to be run on an HPC system with R installed and with packages
 `caret`, `ampir`, `doParallel`, and `R.utils` installed
 
 ``` bash
 module load R/3.6.1
-Rscript tune_model.R outfile=tuned.rds target=cache/positive032020_98.fasta background=cache/negative032020_98.fasta ncores=16
+Rscript tune_model.R outfile=../cache/tuned_1.rds train=../cache/featuresTrain_1.rds test=../cache/featuresTest_1.rds ncores=24
 ```
 
-Or to run on the PBSPro batch system. Edit the tune\_model.sh script and
-then submit using
-
-``` bash
-qsub tune_model.sh
-```
-
-## Read in tuned model
+Inspecting the results reveals the variation of model performance with
+the tuning parameters.
 
 ``` r
-tuned_model <- readRDS("cache/tuned.rds")
+tuning_data <- readRDS("cache/tuned_1.rds")
+
+trellis.par.set(caretTheme())
+plot(tuning_data)  
 ```
 
-The final values used for the model were sigma = 0.1 and C = 8.
-
-*Retrain `ampir` model with these values to decrease model file size*
-
-## Test model
-
-Use model to classify proteins in the test set and calculation confusion
-matrix
+![](04_tune_model_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
-test_pred <- predict(tuned_model, featuresTest032020_98)
-confusionMatrix(test_pred, featuresTest032020_98$Label, positive = "Tg", mode = "everything")
+tuning_data$bestTune
 ```
 
-Use the probability scores from the model prediction and calculate the
-AUROC
+    ##   sigma C
+    ## 4  0.01 3
+
+To keep the final model size small for `ampir` distribution the training
+is performed with optimal parameters one more time. This results in a
+train object with all information required by ampir but without the
+suboptimal models.
 
 ``` r
-test_pred_prob <- predict(tuned_model, featuresTest032020_98, type = "prob")
-roc(featuresTest032020_98$Label, test_pred_prob$Tg)
+predictors = colnames(tuning_data$trainingData)[-1]
+
+featuresTrain <- readRDS("cache/featuresTrain_1.rds")
+
+predictor_indices <- which(colnames(featuresTrain) %in%  predictors)
+
+tuned_compact_model <- train(Label~.,
+      data = featuresTrain[,c(predictor_indices,46)],
+      method="svmRadial",
+      trControl = trainControl(method = "repeatedcv", number = 10, repeats = 5, classProbs = TRUE),
+      preProcess = c("center", "scale"),
+      tuneGrid = tuning_data$bestTune)
+
+saveRDS(tuned_compact_model,"cache/ampir_default_model.rds")
 ```
