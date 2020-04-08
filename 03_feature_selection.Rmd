@@ -4,11 +4,12 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, eval = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, eval = TRUE)
 ```
 
 ```{r, echo=FALSE}
 library(caret)
+library(tidyverse)
 set.seed(10)
 ```
 
@@ -31,7 +32,7 @@ ggplot(features_bg_tg_1_long,aes(x=Value)) +
 Although a small number these predictors are correlated there are none with near-perfect correlation (max cor ~ 0.8).  We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
 
 ```{r}
-featuresCM <- cor(features_bg_tg[,-c(1,46)])
+featuresCM <- cor(features_tg_bg_1[,-c(1,46)])
 summary(featuresCM[upper.tri(featuresCM)])
 ```
 
@@ -47,5 +48,10 @@ plot(svmProfile, type = c("g", "o"))
 
 ```{r}
 predictors(svmProfile)
+write_rds(predictors(svmProfile),"cache/predictors_1.rds")
+```
+
+```{r}
+model <- read_rds("cache/tuned.rds")
 ```
 
