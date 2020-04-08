@@ -33,7 +33,7 @@ featuresTest <- readRDS(args$test)
 
 
 #resample method using repeated cross validation and adding in a probability calculation
-trctrl_prob <- trainControl(method = "repeatedcv", number = 10, repeats = 3, classProbs = TRUE)
+trctrl_prob <- trainControl(method = "repeatedcv", number = 10, repeats = 5, classProbs = TRUE)
 
 # Tune the Model
 # We determine optimal values for sigma and C by training and testing models over a grid of values
@@ -46,8 +46,12 @@ registerDoParallel(cl)
 
 grid_for_final_svmradial <- expand.grid(sigma=c(0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.10), C=c(0.5,1,2,3,4,5,6,7,8,9,10))
 
+rfe_predictors <- readRDS("../cache/predictors_1.rds")
+
+predictor_indices <- which(colnames(featuresTrain) %in%  rfe_predictors)
+
 svm_Radial_final <- train(Label~.,
-                            data = featuresTrain[,-c(1,27:45)], #without names and lamda values
+                            data = featuresTrain[,c(predictor_indices,46)],
                             method="svmRadial",
                             trControl = trctrl_prob,
                             preProcess = c("center", "scale"),

@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -j oe
 #PBS -N tune_ampir
-#PBS -l walltime=160:00:00
-#PBS -l select=1:ncpus=24:mem=160gb
+#PBS -l walltime=23:00:00
+#PBS -l select=1:ncpus=24:mem=60gb
 
 cd $PBS_O_WORKDIR
 shopt -s expand_aliases
@@ -11,4 +11,4 @@ echo "Job identifier is $PBS_JOBID"
 echo "Working directory is $PBS_O_WORKDIR"
 
 module load R/3.6.1
-Rscript tune_model.R outfile=tuned.rds train=cache/featuresTrain032020_98.rds test=cache/featuresTest032020_98.rds ncores=24
+Rscript tune_model.R outfile=../cache/tuned_1.rds train=../cache/featuresTrain_1.rds test=../cache/featuresTest_1.rds ncores=24

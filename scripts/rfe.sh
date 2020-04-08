@@ -11,4 +11,4 @@ echo "Job identifier is $PBS_JOBID"
 echo "Working directory is $PBS_O_WORKDIR"
 
 module load R/3.6.1
-Rscript rfe.R input=cache/features032020_98.rds outfile=rfe.rds ncores=16
+Rscript rfe.R input=../cache/features_1.rds outfile=../cache/rfe_1.rds ncores=24

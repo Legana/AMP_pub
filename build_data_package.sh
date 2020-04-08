@@ -12,6 +12,7 @@ echo cache/positive032020.fasta >> data_list
 # cd-hit results
 echo cache/positive032020_98.fasta >> data_list
 echo raw_data/swissprot_all_MAY98.fasta >> data_list
+echo raw_data/uniprot-filtered-reviewed_yes_50.fasta >> data_list
 
 # ampir v0.1.0 model related data
 
