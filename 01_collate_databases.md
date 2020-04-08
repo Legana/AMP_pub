@@ -106,12 +106,13 @@ product.
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
-SwissProt also includes a small number of larger proteins (\>800AA) that
-are listed under the keyword Antimicrobial but which are not strictly
-AMPs. These include some large viral proteins (eg
+SwissProt also includes a small number of larger proteins (\>500AA) that
+are listed under the keyword Antimicrobial but are very different from
+classical AMPs. These include some large viral proteins (eg
 [EXLYS\_BPDPK](https://www.uniprot.org/uniprot/Q8SCY1)) which show
-evidence of antibacterial activity but are clearly very different in
-physicochemical properties to the bulk of AMPs.
+evidence of antibacterial activity but their mode of action and vast
+difference in size makes them outliers from the point of view of
+building a machine learning model.
 
 ## Database used for the ampir default model
 
@@ -136,14 +137,48 @@ all proteins in Uniprot. The following filters are then applied;
 4.  Remove very large proteins (\>500AA) since these are likely to have
     very different physicochemical properties and are not amenable to
     prediction by this method
+5.  Remove identical sequences
+6.  Remove sequences with nonstandard amino acids
 
-This leaves a final database with 2155 entries, of which 69 are
-unreviewed
+This leaves an initial database with 2061 entries, of which 61 are
+unreviewed.
 
-    ## Warning: Removed 6 rows containing missing values (geom_bar).
-
-![](01_collate_databases_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+As a final step we write the database to a FASTA file and then use
+`cd-hit` to cluster sequences to 50% identity, keeping only a single
+representative sequence for each cluster. This reduces the database size
+dramatically but roughly maintains the same length
+distribution.
 
 ``` bash
-cd-hit -i cache/positive032020.fasta -o cache/positive032020_98.fasta -c 0.98 -g 1
+cd-hit -i cache/positive070420.fasta -o cache/positive070420_50.fasta -c 0.50 -g 1 -n 2
+cd-hit -i cache/positive070420_test.fasta -o cache/positive070420_test_50.fasta -c 0.50 -g 1 -n 2
 ```
+
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+Certain organisms are particularly well annotated for AMPs. We find that
+our final database contains a large number of Arabidopsis sequences,
+human, mouse, chicken and rat sequences.
+
+    ## # A tibble: 6 x 3
+    ##   Organism                               nentries n50_entries
+    ##   <chr>                                     <int>       <int>
+    ## 1 Arabidopsis thaliana (Mouse-ear cress)      289         176
+    ## 2 Homo sapiens (Human)                         84          38
+    ## 3 Mus musculus (Mouse)                         96          23
+    ## 4 Gallus gallus (Chicken)                      23          15
+    ## 5 Rattus norvegicus (Rat)                      59          11
+    ## 6 Escherichia coli                             13          10
+
+Later, we will use the human and arabidopsis genomes as independent test
+cases. We therefore produce a separate version of the training database
+where these sequences are excluded.
+
+### Database files
+
+  - Full database (prior to cd-hit clustering) along with Swissprot
+    metadata is available at `raw_data/amp_databases/ampir_db.tsv`
+  - A FASTA formatted file with 50% clustered sequences
+    `cache/positive070420_50.fasta`
+  - A FASTA formatted file with 50% clustered sequences excluding test
+    species, Human and Arabidopsis `cache/positive070420_test_50.fasta`

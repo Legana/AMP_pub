@@ -27,8 +27,10 @@ set.seed(396)
 
 features <- readRDS(args$input)
 
-rfe_control <- rfeControl(functions = caretFuncs, method = "repeatedcv", number = 10, repeats = 3)
+rfe_control <- rfeControl(functions = caretFuncs, method = "repeatedcv", number = 10, repeats = 5, verbose = TRUE)
 
-svmProfile <- rfe(features[,1:45], features[,46], rfeControl = rfe_control, method = "svmRadial", preProcess = c("center", "scale"))
+subsets <- c(1:5, 8, 10, 15, 20, 25, 30, 35, 40, 44)
+
+svmProfile <- rfe(features[,2:45], features[,46], rfeControl = rfe_control,sizes=subsets,metric="Accuracy", method = "svmRadial", preProcess = c("center", "scale"))
 
 saveRDS(svmProfile,args$outfile)

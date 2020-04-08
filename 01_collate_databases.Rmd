@@ -10,7 +10,6 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 ```{r}
 library(ampir)
 library(tidyverse)
-source("R/remove_nonstandard_aa.R")
 ```
 
 ## Public AMP databases
@@ -192,22 +191,22 @@ As a final step we write the database to a FASTA file and then use `cd-hit` to c
 
 ```{r}
 # Main DB
-df_to_faa(ampir_db %>% select(Entry, Sequence) %>% as.data.frame(), "cache/positive070420.fasta")
+df_to_faa(ampir_db %>% select(Entry, Sequence) %>% as.data.frame(), "raw_data/amp_databases/ampir_positive070420.fasta")
 
 # DB for testing
 df_to_faa(ampir_db %>% 
             filter(!(Organism %in% c("Arabidopsis thaliana (Mouse-ear cress)","Homo sapiens (Human)"))) %>% 
             select(Entry, Sequence) %>%  
-            as.data.frame(), "cache/positive070420_test.fasta")
+            as.data.frame(), "raw_data/amp_databases/ampir_positive070420_test.fasta")
 ```
 
 ```bash
-cd-hit -i cache/positive070420.fasta -o cache/positive070420_50.fasta -c 0.50 -g 1 -n 2
-cd-hit -i cache/positive070420_test.fasta -o cache/positive070420_test_50.fasta -c 0.50 -g 1 -n 2
+cd-hit -i raw_data/amp_databases/ampir_positive070420.fasta -o raw_data/amp_databases/ampir_positive070420_50.fasta -c 0.50 -g 1 -n 2
+cd-hit -i raw_data/amp_databases/ampir_positive070420_test.fasta -o raw_data/amp_databases/ampir_positive070420_test_50.fasta -c 0.50 -g 1 -n 2
 ```
 
 ```{r}
-ampir_50 <- read_faa("cache/positive070420_50.fasta")
+ampir_50 <- read_faa("raw_data/amp_databases/ampir_positive070420_50.fasta")
 
 ampir_db_50 <- ampir_db %>% mutate(in_50 = (Entry %in% ampir_50$seq_name))
 

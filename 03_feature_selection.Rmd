@@ -11,37 +11,41 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, eval = FALSE)
 library(caret)
 set.seed(10)
 ```
+
+## Feature distributions
+
+As an indication of features that are likely to be useful for classification we plot their distributions for background and target.  
+
+```{r, fig.height=20}
+features_tg_bg_1 <- read_rds("cache/features_1.rds")
+
+features_bg_tg_1_long <- features_tg_bg_1 %>% gather(key = "Feature","Value",-seq_name,-Label)
+
+ggplot(features_bg_tg_1_long,aes(x=Value)) + 
+  geom_density(aes(color=Label)) + 
+  facet_wrap(~Feature, scales = "free", ncol = 3)
+```
+
+## Correlated Predictors
+
+Although a small number these predictors are correlated there are none with near-perfect correlation (max cor ~ 0.8).  We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
+
+```{r}
+featuresCM <- cor(features_bg_tg[,-c(1,46)])
+summary(featuresCM[upper.tri(featuresCM)])
+```
+
 ## Recursive feature elimination (RFE)
 
-Features were primarily chosen by examining the literature. However, as feature selection is a significant part of statistical learning, RFE analysis was used to examine the features used to train the rSVM model.
+RFE analysis was used to find an optimal subset of the features to be included in the model. Since this is a computationally intensive process it was performed using the `rfe.R` and `rfe.sh` scripts on an HPC system.  The resulting `rfe` outputs are provided in `cache/rfe_1.rds` and show that the best performance can be obtained with 30 predictors.  The set of features also agrees with visual inspection of the feature density plots as the selection includes those predictors that show clear separation between target and background. This set of predictors was used for subsequent model tuning and is encapsulated in the final model included with the `ampir` package.
 
 ```{r}
-svmProfile <- rfe(features[,2:45],
-                  features[,46],
-                  rfeControl = rfeControl(functions = caretFuncs,method = "repeatedcv", number = 10, repeats = 3),
-                  method = "svmRadial",
-                  preProcess = c("center", "scale"))
+svmProfile <- readRDS("cache/rfe_1.rds")
+trellis.par.set(caretTheme())
+plot(svmProfile, type = c("g", "o"))
 ```
-
-```{r, echo=FALSE}
-# use small subset of data to test
-# 
-# svmProfile <- rfe(features[c(1:25,6925:6950),2:45], 
-#                   features[c(1:25,6925:6950),46],
-#                   rfeControl = rfeControl(functions = caretFuncs, method = "repeatedcv", number = 10, repeats = 3),
-#                   method = "svmRadial",
-#                   preProcess = c("center", "scale"))
-```
-
-Read RFE results 
-rfe.rds was obtained from running the `rfe.R` and `rfe.sh` scripts on the HPC using identical code that would create the `svmProfile` variable as shown above.
 
 ```{r}
-svmProfile <- readRDS("cache/rfe.rds")
-```
-
-Rank important features
-```{r}
-varImp(svmProfile)
+predictors(svmProfile)
 ```
 
