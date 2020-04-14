@@ -1,18 +1,22 @@
 
 # AMP databases
 
-echo raw_data/APD_032020.xlsx > data_list
-echo raw_data/dramp_nat_tidy.fasta >> data_list
-echo raw_data/dbAMPv1.4.xlsx >> data_list
-echo raw_data/uniprot-keyword__Antimicrobial+\[KW-0929\]_+OR+_antimicrobial+peptide%--.tab >> data_list
+echo raw_data/amp_databases/APD_032020.xlsx > data_list
+echo raw_data/amp_databases/dramp_nat_tidy.fasta >> data_list
+echo raw_data/amp_databases/dbAMPv1.4.xlsx >> data_list
+echo raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx >> data_list
 
 # combined AMP dataset
 echo cache/positive032020.fasta >> data_list
+echo raw_data/amp_databases/ampir_positive070420.fasta >> data_list
+echo raw_data/amp_databases/ampir_db.tsv >> data_list
+
 
 # cd-hit results
 echo cache/positive032020_98.fasta >> data_list
 echo raw_data/swissprot_all_MAY98.fasta >> data_list
 echo raw_data/uniprot-filtered-reviewed_yes_50.fasta >> data_list
+echo raw_data/amp_databases/ampir_positive070420_50.fasta >> data_list
 
 # ampir v0.1.0 model related data
 
@@ -35,6 +39,7 @@ echo raw_data/iamp2LMarch2020.txt >> data_list
 echo raw_data/ampepresultsNov19.csv >> data_list
 echo ampir_0.1.0_data/ampir_prob_data.rds >> data_list
 echo cache/models_roc.rds >> data_list 
+echo cache/positive070420_test_50.fasta >> data_list
 
 
 tar -zcvf data.tgz -T data_list
