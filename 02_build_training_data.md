@@ -4,19 +4,19 @@ Build a training dataset for ampir
 ## Background Dataset
 
 As our basis for a background dataset we use all reviewed proteins in
-the Swissprot database. Our goal is to use fairly minimal filtering on
+the UniProt database. Our goal is to use fairly minimal filtering on
 these so that they have roughly the same composition as a typical set of
-non-AMP proteins in a genome. The filtering is as follows;
+non-AMP proteins in a genome. The filtering is as follows:
 
-1.  Use cd-hit to cluster sequences to 50% identity
-2.  Remove any sequences in the Uniprot AMP dataset
+1.  Use `cd-hit` to cluster sequences to 50% identity
+2.  Remove any sequences in the UniProt AMP dataset
 3.  Check that no sequences in the background dataset contain
     non-standard amino acids.
 
-**Step 1** is computationally intensive and was performed using cd-hit
-using SwissProt data downloaded on 7 April 2020. The resulting clustered
-file is included in the data distribution as
-`uniprot-filtered-reviewed_yes_50.fasta`
+**Step 1** is computationally intensive and was performed using `cd-hit`
+using SwissProt data downloaded on 14 April 2020. The resulting
+clustered file is included in the data distribution as
+`raw_data/amp_databases/uniprot-filtered-reviewed_yes_50.fasta`
 
 ``` bash
 cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_50.fasta -c 0.50  -n 3 -T 32 -M 300000
@@ -24,7 +24,7 @@ cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_5
 
 **Step 2** To exclude any potential AMPs from this dataset we use the
 unix `comm` command to create a list of all SwissProt identifiers in the
-clustered Swissprot data that are not present in the Uniprot AMP
+clustered SwissProt data that are not present in the Uniprot AMP
 database. This is then piped to another unix command `shuf` which takes
 a random subset of the identifiers and this is finally piped to
 `samtools faidx` which extract the relevant fasta entries and writes
@@ -44,8 +44,28 @@ comm -23 \
   xargs samtools faidx uniprot-filtered-reviewed_yes_50.fasta > amp_databases/ampir_negative070420_50.fasta
 ```
 
-**Step 3** We read both target and background datasets and then apply a
-filter to remove any with non-standard amino acids.
+**Step 3** We read both target and background datasets and apply filters
+to the background dataset that were also applied to the target dataset:
+
+  - Remove proteins with lengths \< 50 amino acids
+  - Remove very large proteins (\> 500 amino acids)
+  - Remove protein sequences with nonstandard amino
+acids
+
+<!-- end list -->
+
+``` r
+tg <- read_faa("raw_data/amp_databases/ampir_positive070420_50.fasta") %>%
+  add_column(Label = "Tg")
+
+bg_raw <- read_faa("raw_data/amp_databases/ampir_negative070420_50.fasta") %>%
+  add_column(Label = "Bg") %>% 
+  filter(nchar(seq_aa) > 50) %>%
+  filter(nchar(seq_aa) < 500) %>%
+  filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$'))
+
+bg_1 <- bg_raw %>% sample_n(nrow(tg))
+```
 
 ## Training and Test Sets
 
@@ -54,3 +74,22 @@ paired training and test sets. Initially these have bg/tg ratio of 1:1.
 In all cases we use 80% of data for training and reserve 20% for
 testing. These datasets are saved to cache and used for model training
 and tuning scripts.
+
+``` r
+export_training_and_test <- function(features,suffix){
+  trainIndex <-createDataPartition(y=features$Label, p=.8, list = FALSE)
+  featuresTrain <-features[trainIndex,]
+  featuresTest <-features[-trainIndex,]
+  
+  saveRDS(features,paste("cache/features_",suffix,".rds",sep = ""))
+  saveRDS(featuresTrain, paste("cache/featuresTrain_",suffix,".rds",sep = ""))
+  saveRDS(featuresTest, paste("cache/featuresTest_",suffix,".rds",sep = ""))
+}
+
+tg_bg_1 <- rbind(tg,bg_1)
+
+features_tg_bg_1 <- calculate_features(tg_bg_1) %>% 
+  add_column(Label = as.factor(tg_bg_1$Label))
+
+export_training_and_test(features_tg_bg_1,"1")
+```
