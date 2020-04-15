@@ -31,7 +31,7 @@ summary(featuresCM[upper.tri(featuresCM)])
 ```
 
     ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-    ## -0.40262 -0.05128  0.12762  0.19889  0.35796  0.84302
+    ## -0.40505 -0.04645  0.12663  0.18086  0.36749  0.85533
 
 ## Recursive feature elimination (RFE)
 
@@ -58,19 +58,69 @@ plot(svmProfile, type = c("g", "o"))
 predictors(svmProfile)
 ```
 
-    ##  [1] "Amphiphilicity" "Charge"         "Hydrophobicity" "Mw"            
-    ##  [5] "pI"             "Xc1.A"          "Xc1.C"          "Xc1.D"         
-    ##  [9] "Xc1.E"          "Xc1.F"          "Xc1.G"          "Xc1.H"         
-    ## [13] "Xc1.I"          "Xc1.K"          "Xc1.L"          "Xc1.M"         
-    ## [17] "Xc1.N"          "Xc1.P"          "Xc1.Q"          "Xc1.R"         
-    ## [21] "Xc1.S"          "Xc1.T"          "Xc1.V"          "Xc1.W"         
-    ## [25] "Xc1.Y"          "Xc2.lambda.1"   "Xc2.lambda.10"  "Xc2.lambda.11" 
-    ## [29] "Xc2.lambda.12"  "Xc2.lambda.13"
+    ##  [1] "Mw"             "Xc1.E"          "Xc1.L"          "Xc1.R"         
+    ##  [5] "Xc1.I"          "Xc1.D"          "Xc1.V"          "Xc1.S"         
+    ##  [9] "Xc1.T"          "Xc1.M"          "Xc1.Q"          "Xc1.P"         
+    ## [13] "Xc1.A"          "Xc1.F"          "Xc1.H"          "Amphiphilicity"
+    ## [17] "Xc1.Y"          "Xc1.K"          "Xc1.N"          "Xc1.G"         
+    ## [21] "Xc2.lambda.2"   "Xc1.C"          "Xc1.W"          "Xc2.lambda.5"  
+    ## [25] "Xc2.lambda.6"   "Xc2.lambda.3"   "Xc2.lambda.4"   "Xc2.lambda.1"  
+    ## [29] "Hydrophobicity" "Xc2.lambda.8"   "Xc2.lambda.7"   "Charge"        
+    ## [33] "Xc2.lambda.10"  "pI"             "Xc2.lambda.9"   "Xc2.lambda.17" 
+    ## [37] "Xc2.lambda.11"  "Xc2.lambda.15"  "Xc2.lambda.18"  "Xc2.lambda.12"
 
 ``` r
-write_rds(predictors(svmProfile),"cache/predictors_1.rds")
+write_rds(predictors(svmProfile),"cache/predictors_1.1.rds")
 ```
 
+## Variable importance
+
 ``` r
-model <- read_rds("cache/tuned.rds")
+varImp(svmProfile)
 ```
+
+    ##                  Overall
+    ## Mw             0.8556765
+    ## Xc1.E          0.8508303
+    ## Xc1.L          0.8298702
+    ## Xc1.R          0.8175535
+    ## Xc1.I          0.8163358
+    ## Xc1.D          0.8108398
+    ## Xc1.V          0.8042061
+    ## Xc1.S          0.7853369
+    ## Xc1.T          0.7776274
+    ## Xc1.M          0.7756395
+    ## Xc1.Q          0.7717201
+    ## Xc1.P          0.7667631
+    ## Xc1.A          0.7652335
+    ## Xc1.F          0.7632497
+    ## Xc1.H          0.7581777
+    ## Amphiphilicity 0.7499673
+    ## Xc1.Y          0.7483742
+    ## Xc1.K          0.7415350
+    ## Xc1.N          0.7388545
+    ## Xc1.G          0.7236910
+    ## Xc2.lambda.2   0.6753046
+    ## Xc1.C          0.6742910
+    ## Xc1.W          0.6594280
+    ## Xc2.lambda.5   0.6419415
+    ## Xc2.lambda.6   0.6396627
+    ## Xc2.lambda.3   0.6377154
+    ## Xc2.lambda.4   0.6367368
+    ## Xc2.lambda.1   0.6334239
+    ## Hydrophobicity 0.6198371
+    ## Xc2.lambda.8   0.6038245
+    ## Xc2.lambda.7   0.6010635
+    ## Charge         0.5949514
+    ## Xc2.lambda.10  0.5883212
+    ## pI             0.5580306
+    ## Xc2.lambda.9   0.5461869
+    ## Xc2.lambda.17  0.5364994
+    ## Xc2.lambda.11  0.5313319
+    ## Xc2.lambda.15  0.5221101
+    ## Xc2.lambda.18  0.5168897
+    ## Xc2.lambda.12  0.5156498
+    ## Xc2.lambda.14  0.5155397
+    ## Xc2.lambda.19  0.5152833
+    ## Xc2.lambda.13  0.5135925
+    ## Xc2.lambda.16  0.5120653

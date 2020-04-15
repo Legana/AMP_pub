@@ -30,6 +30,7 @@ echo raw_data/amp_databases/ampir_negative070420_50.fasta >> data_list
 # feature analysis and datasets
 
 echo cache/rfe.rds >> data_list
+echo cache/rfe_1.rds >> data_list
 echo cache/features_1.rds >> data_list
 echo cache/featuresTrain_1.rds >> data_list
 echo cache/featuresTest_1.rds >> data_list

@@ -29,7 +29,7 @@ ggplot(features_bg_tg_1_long,aes(x=Value)) +
 
 ## Correlated Predictors
 
-Although a small number these predictors are correlated there are none with near-perfect correlation (max cor ~ 0.8).  We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
+Although a small number these predictors are correlated there are none with near-perfect correlation (max cor ~ 0.8). We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
 
 ```{r}
 featuresCM <- cor(features_tg_bg_1[,-c(1,46)])
@@ -38,7 +38,7 @@ summary(featuresCM[upper.tri(featuresCM)])
 
 ## Recursive feature elimination (RFE)
 
-RFE analysis was used to find an optimal subset of the features to be included in the model. Since this is a computationally intensive process it was performed using the `rfe.R` and `rfe.sh` scripts on an HPC system.  The resulting `rfe` outputs are provided in `cache/rfe_1.rds` and show that the best performance can be obtained with 30 predictors.  The set of features also agrees with visual inspection of the feature density plots as the selection includes those predictors that show clear separation between target and background. This set of predictors was used for subsequent model tuning and is encapsulated in the final model included with the `ampir` package.
+RFE analysis was used to find an optimal subset of the features to be included in the model. Since this is a computationally intensive process it was performed using the `rfe.R` and `rfe.sh` scripts on an HPC system.  The resulting `rfe` outputs are provided in `cache/rfe_1.rds` and show that the best performance can be obtained with 30 predictors. The set of features also agrees with visual inspection of the feature density plots as the selection includes those predictors that show clear separation between target and background. This set of predictors was used for subsequent model tuning and is encapsulated in the final model included with the `ampir` package.
 
 ```{r}
 svmProfile <- readRDS("cache/rfe_1.rds")
@@ -48,10 +48,12 @@ plot(svmProfile, type = c("g", "o"))
 
 ```{r}
 predictors(svmProfile)
-write_rds(predictors(svmProfile),"cache/predictors_1.rds")
+write_rds(predictors(svmProfile),"cache/predictors_1.1.rds")
 ```
 
+## Variable importance
+
 ```{r}
-model <- read_rds("cache/tuned.rds")
+varImp(svmProfile)
 ```
 
