@@ -13,7 +13,7 @@ library(caret)
 
 ## Model Tuning
 
-The default model included with ampir is an svm and has two tuning parameters, sigma and C (cost).  Optimal values for these tuning parameters were obtained by using model tuning functions available in `caret`.  Since this is computationally intensive it was performed on an HPC system. The R script `scripts/tune_model.R` provides a convenient wrapper for the required functions and allows it to be run easily on an HPC system. 
+The default model included with `ampir` is an svm with radial kernel and has two tuning parameters, sigma and C (cost). Optimal values for these tuning parameters were obtained by using model tuning functions available in `caret`. Since this is computationally intensive it was performed on an HPC system. The R script `scripts/tune_model.R` provides a convenient wrapper for the required functions and allows it to be run easily on an HPC system. 
 
 This needs to be run on an HPC system with R installed and with packages `caret`, `ampir`, `doParallel`, and `R.utils` installed
 
@@ -35,24 +35,23 @@ tuning_data$bestTune
 
 
 
-To keep the final model size small for `ampir` distribution the training is performed with optimal parameters one more time.  This results in a train object with all information required by ampir but without the suboptimal models.
+To keep the final model size small for `ampir` distribution the training is performed with optimal parameters one more time. This results in a train object with all information required by `ampir` but without the suboptimal models.
 
 ```{r}
-predictors = colnames(tuning_data$trainingData)[-1]
+predictors <- colnames(tuning_data$trainingData)[-1]
 
 featuresTrain <- readRDS("cache/featuresTrain_1.rds")
 
-predictor_indices <- which(colnames(featuresTrain) %in%  predictors)
+predictor_indices <- which(colnames(featuresTrain) %in% predictors)
 
 tuned_compact_model <- train(Label~.,
       data = featuresTrain[,c(predictor_indices,46)],
       method="svmRadial",
-      trControl = trainControl(method = "repeatedcv", number = 10, repeats = 5, classProbs = TRUE),
+      trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3, classProbs = TRUE),
       preProcess = c("center", "scale"),
       tuneGrid = tuning_data$bestTune)
 
 saveRDS(tuned_compact_model,"cache/ampir_default_model.rds")
-
 ```
 
 

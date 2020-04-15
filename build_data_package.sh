@@ -37,6 +37,8 @@ echo cache/featuresTest_1.rds >> data_list
 
 # model results
 echo cache/tuned.rds >> data_list
+echo cache/tuned_1.rds >> data_list
+echo cache/ampir_default_model.rds >> data_list
 
 # benchmark data
 
