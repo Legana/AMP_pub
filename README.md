@@ -6,9 +6,9 @@
 This repository contains code used for the
 [ampir](https://github.com/Legana/ampir) R package paper
 
-  - [Build positive dataset](01_collate_databases.md) : Rmd file
+  - [Collate data](01_collate_databases.md) : Rmd file
     [01\_collate\_databases.Rmd](01_collate_databases.Rmd)
-  - [Calculate features](02_train_test_set.md) : Rmd file
+  - [Build training sets](02_build_training_data.md) : Rmd file
     [02\_train\_test\_set.Rmd](02_train_test_set.Rmd)
   - [Feature selection analysis](03_feature_selection.md) : Rmd file
     [03\_feature\_selection.Rmd](03_feature_selection.Rmd)
