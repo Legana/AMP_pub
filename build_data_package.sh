@@ -61,6 +61,6 @@ echo raw_data/benchmarking/results/iamppred/iamp2l_bench.csv >> data_list
 echo raw_data/benchmarking/results/dbamp/20200403_060324.anti_finish.txt >> data_list
 
 
-tar -zcvf data.tgz -T data_list
+tar -zcvf data_amp_pub.tgz -T data_list
 
 rm data_list

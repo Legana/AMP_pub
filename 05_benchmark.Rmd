@@ -79,12 +79,13 @@ if ( file.exists("cache/xbench_ampir_raw.rds") ){
   xbench_ampir_raw_mat <- predict_amps(xbench,n_cores = 4, model = mature_model) %>% add_column(model = "ampir_mature")
   xbench_ampir_raw <- rbind(xbench_ampir_raw_mat,xbench_ampir_raw_prec)
   
-  xbench_ampir <- xbench_ampir_raw %>% 
-    mutate(actual = ifelse(grepl(seq_name,pattern = "^AP"), "Tg", "Bg")) %>% 
-    mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
     
-  write_rds(xbench_ampir,"cache/xbench_ampir_raw.rds")
+  write_rds(xbench_ampir_raw,"cache/xbench_ampir_raw.rds")
 }
+
+xbench_ampir <- xbench_ampir_raw %>% 
+  mutate(actual = ifelse(grepl(seq_name,pattern = "^AP"), "Tg", "Bg")) %>% 
+  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
 
 
 ampir_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(mdl){
