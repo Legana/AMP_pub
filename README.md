@@ -12,12 +12,10 @@ This repository contains code used for the
     [02\_train\_test\_set.Rmd](02_train_test_set.Rmd)
   - [Feature selection analysis](03_feature_selection.md) : Rmd file
     [03\_feature\_selection.Rmd](03_feature_selection.Rmd)
-  - [Reads and tests tuned model](04_tune_model.md) : Rmd file
+  - [Model tuning](04_tune_model.md) : Rmd file
     [04\_tune\_model.Rmd](04_tune_model.Rmd)
-  - [Benchmarks `ampir` to other predictors](05_benchmark_auroc.md) :
-    Rmd file [05\_benchmark\_auroc.Rmd](05_benchmark_auroc.Rmd)
-  - [Creates precision-recall curve](06_alpha_prcurve.md) : Rmd file
-    [06\_alpha\_prcurve.Rmd](06_alpha_prcurve.Rmd)
+  - [Benchmarking](05_benchmark.md) : Rmd file
+    [05\_benchmark.Rmd](05_benchmark.Rmd)
 
 The files required to run the code in these Rmd files can be obtained
 [here](https://cloudstor.aarnet.edu.au/plus/s/e2MsuyZPwZOOuBe/download?path=%2F&files=data.tgz)
