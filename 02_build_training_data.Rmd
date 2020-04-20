@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,eval=TRUE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, eval=TRUE, message = FALSE)
 ```
 
 
@@ -15,11 +15,11 @@ library(caret)
 set.seed(3141)
 ```
 
-In the `ampir` defaults models we distinguish between those designed to predict protein precursors and those for mature peptides. Positive datasets for both are outlined in [01_collate_databases](01_collate_databases.md).
+In the `ampir` default models we distinguish between those designed to predict protein precursors and those for mature peptides. Positive datasets for both are outlined in [01_collate_databases](01_collate_databases.md).
 
 ## Precursor Background Dataset
 
-As our basis for a background dataset we use all reviewed proteins in the Swissprot database. Our goal is to use fairly minimal filtering on these so that they have roughly the same composition as a typical set of non-AMP proteins in a genome. The filtering is as follows;
+As our basis for a background dataset we use all reviewed proteins in the UniProt database. Our goal is to use fairly minimal filtering on these so that they have roughly the same composition as a typical set of non-AMP proteins in a genome. The filtering is as follows:
 
 1. Use cd-hit to cluster sequences to 90% identity
 2. Remove any sequences in the Uniprot AMP dataset
@@ -34,7 +34,7 @@ cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_9
 
 **Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered Swissprot data that are not present in the Uniprot AMP database.  For creating a balanced dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant fasta entries and writes them to a file. 
 
-At this stage we keep more background proteins than needed for a balanced dataset.  This is for several reasons.  Firstly a small number of background proteins might be removed under additional filtering criteria.  Secondly we may choose to use an unbalanced dataset in order to achieve better overall performance on whole genome scans.
+At this stage we keep more background proteins than needed for a balanced dataset. This is for several reasons. Firstly a small number of background proteins might be removed under additional filtering criteria. Secondly we may choose to use an unbalanced dataset in order to achieve better overall performance on whole genome scans.
 
 ```bash
 comm -23 \
@@ -44,7 +44,11 @@ comm -23 \
   xargs samtools faidx uniprot-filtered-reviewed_yes_90.fasta > amp_databases/ampir_negative90.fasta
 ```
 
-**Steps 3 and 4** We read both target and background datasets and then apply a filter to remove any with non-standard amino acids.
+**Step 3 and 4** We read both target and background datasets and apply filters to the background dataset that were also applied to the target dataset:
+
+* Remove proteins with lengths < 50 amino acids
+* Remove very large proteins (> 500 amino acids)
+* Remove protein sequences with nonstandard amino acids
 
 ```{r}
 tg <- read_faa("raw_data/amp_databases/ampir_positive90.fasta") %>%
@@ -93,7 +97,7 @@ bg_mature <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>%
 
 ## Training and Test Sets
 
-Using the target and background proteins identified above we create paired training and test sets. Initially these have bg/tg ratio of 1:1.  In all cases we use 80% of data for training and reserve 20% for testing.  These datasets are saved to cache and used for model training and tuning scripts.
+Using the target and background proteins identified above we create paired training and test sets. Initially these have bg/tg ratio of 1:1. In all cases we use 80% of data for training and reserve 20% for testing. These datasets are saved to cache and used for model training and tuning scripts.
 
 ```{r}
 export_training_and_test <- function(features,suffix){
@@ -146,8 +150,8 @@ names_to_exclude <- c(human_proteome$Entry,arath_proteome$Entry)
 
 tg_bg_1 <- rbind(tg,bg_1)
 
-features_tg_bg_1 <- ampir:::calculate_features(tg_bg_1) %>% 
-  add_column(Label = tg_bg_1$Label)
+features_tg_bg_1 <- calculate_features(tg_bg_1) %>% 
+  add_column(Label = as.factor(tg_bg_1$Label))
 
 export_training_and_test(features_tg_bg_1 %>% filter(!(seq_name %in% names_to_exclude)),"precursor_nobench")
 ```

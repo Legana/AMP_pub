@@ -16,9 +16,8 @@ Four recently updated antimicrobial peptide (AMP) databases were used:
       - [DRAMP GitHub](https://github.com/CPUDRAMP/DRAMP2.0)
   - [dbAMP](http://140.138.77.240/~dbamp/index.php) by [Jhong et
     al. 2018](https://www.ncbi.nlm.nih.gov/pubmed/30380085)
-  - [SwissProt](https://www.uniprot.org/uniprot/?query=keyword:%22Antimicrobial%20%5BKW-0929%5D%22%20OR%20%22antimicrobial%20peptide%22&fil=reviewed%3Ayes&sort=score)
-    using the search term “antimicrobial peptide” and the keyword
-    “Antimicrobial”.
+  - [UniProt](https://www.uniprot.org/uniprot/?query=keyword%3A%22Antimicrobial+%5BKW-0929%5D%22&sort=score)
+    using the keyword “Antimicrobial \[KW-0929\]”.
 
 Raw downloads for these databases are included in the data distribution
 for this repository. After unpacking they should be present at the
@@ -30,13 +29,13 @@ locations
 | APD 3         | `raw_data/amp_databases/APD_032020.xlsx`                                |
 | DRAMP Natural | `raw_data/amp_databases/dramp_nat_tidy.fasta`                           |
 | dbAMP         | `raw_data/amp_databases/dbAMPv1.4.xlsx`                                 |
-| Uniprot       | `raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx` |
+| UniProt       | `raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx` |
 
 ### APD
 
 The [Antimicrobial Peptide Database](http://aps.unmc.edu/AP/main.php)
-was last updated March 16 2020 and contains 3177 AMPs. An outdated
-(2017) AMP sequence list is downloadable from
+appears to be regularly updated and contained 3177 AMPs in March 2020.
+An outdated (2017) AMP sequence list is downloadable from
 <http://aps.unmc.edu/AP/downloads.php> which currently contains 2,338
 sequences. To include the updated AMP list, the [web query
 interface](http://aps.unmc.edu/AP/database/mysql.php) was used to obtain
@@ -59,37 +58,38 @@ using a [scrape script](scripts/scrape_dramp.sh).
 
 The latest release of dbAMP is from 06/2019 and was downloaded from
 their [download page](http://140.138.77.240/~dbamp/download.php). It
-contains 4213 experimentally verified natural AMPs. (Synthetic AMPs were
+contains 4213 experimentally verified natural AMPs (synthetic AMPs were
 removed).
 
-### Uniprot
+### UniProt
 
-AMPs were downloaded from UniProt on 2-April-2020 using the search term:
-“keyword:Antimicrobial \[KW-0929\]”. This included 3221 reviewed and
-19288 proteins.
+AMPs were downloaded from UniProt on 14-April-2020 using the search
+term: “keyword:”Antimicrobial \[KW-0929\]". This included 3221 reviewed
+and 19288 unreviewed proteins.
 
 ## Summary of AMP databases
 
 One of the most striking differences between AMP databases becomes clear
 simply by looking at the length distributions. The `APD` and `DRAMP`
-databases emphasise short peptides (mostly \< 50AA) which reflects their
-focus on mature peptides rather than full length precursor proteins.
+databases emphasise short peptides (mostly \< 50 amino acids) which
+reflects their focus on mature peptides rather than full length
+precursor proteins.
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 The SwissProt database provides a `Peptide` field which allows us to
 distinguish between entries for mature peptides and precursors. If the
-Peptide length is the same as the total length it is a mature peptide.
+Peptide length is the same as the total length, it is a mature peptide.
 For entries where such information is available we see a very clear
-split with mature peptides having a typical length of 25AA whereas
-precursors are slightly longer at around 60-75AA. Note that the length
-distribution of mature peptides matches the APD length distribution very
-well but all other databases, including DRAMP include longer sequences
-and therefore are likely to include some fraction of precursors. Note
-that there are a total of 768 mature peptides, 806 precursors with
-peptide annotation information, and 1647 reviewed AMPs without Peptide
-information. The `NA` has a notably broader distribution of lengths
-reflecting the possibility that it includes a mix of both
+split with mature peptides having a typical length of 25 amino acids
+(AA) whereas precursors are slightly longer at around 60-75 AA. Note
+that the length distribution of mature peptides matches the APD length
+distribution very well but all other databases, including DRAMP include
+longer sequences and therefore are likely to include some fraction of
+precursors. Note that there are a total of 768 mature peptides, 806
+precursors with peptide annotation information, and 1647 reviewed AMPs
+without Peptide information. The `NA` has a notably broader distribution
+of lengths reflecting the possibility that it includes a mix of both
 types.
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
@@ -97,7 +97,7 @@ types.
 Another indicator that a protein is an AMP precursor is the presence of
 a signal peptide. 706 of the 806 precursors identified above have well
 defined signal peptide sequences. The length distribution plot below
-shows that only precursors longer than about 60AA are likely to have a
+shows that only precursors longer than about 60 AA are likely to have a
 signal peptide. Manual inspection of precursors without signal peptides
 revealed that many are annotated with a pro-peptide indicating that even
 in this group there is some post-translational processing to produce a
@@ -106,35 +106,35 @@ product.
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
-SwissProt also includes a small number of larger proteins (\>500AA) that
-are listed under the keyword Antimicrobial but are very different from
-classical AMPs. These include some large viral proteins (eg
+SwissProt also includes a small number of larger proteins (\>500 AA)
+that are listed under the keyword Antimicrobial but are very different
+from classical AMPs. These include some large viral proteins (e.g.
 [EXLYS\_BPDPK](https://www.uniprot.org/uniprot/Q8SCY1)) which show
 evidence of antibacterial activity but their mode of action and vast
-difference in size makes them outliers from the point of view of
-building a machine learning model.
+difference in size make them outliers from the point of view of building
+a machine learning model.
 
-## Database used for the ampir default model
+## Database used for the `ampir` default model
 
-Since our goal with ampir is to obtain the maximum possible utility for
-genome-wide scans we sought to build a positive AMP dataset consisting
-entirely of precursor proteins. In typical genome-scanning operations
-this is the only information available.
+Since our goal with `ampir` is to obtain the maximum possible utility
+for genome-wide scans we sought to build a positive AMP dataset
+consisting entirely of precursor proteins. In typical genome-scanning
+operations this is the only information available.
 
-To achieve this we used the following criteria to design our database;
+To achieve this we used the following criteria to design our database:
 
-Firstly we start with the uniprot database and only include proteins if
-they are present in either the reviewed or unreviewed elements of this.
-Although this removes a small number of proteins from custom AMP
-databases it allows us to make use of extensive metadata included for
-all proteins in Uniprot. The following filters are then applied;
+Firstly we start with the UniProt database and only include proteins if
+they are present in either the reviewed or unreviewed elements of this
+database. Although this removes a small number of proteins from custom
+AMP databases it allows us to make use of extensive metadata included
+for all proteins in UniProt. The following filters are then applied:
 
 1.  Exclude all mature peptides
 2.  Exclude unreviewed proteins unless they also appear in APD, DRAMP or
     dbAMP
-3.  Remove proteins with lengths \< 50AA since these might be mature
+3.  Remove proteins with lengths \< 50 AA since these might be mature
     peptides included in APD, DRAMP or dbAMP
-4.  Remove very large proteins (\>500AA) since these are likely to have
+4.  Remove very large proteins (\>500 AA) since these are likely to have
     very different physicochemical properties and are not amenable to
     prediction by this method
 5.  Remove identical sequences
@@ -156,7 +156,7 @@ cd-hit -i raw_data/amp_databases/ampir_positive.fasta -o raw_data/amp_databases/
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 Certain organisms are particularly well annotated for AMPs. We find that
-our final database contains a large number of Arabidopsis sequences,
+our final database contains a large number of *Arabidopsis* sequences,
 human, mouse, chicken and rat sequences.
 
     ## # A tibble: 6 x 3
@@ -175,7 +175,6 @@ human, mouse, chicken and rat sequences.
     metadata is available at `raw_data/amp_databases/ampir_db.tsv`
   - A FASTA formatted file with 90% clustered sequences
     `raw_data/amp_databases/ampir_positive90.fasta`
-    <!-- - A FASTA formatted file with 90% clustered sequences excluding test species, Human and Arabidopsis `cache/ampir_positive070420_test_90.fasta` -->
 
 ## ampir mature-peptide model
 

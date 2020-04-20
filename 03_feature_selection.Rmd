@@ -13,8 +13,6 @@ library(tidyverse)
 set.seed(10)
 ```
 
-## Feature distributions
-
 As an indication of features that are likely to be useful for classification we plot their distributions for background and target.  Also note that these feature distributions are sometimes heavily influenced by background filtering.  In the plot below we see that all distributions are relatively well-behaved and should be amenable to centering and scaling.  This is at least partly because our large protein cut-off of (500) removes a small number of very large proteins that cause skew in the Mw and Charge distributions.
 
 ```{r, fig.height=20}

@@ -10,12 +10,17 @@ influenced by background filtering. In the plot below we see that all
 distributions are relatively well-behaved and should be amenable to
 centering and scaling. This is at least partly because our large protein
 cut-off of (500) removes a small number of very large proteins that
-cause skew in the Mw and Charge
-    distributions.
+cause skew in the Mw and Charge distributions.
 
 ![](03_feature_selection_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ## PCA
+
+PCA suggests that these predictors have some (but imperfect) power to
+separate the two classes. This gives an indication of how well models
+will perform in general but doesn’t capture the capabilities of
+supervised learning methods like
+    SVM.
 
     ## Warning: Column `seq_name` joining character vector and factor, coercing
     ## into character vector

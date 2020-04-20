@@ -9,9 +9,9 @@ datasets for both are outlined in
 ## Precursor Background Dataset
 
 As our basis for a background dataset we use all reviewed proteins in
-the Swissprot database. Our goal is to use fairly minimal filtering on
+the UniProt database. Our goal is to use fairly minimal filtering on
 these so that they have roughly the same composition as a typical set of
-non-AMP proteins in a genome. The filtering is as follows;
+non-AMP proteins in a genome. The filtering is as follows:
 
 1.  Use cd-hit to cluster sequences to 90% identity
 2.  Remove any sequences in the Uniprot AMP dataset
@@ -51,8 +51,13 @@ comm -23 \
   xargs samtools faidx uniprot-filtered-reviewed_yes_90.fasta > amp_databases/ampir_negative90.fasta
 ```
 
-**Steps 3 and 4** We read both target and background datasets and then
-apply a filter to remove any with non-standard amino acids.
+**Step 3 and 4** We read both target and background datasets and apply
+filters to the background dataset that were also applied to the target
+dataset:
+
+  - Remove proteins with lengths \< 50 amino acids
+  - Remove very large proteins (\> 500 amino acids)
+  - Remove protein sequences with nonstandard amino acids
 
 ## Mature Peptide Background Dataset
 
