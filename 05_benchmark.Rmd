@@ -15,7 +15,7 @@ library(pROC)
 
 #devtools::install_github('ejanalysis/analyze.stuff')
 #library(analyze.stuff)
-source("R/calc_cm_metrics.R")
+#source("R/calc_cm_metrics.R")
 ```
 
 

@@ -49,9 +49,16 @@ test.
 \*`iAMP-2L` could not be included in the ROC curve as the model output
 is binary only
 
-AMP predictors were accessed in ***November 2019***
+AMP predictors were accessed in ***April
+    2020***
 
 ### Xiao et al Benchmark
+
+    ## Warning in output$prob_AMP[predictable_rows] <- p_AMP[, 2]: number of items
+    ## to replace is not a multiple of replacement length
+    
+    ## Warning in output$prob_AMP[predictable_rows] <- p_AMP[, 2]: number of items
+    ## to replace is not a multiple of replacement length
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
@@ -65,7 +72,11 @@ One approach is to use genomes that have been well annotated for AMPs.
 The Human and Arabidopsis are among the best. We were able to run this
 test for `ampir`, `ampep` and `amscan_v2` only because other predictors
 were unable to handle the large number of candidates sequences (~100k)
-in a practical manner.
+in a practical
+    manner.
+
+    ## Warning in output$prob_AMP[predictable_rows] <- p_AMP[, 2]: number of items
+    ## to replace is not a multiple of replacement length
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
