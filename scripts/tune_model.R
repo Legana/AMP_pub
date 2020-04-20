@@ -22,6 +22,17 @@ if(is.null(args$ncores)){
   }
 }
 
+
+# if(is.null(args$bgweight)){
+#   args$bgweight=c(0.5,0.5)
+# } else {
+#   args$bgweight <- as.integer(args$bgweight)
+#   if(is.na(args$bgweight) || args$bgweight < 0){
+#     stop("Invalid core count provided")
+#   }
+# }
+
+
 library(caret)
 
 set.seed(396)
@@ -30,6 +41,13 @@ set.seed(396)
 
 featuresTrain <- readRDS(args$train)
 featuresTest <- readRDS(args$test)
+
+
+model_weights <- ifelse(featuresTrain$Label == "Tg",
+                        (1/table(featuresTrain$Label)[1]) * 0.5,
+                        (1/table(featuresTrain$Label)[2]) * 0.5)
+
+
 
 
 #resample method using repeated cross validation and adding in a probability calculation
@@ -44,17 +62,18 @@ library(doParallel)
 cl <- makePSOCKcluster(args$ncores)
 registerDoParallel(cl)
 
-grid_for_final_svmradial <- expand.grid(sigma=c(0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.10), C=c(0.5,1,2,3,4,5,6,7,8,9,10))
+grid_for_final_svmradial <- expand.grid(sigma=c(0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.10,0.2,0.3,0.5), C=c(0.5,1,2,3,4,5,6,7,8,9,10))
 
 rfe_predictors <- readRDS("../cache/predictors_1.rds")
 
-predictor_indices <- which(colnames(featuresTrain) %in%  rfe_predictors)
-
+#predictor_indices <- which(colnames(featuresTrain) %in%  rfe_predictors)
+# [,c(46)]predictor_indices,
 svm_Radial_final <- train(Label~.,
-                            data = featuresTrain[,c(predictor_indices,46)],
+                            data = featuresTrain[,c(2:28,46)],
                             method="svmRadial",
                             trControl = trctrl_prob,
                             preProcess = c("center", "scale"),
+                            weights = model_weights,
                             tuneGrid = grid_for_final_svmradial)
 
 saveRDS(svm_Radial_final,args$outfile)

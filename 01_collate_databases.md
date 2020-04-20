@@ -65,7 +65,7 @@ removed).
 ### Uniprot
 
 AMPs were downloaded from UniProt on 2-April-2020 using the search term:
-“keyword:”Antimicrobial \[KW-0929\]". This included 3221 reviewed and
+“keyword:Antimicrobial \[KW-0929\]”. This included 3221 reviewed and
 19288 proteins.
 
 ## Summary of AMP databases
@@ -144,14 +144,13 @@ This leaves an initial database with 2061 entries, of which 61 are
 unreviewed.
 
 As a final step we write the database to a FASTA file and then use
-`cd-hit` to cluster sequences to 50% identity, keeping only a single
+`cd-hit` to cluster sequences to 90% identity, keeping only a single
 representative sequence for each cluster. This reduces the database size
-dramatically but roughly maintains the same length
+but roughly maintains the same length
 distribution.
 
 ``` bash
-cd-hit -i cache/positive070420.fasta -o cache/positive070420_50.fasta -c 0.50 -g 1 -n 2
-cd-hit -i cache/positive070420_test.fasta -o cache/positive070420_test_50.fasta -c 0.50 -g 1 -n 2
+cd-hit -i raw_data/amp_databases/ampir_positive.fasta -o raw_data/amp_databases/ampir_positive90.fasta -c 0.90 -g 1
 ```
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
@@ -161,24 +160,40 @@ our final database contains a large number of Arabidopsis sequences,
 human, mouse, chicken and rat sequences.
 
     ## # A tibble: 6 x 3
-    ##   Organism                               nentries n50_entries
+    ##   Organism                               nentries n90_entries
     ##   <chr>                                     <int>       <int>
-    ## 1 Arabidopsis thaliana (Mouse-ear cress)      289         176
-    ## 2 Homo sapiens (Human)                         84          38
-    ## 3 Mus musculus (Mouse)                         96          23
-    ## 4 Gallus gallus (Chicken)                      23          15
-    ## 5 Rattus norvegicus (Rat)                      59          11
-    ## 6 Escherichia coli                             13          10
-
-Later, we will use the human and arabidopsis genomes as independent test
-cases. We therefore produce a separate version of the training database
-where these sequences are excluded.
+    ## 1 Arabidopsis thaliana (Mouse-ear cress)      289         282
+    ## 2 Mus musculus (Mouse)                         96          77
+    ## 3 Homo sapiens (Human)                         84          61
+    ## 4 Rattus norvegicus (Rat)                      59          52
+    ## 5 Bos taurus (Bovine)                          43          34
+    ## 6 Gallus gallus (Chicken)                      23          19
 
 ### Database files
 
   - Full database (prior to cd-hit clustering) along with Swissprot
     metadata is available at `raw_data/amp_databases/ampir_db.tsv`
-  - A FASTA formatted file with 50% clustered sequences
-    `cache/positive070420_50.fasta`
-  - A FASTA formatted file with 50% clustered sequences excluding test
-    species, Human and Arabidopsis `cache/positive070420_test_50.fasta`
+  - A FASTA formatted file with 90% clustered sequences
+    `raw_data/amp_databases/ampir_positive90.fasta`
+    <!-- - A FASTA formatted file with 90% clustered sequences excluding test species, Human and Arabidopsis `cache/ampir_positive070420_test_90.fasta` -->
+
+## ampir mature-peptide model
+
+Another approach to AMP prediction is to focus entirely on mature
+peptides as these are the most likely to have shared/convergent
+physicochemical properties since they are the active molecules.
+
+For this approach we build a database as follows;
+
+1.  Include all AMPs from the APD, DRAMP and dbAMP databases with
+    lengths \>20AA and \< 60AA
+2.  Mature peptides from Swissprot
+3.  Remove sequences that are identical or that contain non-standard
+    amino
+acids
+
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+``` bash
+cd-hit -i raw_data/amp_databases/ampir_mature_positive.fasta -o raw_data/amp_databases/ampir_mature_positive90.fasta -c 0.90 -g 1
+```
