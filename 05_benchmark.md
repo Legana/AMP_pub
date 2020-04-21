@@ -28,12 +28,11 @@ contemporary AMP predictors using two very different benchmarks.
 
 1.  The [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019)
     benchmark dataset. This was included in the interests of consistency
-    with benchmarking from previous work but. Results from this
-    benchmark are not likely to reflect performance in a genome-scanning
-    context
+    with benchmarking from previous work but results from this benchmark
+    are not likely to reflect performance in a genome-scanning context
 2.  A more realistic but much more challenging benchmark based on
     genomes for species with the best available annotated AMP
-    repertoires. We chose an animal (Human) and plant (Arabidopsis
+    repertoires. We chose an animal (Human) and a plant (Arabidopsis
     thaliana) for this
 test.
 
@@ -53,6 +52,16 @@ AMP predictors were accessed in ***April 2020***
 
 ### Xiao et al Benchmark
 
+Most predictors performed very well against the Xiao et al benchmark
+which is not unexpected given that;
+
+  - The benchmark proteins form a substantial proportion of training
+    data for most methods (except ampir\_precursor which performed
+    badly)
+  - The Xiao benchmark reflects the goals (and hence background data
+    choice and other model choices) of all models except
+    ampir\_precursor
+
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ### Real Genome Benchmark
@@ -61,28 +70,33 @@ Since we are building a model for the purpose of genome-wide prediction
 a realistic test must involve data with composition similar to that of a
 whole genome scan.
 
-One approach is to use genomes that have been well annotated for AMPs.
-The Human and Arabidopsis are among the best. We were able to run this
-test for `ampir`, `ampep` and `amscan_v2` only because other predictors
-were unable to handle the large number of candidates sequences (~100k)
-in a practical manner.
+One approach is to use whole genomes that have been well annotated for
+AMPs. Here we chose the Human and Arabidopsis genomes because these
+represent phylogeentically distinct lineages (animals and plants) are
+their genomes among the best annotated for AMPs. A few other points to
+note about this test are;
+
+  - We were able to run this test for `ampir`, `ampep` and `amscan_v2`
+    only because other predictors were unable to handle the large number
+    of candidates sequences (~100k) in a practical manner.
+  - We used a specially generated model for ampir that was trained
+    without Human or Arabidopsis proteins for the test but it should be
+    noted that other predictors would have no such restriction
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
-Another way to look at performance is with the probability densities of
-true and false AMPs. This helps clarify the difference in performance
-between models. Ampep performs very poorly because it assigns high
-proportions of Tg and Bg proteins a value of p~0.5 and is generally poor
-at discriminating. A low FPR can be achieved with this model but only at
-the expense of almost all sensitivity. Ampscanner has the opposite
-behaviour. It assigns almost all proteins a very high probability which
-results in a high TPR but means that it is unable to achieve a FPR less
-than about 0.25. This is not a good property for a genome-scanning
-predictor because 25% of an entire genome is in the order of 10k false
-positives. Ampir provides a good balance. Importantly it allows a low
-FPR to be achieved while still maintaining a high TPR.
-
-![](05_benchmark_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+We find that Ampep and ampir\_mature both perform very poorly (and
+similarly), perhaps because they are both SVMs trained on similar data.
+Ampscanner on the other hand appears to perform well within a certain
+range (FPR 0.25-0.75) but the important thing for a genome scan is that
+it is unable to achieve a FPR less than about 0.25. This is not a good
+property for a genome-scanning predictor because 25% of an entire genome
+is in the order of 10k false positives. Ampir provides a good balance
+and achieves moderate Recall at very low FPR for both organisms. No
+predictor was able to achieve high Recall at an acceptably low FPR
+meaning that while genome-wide scanning can be used to identify novel
+AMPs such stringent filtering is required that a high proportion of true
+AMPs will inevitably be missed.
 
 While ROC curves and the confusion matrix are useful measures for
 benchmarking many classification problems they do not properly capture
@@ -106,6 +120,6 @@ enrichment is of great practical use, reducing the number of false
 experimental leads per true positive from many thousands down to tens or
 hundreds.
 
-    ## Warning: Removed 4 rows containing missing values (geom_path).
+    ## Warning: Removed 200 rows containing missing values (geom_path).
 
-![](05_benchmark_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](05_benchmark_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->

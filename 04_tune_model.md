@@ -1,8 +1,6 @@
 Model tuning
 ================
 
-## Model Tuning
-
 The default model included with ampir is an svm with radial kernel and
 has two tuning parameters, sigma and C (cost). Optimal values for these
 tuning parameters were obtained by using model tuning functions

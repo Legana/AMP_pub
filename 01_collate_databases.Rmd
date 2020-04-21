@@ -19,12 +19,11 @@ The following databases were accessed as of March 2020.  All ampir models were t
 Four recently updated antimicrobial peptide (AMP) databases were used:
 
 * [APD 3](http://aps.unmc.edu/AP/) by [Wang et al. 2016](https://academic.oup.com/nar/article/44/D1/D1087/2503090) 
-* [DRAMP 2.0](http://dramp.cpu-bioinfor.org/) by [Kang et al. 2019](https://www.ncbi.nlm.nih.gov/pubmed/31409791)
-  + [DRAMP GitHub](https://github.com/CPUDRAMP/DRAMP2.0)
+* [DRAMP 2.0](http://dramp.cpu-bioinfor.org/) by [Kang et al. 2019](https://www.ncbi.nlm.nih.gov/pubmed/31409791). Also see [DRAMP GitHub](https://github.com/CPUDRAMP/DRAMP2.0)
 * [dbAMP](http://140.138.77.240/~dbamp/index.php) by [Jhong et al. 2018](https://www.ncbi.nlm.nih.gov/pubmed/30380085)
 * [UniProt](https://www.uniprot.org/uniprot/?query=keyword%3A%22Antimicrobial+%5BKW-0929%5D%22&sort=score) using the keyword "Antimicrobial [KW-0929]".
 
-Raw downloads for these databases are included in the data distribution for this repository.  After unpacking they should be present at the following file locations
+Raw downloads for these databases are included in the data distribution.  After unpacking they should be present at the following file locations
 
 | Database Name | File |
 | ------------------------ | --------------- |
@@ -96,7 +95,7 @@ swissprot <- uniprot %>%
 ```
 
 
-AMPs were downloaded from UniProt on 14-April-2020 using the search term: "keyword:"Antimicrobial [KW-0929]".  This included `r uniprot %>% filter(Status=="reviewed") %>% nrow()` reviewed and `r uniprot %>% filter(Status=="unreviewed") %>% nrow()` unreviewed proteins.
+AMPs were downloaded from UniProt on 14-April-2020 using the search term: "keyword:Antimicrobial [KW-0929]".  This included `r uniprot %>% filter(Status=="reviewed") %>% nrow()` reviewed and `r uniprot %>% filter(Status=="unreviewed") %>% nrow()` unreviewed proteins.
 
 ```{r}
 combined <- rbind(apd,dramp,dbamp,swissprot)
@@ -129,7 +128,14 @@ uniprot_peptides <- uniprot %>%
 The SwissProt database provides a `Peptide` field which allows us to distinguish between entries for mature peptides and precursors. If the Peptide length is the same as the total length, it is a mature peptide. For entries where such information is available we see a very clear split with mature peptides having a typical length of 25 amino acids (AA) whereas precursors are slightly longer at around 60-75 AA. Note that the length distribution of mature peptides matches the APD length distribution very well but all other databases, including DRAMP include longer sequences and therefore are likely to include some fraction of precursors. Note that there are a total of `r uniprot_peptides %>% filter(is_mature_peptide) %>% nrow()` mature peptides, `r uniprot_peptides %>% filter(!is_mature_peptide) %>% nrow()` precursors with peptide annotation information, and `r uniprot_peptides %>% filter(is.na(is_mature_peptide)) %>% filter(Status=="reviewed") %>% nrow()` reviewed AMPs without Peptide information.  The `NA` has a notably broader distribution of lengths reflecting the possibility that it includes a mix of both types.  
 
 ```{r, warning=FALSE, message=FALSE}
-ggplot(uniprot_peptides %>% filter(Status=="reviewed") ,aes(x=Length)) + geom_density(aes(color=is_mature_peptide)) + xlim(0,300)
+uniprot_peptides %>% 
+  filter(Status=="reviewed") %>%
+  mutate(type = ifelse(is.na(is_mature_peptide),"Unknown",is_mature_peptide)) %>% 
+  mutate(type = ifelse(type=="TRUE","Mature",type)) %>% 
+  mutate(type = ifelse(type=="FALSE","Precursor",type)) %>% 
+  ggplot(aes(x=Length)) + geom_density(aes(color=type)) + 
+  xlim(0,300) + 
+  theme(legend.title = element_blank())
 ```
 
 
@@ -230,7 +236,7 @@ Another approach to AMP prediction is to focus entirely on mature peptides as th
 For this approach we build a database as follows;
 
 1. Include all AMPs from the APD, DRAMP and dbAMP databases with lengths >20AA and < 60AA
-2. Mature peptides from Swissprot
+2. Include mature peptides from Swissprot (also with length >20AA and <60AA)
 3. Remove sequences that are identical or that contain non-standard amino acids
 
 ```{r}
@@ -238,8 +244,8 @@ ampir_mature <- combined %>%
   left_join(uniprot_peptides,by = c("uniprot" = "Entry")) %>% 
   filter(length < 60) %>% filter(length > 20) %>% 
   filter(database!="SwissProt" | is_mature_peptide) %>% 
-  distinct(seq, .keep_all = TRUE)   %>%                  # Filtering criterion 5
-  filter(grepl(seq,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) # Filtering criterion 6
+  distinct(seq, .keep_all = TRUE)   %>%                  
+  filter(grepl(seq,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) 
 
 ggplot(ampir_mature,aes(x=length)) + geom_histogram() + facet_wrap(~database)
 ```
@@ -248,6 +254,8 @@ ggplot(ampir_mature,aes(x=length)) + geom_histogram() + facet_wrap(~database)
 # Main DB
 df_to_faa(ampir_mature %>% select(ID, seq) %>% as.data.frame(), "raw_data/amp_databases/ampir_mature_positive.fasta")
 ```
+
+Finally cluster these sequences to 90% identity with `cd-hit`
 
 ```bash
 cd-hit -i raw_data/amp_databases/ampir_mature_positive.fasta -o raw_data/amp_databases/ampir_mature_positive90.fasta -c 0.90 -g 1

@@ -15,7 +15,7 @@ library(caret)
 set.seed(3141)
 ```
 
-In the `ampir` default models we distinguish between those designed to predict protein precursors and those for mature peptides. Positive datasets for both are outlined in [01_collate_databases](01_collate_databases.md).
+Since `ampir` uses supervised learning to create a classifier it needs a training set consisting of confirmed "positive" AMP (or precursor) sequences and also a background dataset consisting of non-AMP sequences.  Construction of this training data is a critical step and has an enormous effect on the performance of the predictor.  In [01_collate_databases](01_collate_databases.md) the process of positive dataset construction is decribed. Here we describe how the background data and overall training sets are built.
 
 ## Precursor Background Dataset
 
@@ -44,11 +44,7 @@ comm -23 \
   xargs samtools faidx uniprot-filtered-reviewed_yes_90.fasta > amp_databases/ampir_negative90.fasta
 ```
 
-**Step 3 and 4** We read both target and background datasets and apply filters to the background dataset that were also applied to the target dataset:
-
-* Remove proteins with lengths < 50 amino acids
-* Remove very large proteins (> 500 amino acids)
-* Remove protein sequences with nonstandard amino acids
+**Step 3 and 4** are fairly trivial. Length filters are applied and sequences with non-standard AA's removed
 
 ```{r}
 tg <- read_faa("raw_data/amp_databases/ampir_positive90.fasta") %>%
@@ -64,7 +60,12 @@ bg_1 <- bg_raw %>% sample_n(nrow(tg))
 
 ## Mature Peptide Background Dataset
 
-As a background dataset for mature peptides we have several options.  One would be to simply take peptides as random substrings from the full protein database.  Another is to select proteins in swissprot with lengths similar to mature peptides.  This latter option is probably more representative of a real classification problem where we decide apriori to only look at short peptides within a larger dataset and wish to distinguish AMPs from other typical short peptides/proteins like toxins. 
+As a background dataset for mature peptides we have several options.  One would be to simply take peptides as random substrings from the full protein database.  Another is to select proteins in swissprot with lengths similar to mature peptides.  This latter option is probably more representative of a real classification problem where we decide apriori to only look at short peptides within a larger dataset and wish to distinguish AMPs from other typical short peptides/proteins like toxins. Specifically the method used for constructing a mature peptide background for `ampir` is;
+
+1. Use non-AMP sequences clustered to 90% identity from SwissProt as a starting point
+2. Keep only sequences >20AA and <100AA
+3. Remove sequences with non-standard amino acids
+4. Sample this dataset randomly so that it is balanced (same number of peptides as the positive data)
 
 ```{r}
 ## Background fragment Dataset 
@@ -72,32 +73,22 @@ As a background dataset for mature peptides we have several options.  One would 
 tg_mature <- read_faa("raw_data/amp_databases/ampir_mature_positive90.fasta") %>% 
   add_column(Label = "Tg")
 
-tg_lengths <- tg_mature %>% pull(seq_aa) %>% nchar()
-
-bg_mature_random <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>% 
-  mutate(pep_length = sample(tg_lengths, n(), replace = TRUE)) %>% 
-  filter(nchar(seq_aa) > pep_length) %>% 
-  mutate(pep_start = as.integer((nchar(seq_aa)-pep_length)*runif(n()))) %>% 
-  mutate(pep_seq = substr(seq_aa,pep_start,pep_start+pep_length)) %>% 
-  select(seq_name,seq_aa = pep_seq) %>% 
-  filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) %>% 
-  add_column(Label = "Bg") %>% 
-  sample_n(nrow(tg_mature))
-
 bg_mature <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>% 
   filter(nchar(seq_aa) > 20) %>% filter(nchar(seq_aa) < 100) %>% 
   select(seq_name,seq_aa) %>% 
   filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) %>% 
   add_column(Label = "Bg") %>% 
   sample_n(nrow(tg_mature))
-
-
 ```
 
 
 ## Training and Test Sets
 
-Using the target and background proteins identified above we create paired training and test sets. Initially these have bg/tg ratio of 1:1. In all cases we use 80% of data for training and reserve 20% for testing. These datasets are saved to cache and used for model training and tuning scripts.
+Using the target and background proteins identified above we create paired training and test sets. In all cases we use 80% of data for training and reserve 20% for testing. These datasets are saved to cache and used for model training and tuning scripts. The training sets created are;
+
+1. Precursor training (balanced mix of target and background precursors)
+2. Mature peptide training
+3. Precursor training but with Human and Arabidopsis sequences removed (for benchmarking purposes)
 
 ```{r}
 export_training_and_test <- function(features,suffix){
@@ -140,9 +131,10 @@ features_mature <- ampir:::calculate_features(tg_bg_mature) %>%
 export_training_and_test(features_mature,"mature")
 ```
 
-For whole genome benchmarking we remove Human and Arabidopsis data
 
 ```{r}
+#For whole genome benchmarking we remove Human and Arabidopsis data
+
 human_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx",guess_max = 10000)
 arath_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/arath/uniprot-proteome_up000006548.xlsx",guess_max = 40000)
 

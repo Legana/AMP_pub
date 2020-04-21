@@ -1,10 +1,14 @@
 Build a training dataset for ampir
 ================
 
-In the `ampir` defaults models we distinguish between those designed to
-predict protein precursors and those for mature peptides. Positive
-datasets for both are outlined in
-[01\_collate\_databases](01_collate_databases.md).
+Since `ampir` uses supervised learning to create a classifier it needs a
+training set consisting of confirmed “positive” AMP (or precursor)
+sequences and also a background dataset consisting of non-AMP sequences.
+Construction of this training data is a critical step and has an
+enormous effect on the performance of the predictor. In
+[01\_collate\_databases](01_collate_databases.md) the process of
+positive dataset construction is decribed. Here we describe how the
+background data and overall training sets are built.
 
 ## Precursor Background Dataset
 
@@ -51,13 +55,8 @@ comm -23 \
   xargs samtools faidx uniprot-filtered-reviewed_yes_90.fasta > amp_databases/ampir_negative90.fasta
 ```
 
-**Step 3 and 4** We read both target and background datasets and apply
-filters to the background dataset that were also applied to the target
-dataset:
-
-  - Remove proteins with lengths \< 50 amino acids
-  - Remove very large proteins (\> 500 amino acids)
-  - Remove protein sequences with nonstandard amino acids
+**Step 3 and 4** are fairly trivial. Length filters are applied and
+sequences with non-standard AA’s removed
 
 ## Mature Peptide Background Dataset
 
@@ -68,13 +67,26 @@ lengths similar to mature peptides. This latter option is probably more
 representative of a real classification problem where we decide apriori
 to only look at short peptides within a larger dataset and wish to
 distinguish AMPs from other typical short peptides/proteins like toxins.
+Specifically the method used for constructing a mature peptide
+background for `ampir` is;
+
+1.  Use non-AMP sequences clustered to 90% identity from SwissProt as a
+    starting point
+2.  Keep only sequences \>20AA and \<100AA
+3.  Remove sequences with non-standard amino acids
+4.  Sample this dataset randomly so that it is balanced (same number of
+    peptides as the positive data)
 
 ## Training and Test Sets
 
 Using the target and background proteins identified above we create
-paired training and test sets. Initially these have bg/tg ratio of 1:1.
-In all cases we use 80% of data for training and reserve 20% for
-testing. These datasets are saved to cache and used for model training
-and tuning scripts.
+paired training and test sets. In all cases we use 80% of data for
+training and reserve 20% for testing. These datasets are saved to cache
+and used for model training and tuning scripts. The training sets
+created are;
 
-For whole genome benchmarking we remove Human and Arabidopsis data
+1.  Precursor training (balanced mix of target and background
+    precursors)
+2.  Mature peptide training
+3.  Precursor training but with Human and Arabidopsis sequences removed
+    (for benchmarking purposes)

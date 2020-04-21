@@ -12,16 +12,15 @@ Four recently updated antimicrobial peptide (AMP) databases were used:
   - [APD 3](http://aps.unmc.edu/AP/) by [Wang et
     al. 2016](https://academic.oup.com/nar/article/44/D1/D1087/2503090)
   - [DRAMP 2.0](http://dramp.cpu-bioinfor.org/) by [Kang et
-    al. 2019](https://www.ncbi.nlm.nih.gov/pubmed/31409791)
-      - [DRAMP GitHub](https://github.com/CPUDRAMP/DRAMP2.0)
+    al. 2019](https://www.ncbi.nlm.nih.gov/pubmed/31409791). Also see
+    [DRAMP GitHub](https://github.com/CPUDRAMP/DRAMP2.0)
   - [dbAMP](http://140.138.77.240/~dbamp/index.php) by [Jhong et
     al. 2018](https://www.ncbi.nlm.nih.gov/pubmed/30380085)
   - [UniProt](https://www.uniprot.org/uniprot/?query=keyword%3A%22Antimicrobial+%5BKW-0929%5D%22&sort=score)
     using the keyword “Antimicrobial \[KW-0929\]”.
 
-Raw downloads for these databases are included in the data distribution
-for this repository. After unpacking they should be present at the
-following file
+Raw downloads for these databases are included in the data distribution.
+After unpacking they should be present at the following file
 locations
 
 | Database Name | File                                                                    |
@@ -64,7 +63,7 @@ removed).
 ### UniProt
 
 AMPs were downloaded from UniProt on 14-April-2020 using the search
-term: “keyword:”Antimicrobial \[KW-0929\]". This included 3221 reviewed
+term: “keyword:Antimicrobial \[KW-0929\]”. This included 3221 reviewed
 and 19288 unreviewed proteins.
 
 ## Summary of AMP databases
@@ -186,12 +185,16 @@ For this approach we build a database as follows;
 
 1.  Include all AMPs from the APD, DRAMP and dbAMP databases with
     lengths \>20AA and \< 60AA
-2.  Mature peptides from Swissprot
+2.  Include mature peptides from Swissprot (also with length \>20AA and
+    \<60AA)
 3.  Remove sequences that are identical or that contain non-standard
     amino
 acids
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+Finally cluster these sequences to 90% identity with
+`cd-hit`
 
 ``` bash
 cd-hit -i raw_data/amp_databases/ampir_mature_positive.fasta -o raw_data/amp_databases/ampir_mature_positive90.fasta -c 0.90 -g 1

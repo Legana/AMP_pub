@@ -11,11 +11,6 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 library(ampir)
 library(caret)
 library(tidyverse)
-library(pROC)
-
-#devtools::install_github('ejanalysis/analyze.stuff')
-#library(analyze.stuff)
-#source("R/calc_cm_metrics.R")
 ```
 
 
@@ -27,8 +22,8 @@ Benchmarking the performance of AMP predictors is challenging for a number of re
 
 In light of these issues we tested the performance of ampir against contemporary AMP predictors using two very different benchmarks.
 
-1. The [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) benchmark dataset. This was included in the interests of consistency with benchmarking from previous work but.  Results from this benchmark are not likely to reflect performance in a genome-scanning context
-2. A more realistic but much more challenging benchmark based on genomes for species with the best available annotated AMP repertoires. We chose an animal (Human) and plant (Arabidopsis thaliana) for this test. 
+1. The [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) benchmark dataset. This was included in the interests of consistency with benchmarking from previous work but results from this benchmark are not likely to reflect performance in a genome-scanning context
+2. A more realistic but much more challenging benchmark based on genomes for species with the best available annotated AMP repertoires. We chose an animal (Human) and a plant (Arabidopsis thaliana) for this test. 
 
 ##### Table 1: AMP predictors with their papers and model accessiblity 
 
@@ -43,6 +38,12 @@ In light of these issues we tested the performance of ampir against contemporary
 AMP predictors were accessed in ***April 2020***
 
 ### Xiao et al Benchmark
+
+Most predictors performed very well against the Xiao et al benchmark which is not unexpected given that;
+
+  - The benchmark proteins form a substantial proportion of training data for most methods (except ampir_precursor which performed badly)
+  - The Xiao benchmark reflects the goals (and hence background data choice and other model choices) of all models except ampir_precursor
+
 
 ```{r}
 calc_cm_metrics <- function(p_threshold, df) {
@@ -65,9 +66,8 @@ calc_cm_metrics <- function(p_threshold, df) {
 
 
 ```{r, echo = FALSE}
-# Calculate ampir predictions
+# ampir
 #
-
 precursor_model <- readRDS("cache/tuned_precursor.rds")
 mature_model <- readRDS("cache/tuned_mature.rds")
 xbench <- read_faa("raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta")
@@ -113,7 +113,7 @@ xbench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/iamp2l/158
   rename(prob_AMP = Prediction_Probability)
 
 ampscan_roc <- as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics, xbench_ampscanv2))) %>%
-  add_column(model = "ampscan")
+  add_column(model = "ampscanv2")
 ```
 
 ```{r}
@@ -145,7 +145,11 @@ ggplot(models_roc) +
 
 Since we are building a model for the purpose of genome-wide prediction a realistic test must involve data with composition similar to that of a whole genome scan. 
 
-One approach is to use genomes that have been well annotated for AMPs.  The Human and Arabidopsis are among the best. We were able to run this test for `ampir`, `ampep` and `amscan_v2` only because other predictors were unable to handle the large number of candidates sequences (~100k) in a practical manner. 
+One approach is to use whole genomes that have been well annotated for AMPs.  Here we chose the Human and Arabidopsis genomes because these represent phylogeentically distinct lineages (animals and plants) are their genomes among the best annotated for AMPs. A few other points to note about this test are;
+
+- We were able to run this test for `ampir`, `ampep` and `amscan_v2` only because other predictors were unable to handle the large number of candidates sequences (~100k) in a practical manner. 
+- We used a specially generated model for ampir that was trained without Human or Arabidopsis proteins for the test but it should be noted that other predictors would have no such restriction
+
 
 ```{r}
 human_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx",guess_max = 10000)
@@ -165,15 +169,18 @@ if ( file.exists("cache/ref_predictions_ampir.rds")){
   ref_predictions_ampir <- read_rds("cache/ref_predictions_ampir.rds")
 } else {
   ampir_genome_model <- readRDS("cache/tuned_precursor_nobench.rds")
-  ref_predictions_ampir <- predict_amps(as.data.frame(ref_df), n_cores=4, model = ampir_genome_model)
+  ref_predictions_ampir_prec <- predict_amps(as.data.frame(ref_df), n_cores=4, model = ampir_genome_model) %>% add_column(method="ampir_precursor")
+  ref_predictions_ampir_mature <- predict_amps(as.data.frame(ref_df), n_cores=4, model = mature_model) %>% add_column(method="ampir_mature")
+  
+  ref_predictions_ampir <- rbind(ref_predictions_ampir_prec,ref_predictions_ampir_mature)
+  
   write_rds(ref_predictions_ampir,"cache/ref_predictions_ampir.rds")
 }
 
 
 ampir_genome_bench <- reference_proteomes %>% left_join(ref_predictions_ampir %>% select(-seq_aa),by=c("Entry"="seq_name")) %>% 
   filter(!is.na(prob_AMP)) %>% 
-  select(ID=Entry,prob_AMP,Organism,actual) %>% 
-  add_column(method="ampir")
+  select(ID=Entry,prob_AMP,Organism,actual,method) 
 
 organisms = c("Homo sapiens (Human)","Arabidopsis thaliana (Mouse-ear cress)")
 
@@ -185,7 +192,9 @@ get_genome_roc <- function(data, name){
   add_column(model = name)
 }
 
-ampir_genome_roc <- get_genome_roc(ampir_genome_bench,"ampir")
+ampir_genome_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(meth){
+  get_genome_roc(ampir_genome_bench %>% filter(method==meth),meth)
+}))
 ```
 
 
@@ -222,43 +231,52 @@ genome_rocs <- rbind(ampir_genome_roc,ampscan_genome_roc,ampep_genome_roc)
 ggplot(genome_rocs) + 
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
   xlim(0,1) +
-  labs(x = "False positive rate", y = "True positive rate") +
-  scale_colour_manual(name= "Model",
-                      breaks= c("ampir", "ampscanv2", "ampep"),
-                      values = c("blueviolet", "goldenrod2", "blue4")) +
-  theme(legend.position = c(0.9, 0.31),
-        legend.key = element_rect(fill = "white"),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "grey")) +
   facet_wrap(~organism)
 ```
 
-Another way to look at performance is with the probability densities of true and false AMPs.  This helps clarify the difference in performance between models.  Ampep performs very poorly because it assigns high proportions of Tg and Bg proteins a value of p~0.5 and is generally poor at discriminating.  A low FPR can be achieved with this model but only at the expense of almost all sensitivity.  Ampscanner has the opposite behaviour. It assigns almost all proteins a very high probability which results in a high TPR but means that it is unable to achieve a FPR less than about 0.25.  This is not a good property for a genome-scanning predictor because 25% of an entire genome is in the order of 10k false positives.  Ampir provides a good balance.  Importantly it allows a low FPR to be achieved while still maintaining a high TPR.
-
-```{r}
-all_genome_bench <- rbind(ampep_genome_bench,ampir_genome_bench,ampscan_genome_bench)
-
-ggplot(all_genome_bench %>% filter(!is.na(Organism)), aes(x=prob_AMP)) + 
-  geom_density(aes(color=actual)) +
-  facet_grid(method~Organism, scales = "free_y")
-```
+We find that Ampep and ampir_mature both perform very poorly (and similarly), perhaps because they are both SVMs trained on similar data. Ampscanner on the other hand appears to perform well within a certain range (FPR 0.25-0.75) but the important thing for a genome scan is that it is unable to achieve a FPR less than about 0.25.  This is not a good property for a genome-scanning predictor because 25% of an entire genome is in the order of 10k false positives.  Ampir provides a good balance and achieves moderate Recall at very low FPR for both organisms.  No predictor was able to achieve high Recall at an acceptably low FPR meaning that while genome-wide scanning can be used to identify novel AMPs such stringent filtering is required that a high proportion of true AMPs will inevitably be missed.
 
 While ROC curves and the confusion matrix are useful measures for benchmarking many classification problems they do not properly capture the highly imbalanced composition of genome-wide data, where for example one might be scanning 50-100k proteins and expecting just 100-300 true positives.  In this case it is perhaps more useful to look at the precision since this represents an outcome of practical importance, namely the proportion of predicted AMPs that are true positives at a given p threshold.  This is useful because a common use case when genome scanning is to attempt to identify a subset of the genome that is strongly enriched in true AMPs, possibly for the purpose of further experimental validation, or to make broad inferences about the genomic suite of AMPs for a species. 
 
 On this measure it can be seen that genome-wide prediction of AMPs is still an unsolved problem.  Although ampir clearly performs the best, none of the predictors were able to obtain a prediction set with precision better than about 15%.  Nevertheless, given the difficulties in identifying AMPs and the importance of this task this level of enrichment is of great practical use, reducing the number of false experimental leads per true positive from many thousands down to tens or hundreds. 
 
-```{r}
-ggplot(genome_rocs) + 
+```{r, fig.width=8, fig.height=3}
+library(RColorBrewer)
+models <- c("ampep","ampir_mature","ampir_precursor","ampscanv2","iamppred")
+model_colors <- brewer.pal(5,"Set1")
+names(model_colors) <- models
+model_names <- c("amPEP","ampir mature","ampir precursor","AMP Scanner v2","iAMPPred")
+names(model_names) <- models
+
+library(ggpubr)
+pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)","Human Genome","Arabidopsis Genome")) %>% 
+  ggplot() + 
   geom_line(aes(x = p_threshold, y = Precision, colour = model)) + 
-  xlim(0,1) +
-  labs(x = "p_threshold", y = "Precision") +
-  scale_colour_manual(name= "Model",
-                      breaks= c("ampir", "ampscanv2", "ampep"),
-                      values = c("blueviolet", "goldenrod2", "blue4")) +
-  theme(legend.position = c(0.7, 0.41),
-        legend.key = element_rect(fill = "white"),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "grey")) +
-  facet_wrap(~organism, scales = "free_y")
+  xlim(0.5,1) +
+  scale_color_manual(values = model_colors) +
+  labs(x = "Probability Threshold", y = "Precision") +
+  facet_wrap(~organism, scales = "free_y", nrow = 1) + 
+  theme_pubr() + theme(legend.position = "None") +
+  theme(strip.background = element_blank(), strip.placement = "outside", strip.text = element_text(size = 10)) +
+  theme(axis.text = element_text(size=8))
+
+pp <- ggplot(models_roc) + 
+  geom_line(aes(x = FPR, y = Recall, colour = model)) + 
+  scale_color_manual(values = model_colors, labels = model_names, name="") +
+    xlim(0,1) +
+  theme_pubr() + theme(legend.position = "None") + ggtitle("Peptide Benchmark") +
+  theme(plot.title = element_text(size=10, hjust = 0.5, vjust = -1))+
+  theme(axis.text = element_text(size=10))
+
+legend_b <- get_legend(
+  pp + 
+    guides(color = guide_legend(nrow = 1)) +
+    theme(legend.position = "bottom")
+)
+
+library(cowplot)
+prow <- plot_grid(pg,pp, rel_widths = c(2,1))
+plot_grid(prow,legend_b, ncol = 1,rel_heights = c(1,0.1))
+ggsave("figures/benchmarks.png", width = 178,units = "mm", height = 80)
 ```
 
