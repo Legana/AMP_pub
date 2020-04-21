@@ -6,25 +6,23 @@
 This repository contains code used for the
 [ampir](https://github.com/Legana/ampir) R package paper
 
-  - [Build positive dataset](01_collate_databases.md) : Rmd file
+  - [Collate data](01_collate_databases.md) : Rmd file
     [01\_collate\_databases.Rmd](01_collate_databases.Rmd)
-  - [Calculate features](02_train_test_set.md) : Rmd file
-    [02\_train\_test\_set.Rmd](02_train_test_set.Rmd)
+  - [Build training sets](02_build_training_data.md) : Rmd file
+    [0202\_build\_training\_data.Rmd](02_build_training_data.Rmd)
   - [Feature selection analysis](03_feature_selection.md) : Rmd file
     [03\_feature\_selection.Rmd](03_feature_selection.Rmd)
-  - [Reads and tests tuned model](04_tune_model.md) : Rmd file
+  - [Model tuning](04_tune_model.md) : Rmd file
     [04\_tune\_model.Rmd](04_tune_model.Rmd)
-  - [Benchmarks `ampir` to other predictors](05_benchmark_auroc.md) :
-    Rmd file [05\_benchmark\_auroc.Rmd](05_benchmark_auroc.Rmd)
-  - [Creates precision-recall curve](06_alpha_prcurve.md) : Rmd file
-    [06\_alpha\_prcurve.Rmd](06_alpha_prcurve.Rmd)
+  - [Benchmarking](05_benchmark.md) : Rmd file
+    [05\_benchmark.Rmd](05_benchmark.Rmd)
 
 The files required to run the code in these Rmd files can be obtained
-[here](https://cloudstor.aarnet.edu.au/plus/s/e2MsuyZPwZOOuBe/download?path=%2F&files=data.tgz)
-or by using the
+[here](https://cloudstor.aarnet.edu.au/plus/s/kYedwzkgUBjCmos) or by
+using the
 command:
 
 ``` bash
-wget 'https://cloudstor.aarnet.edu.au/plus/s/e2MsuyZPwZOOuBe/download?path=%2F&files=data.tgz' -O data.tgz
+wget 'https://cloudstor.aarnet.edu.au/plus/s/kYedwzkgUBjCmos' -O data.tgz
 tar -zxvf data.tgz 
 ```

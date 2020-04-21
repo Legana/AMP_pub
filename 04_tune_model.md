@@ -1,9 +1,7 @@
 Model tuning
 ================
 
-## Model Tuning
-
-The default model included with `ampir` is an svm with radial kernel and
+The default model included with ampir is an svm with radial kernel and
 has two tuning parameters, sigma and C (cost). Optimal values for these
 tuning parameters were obtained by using model tuning functions
 available in `caret`. Since this is computationally intensive it was
@@ -16,46 +14,27 @@ This needs to be run on an HPC system with R installed and with packages
 
 ``` bash
 module load R/3.6.1
-Rscript tune_model.R outfile=../cache/tuned_1.rds train=../cache/featuresTrain_1.rds test=../cache/featuresTest_1.rds ncores=24
+Rscript tune_model.R outfile=../cache/tuned_precursor.rds train=../cache/featuresTrain_precursor.rds test=../cache/featuresTest_precursor.rds ncores=24
 ```
 
 Inspecting the results reveals the variation of model performance with
-the tuning parameters.
-
-``` r
-tuning_data <- readRDS("cache/tuned_1.rds")
-
-trellis.par.set(caretTheme())
-plot(tuning_data)  
-```
+the tuning parameters. If sigma is small and/or cost is small then the
+model will be more ‘local’
 
 ![](04_tune_model_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
-``` r
-tuning_data$bestTune
-```
+    ##     sigma C
+    ## 103   0.1 3
 
-    ##    sigma C
-    ## 14  0.02 2
+    ##  [1] "Amphiphilicity" "Hydrophobicity" "pI"             "Mw"            
+    ##  [5] "Charge"         "Xc1.A"          "Xc1.R"          "Xc1.N"         
+    ##  [9] "Xc1.D"          "Xc1.C"          "Xc1.E"          "Xc1.Q"         
+    ## [13] "Xc1.G"          "Xc1.H"          "Xc1.I"          "Xc1.L"         
+    ## [17] "Xc1.K"          "Xc1.M"          "Xc1.F"          "Xc1.P"         
+    ## [21] "Xc1.S"          "Xc1.T"          "Xc1.W"          "Xc1.Y"         
+    ## [25] "Xc1.V"          "Xc2.lambda.1"   "Xc2.lambda.2"
 
 To keep the final model size small for `ampir` distribution the training
 is performed with optimal parameters one more time. This results in a
-train object with all information required by `ampir` but without the
+train object with all information required by ampir but without the
 suboptimal models.
-
-``` r
-predictors <- colnames(tuning_data$trainingData)[-1]
-
-featuresTrain <- readRDS("cache/featuresTrain_1.rds")
-
-predictor_indices <- which(colnames(featuresTrain) %in% predictors)
-
-tuned_compact_model <- train(Label~.,
-      data = featuresTrain[,c(predictor_indices,46)],
-      method="svmRadial",
-      trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3, classProbs = TRUE),
-      preProcess = c("center", "scale"),
-      tuneGrid = tuning_data$bestTune)
-
-saveRDS(tuned_compact_model,"cache/ampir_default_model.rds")
-```
