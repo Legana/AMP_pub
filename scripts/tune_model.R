@@ -66,13 +66,8 @@ grid_for_final_svmradial <- expand.grid(sigma=c(0.01,0.02,0.03,0.04,0.05,0.06,0.
 
 rfe_predictors <- readRDS("../cache/predictors_1.rds")
 
-<<<<<<< HEAD
 #predictor_indices <- which(colnames(featuresTrain) %in%  rfe_predictors)
 # [,c(46)]predictor_indices,
-=======
-predictor_indices <- which(colnames(featuresTrain) %in% rfe_predictors)
-
->>>>>>> upstream/master
 svm_Radial_final <- train(Label~.,
                             data = featuresTrain[,c(2:28,46)],
                             method="svmRadial",
