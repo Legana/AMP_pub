@@ -24,7 +24,7 @@ model will be more ‘local’
 ![](04_tune_model_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
     ##     sigma C
-    ## 103   0.1 3
+    ## 114   0.2 3
 
     ##  [1] "Amphiphilicity" "Hydrophobicity" "pI"             "Mw"            
     ##  [5] "Charge"         "Xc1.A"          "Xc1.R"          "Xc1.N"         

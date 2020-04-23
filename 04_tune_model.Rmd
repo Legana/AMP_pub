@@ -23,7 +23,7 @@ Rscript tune_model.R outfile=../cache/tuned_precursor.rds train=../cache/feature
 Inspecting the results reveals the variation of model performance with the tuning parameters.  If sigma is small and/or cost is small then the model will be more 'local'
 
 ```{r}
-tuning_data <- readRDS("cache/tuned_precursor.rds")
+tuning_data <- readRDS("cache/tuned_precursor_imbal.rds")
 
 trellis.par.set(caretTheme())
 plot(tuning_data)  

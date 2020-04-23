@@ -168,7 +168,7 @@ ref_df <- reference_proteomes %>% select(seq_name=Entry,seq_aa=Sequence)
 if ( file.exists("cache/ref_predictions_ampir.rds")){
   ref_predictions_ampir <- read_rds("cache/ref_predictions_ampir.rds")
 } else {
-  ampir_genome_model <- readRDS("cache/tuned_precursor_nobench.rds")
+  ampir_genome_model <- readRDS("cache/tuned_precursor_imbal_nobench.rds")
   ref_predictions_ampir_prec <- predict_amps(as.data.frame(ref_df), n_cores=4, model = ampir_genome_model) %>% add_column(method="ampir_precursor")
   ref_predictions_ampir_mature <- predict_amps(as.data.frame(ref_df), n_cores=4, model = mature_model) %>% add_column(method="ampir_mature")
   
@@ -251,10 +251,10 @@ names(model_names) <- models
 library(ggpubr)
 pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)","Human Genome","Arabidopsis Genome")) %>% 
   ggplot() + 
-  geom_line(aes(x = p_threshold, y = Precision, colour = model)) + 
-  xlim(0.5,1) +
+  geom_line(aes(x = FP, y = TP, colour = model)) + 
+  xlim(0,500) +
   scale_color_manual(values = model_colors) +
-  labs(x = "Probability Threshold", y = "Precision") +
+  labs(x = "False Positives", y = "True Positives") +
   facet_wrap(~organism, scales = "free_y", nrow = 1) + 
   theme_pubr() + theme(legend.position = "None") +
   theme(strip.background = element_blank(), strip.placement = "outside", strip.text = element_text(size = 10)) +
@@ -277,6 +277,7 @@ legend_b <- get_legend(
 library(cowplot)
 prow <- plot_grid(pg,pp, rel_widths = c(2,1))
 plot_grid(prow,legend_b, ncol = 1,rel_heights = c(1,0.1))
-ggsave("figures/benchmarks.png", width = 178,units = "mm", height = 80)
+ggsave("figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
+ggsave("figures/benchmarks.eps", width = 178,units = "mm", height = 80,dpi = 600)
 ```
 

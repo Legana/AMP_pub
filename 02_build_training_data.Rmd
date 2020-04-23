@@ -140,12 +140,8 @@ arath_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/arath/unipr
 
 names_to_exclude <- c(human_proteome$Entry,arath_proteome$Entry)
 
-tg_bg_1 <- rbind(tg,bg_1)
-
-features_tg_bg_1 <- calculate_features(tg_bg_1) %>% 
-  add_column(Label = as.factor(tg_bg_1$Label))
-
 export_training_and_test(features_tg_bg_1 %>% filter(!(seq_name %in% names_to_exclude)),"precursor_nobench")
+export_training_and_test(features_tg_bg_imbal %>% filter(!(seq_name %in% names_to_exclude)),"precursor_imbal_nobench")
 ```
 
 
