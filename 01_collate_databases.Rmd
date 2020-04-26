@@ -128,7 +128,7 @@ uniprot_peptides <- uniprot %>%
   mutate(maturity = ifelse(maturity==TRUE,"Mature",maturity))
 ```
 
-The SwissProt database provides a `Peptide` field which allows us to distinguish between entries for mature peptides and precursors. If the Peptide length is the same as the total length, it is a mature peptide. For entries where such information is available we see a very clear split with mature peptides having a typical length of 25 amino acids (AA) whereas precursors are slightly longer at around 60-75 AA. Note that the length distribution of mature peptides matches the APD length distribution very well but all other databases, including DRAMP include longer sequences and therefore are likely to include some fraction of precursors. Note that there are a total of `r uniprot_peptides %>% filter(is_mature_peptide) %>% nrow()` mature peptides, `r uniprot_peptides %>% filter(!is_mature_peptide) %>% nrow()` precursors with peptide annotation information, and `r uniprot_peptides %>% filter(is.na(is_mature_peptide)) %>% filter(Status=="reviewed") %>% nrow()` reviewed AMPs without Peptide information. The `NA` has a notably broader distribution of lengths reflecting the possibility that it includes a mix of both types.  
+The SwissProt database provides a `Peptide` field which allows us to distinguish between entries for mature peptides and precursors. If the Peptide length is the same as the total length, it is a mature peptide. For entries where such information is available we see a very clear split with mature peptides having a typical length of 25 amino acids (AA) whereas precursors are slightly longer at around 60-75 AA. Note that the length distribution of mature peptides matches the APD length distribution very well but all other databases, including DRAMP include longer sequences and therefore are likely to include some fraction of precursors. Note that there are a total of `r uniprot_peptides %>% filter(is_mature_peptide) %>% nrow()` mature peptides, `r uniprot_peptides %>% filter(!is_mature_peptide) %>% nrow()` precursors with peptide annotation information, and `r uniprot_peptides %>% filter(is.na(is_mature_peptide)) %>% filter(Status=="reviewed") %>% nrow()` reviewed AMPs without Peptide information. The `Unknown` category has a notably broader distribution of lengths reflecting the possibility that it includes a mix of both types.  
 
 ```{r, warning=FALSE, message=FALSE}
 uniprot_peptides %>% 
@@ -212,15 +212,13 @@ cd-hit -i raw_data/amp_databases/ampir_positive.fasta -o raw_data/amp_databases/
 ampir_90 <- read_faa("raw_data/amp_databases/ampir_positive90.fasta")
 
 ampir_db_summary <- ampir_db %>% mutate(in_90 = (Entry %in% ampir_90$seq_name))
-
-ggplot(ampir_db_summary,aes(x=Length)) + geom_histogram() + facet_wrap(~in_90,ncol = 1)
 ```
 
 Certain organisms are particularly well annotated for AMPs. We find that our final database contains a large number of *Arabidopsis*, human, mouse, chicken and rat sequences. 
 
 ```{r}
 ampir_db_summary %>% group_by(Organism) %>% 
-  summarise(nentries = n(), n90_entries = sum(in_90)) %>% arrange(desc(n90_entries)) %>% head()
+  summarise(nentries = n(), n90_entries = sum(in_90)) %>% arrange(desc(n90_entries)) %>% head() %>% knitr::kable()
 ```
 
 ### Database files
@@ -250,9 +248,9 @@ ampir_mature <- combined %>%
   filter(database!="SwissProt" | is_mature_peptide) %>% 
   distinct(seq, .keep_all = TRUE)   %>%                  
   filter(grepl(seq,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) 
-
-ggplot(ampir_mature,aes(x=length)) + geom_histogram() + facet_wrap(~database)
 ```
+
+The resulting database has a high proportion of peptides
 
 ```{r}
 # Main DB
@@ -264,3 +262,8 @@ Finally cluster these sequences to 90% identity with `cd-hit`
 ```bash
 cd-hit -i raw_data/amp_databases/ampir_mature_positive.fasta -o raw_data/amp_databases/ampir_mature_positive90.fasta -c 0.90 -g 1
 ```
+
+### Database files
+
+- Full database (prior to `cd-hit` clustering) along with SwissProt metadata is available at `raw_data/amp_databases/ampir_mature_positive.fasta`
+- A FASTA formatted file with 90% clustered sequences `raw_data/amp_databases/ampir_mature_positive90.fasta`
