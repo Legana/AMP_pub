@@ -77,7 +77,7 @@ bg_mature <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>%
   filter(nchar(seq_aa) > 20) %>% filter(nchar(seq_aa) < 100) %>% 
   select(seq_name,seq_aa) %>% 
   filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) %>% 
-  add_column(Label = "Bg") %>% 
+  add_column(Label = "Bg") #%>% 
   sample_n(nrow(tg_mature))
 ```
 
@@ -112,8 +112,8 @@ export_training_and_test(features_tg_bg_1,"precursor")
 
 
 # For precursors with imbalanced data
-#
-tg_bg_imbal <- rbind(tg,bg_raw)
+# 1:10 ratio
+tg_bg_imbal <- rbind(tg,bg_raw %>% sample_n(14830))
 
 features_tg_bg_imbal <- ampir:::calculate_features(tg_bg_imbal) %>% 
   add_column(Label = tg_bg_imbal$Label)

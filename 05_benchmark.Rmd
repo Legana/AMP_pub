@@ -53,14 +53,21 @@ calc_cm_metrics <- function(p_threshold, df) {
   TN <- df %>% filter((actual=="Bg")) %>% filter(prob_AMP < p_threshold) %>% n_distinct()
   FN <- df %>% filter((actual=="Tg")) %>% filter(prob_AMP < p_threshold) %>% n_distinct()
   
-  Specificity <- round(TN / (TN + FP), digits = 3) #aka TNR
-  Recall <- round(TP / (TP + FN), digits = 3) # aka sensitivity, TPR
-  Precision <- round(TP/ (TP + FP), digits = 3) # positive predictive value
+  Specificity <- round(TN / (TN + FP), digits = 5) #aka TNR
+  Recall <- round(TP / (TP + FN), digits = 5) # aka sensitivity, TPR
+  Precision <- round(TP/ (TP + FP), digits = 5) # positive predictive value
   FPR <- FP / (TN + FP)
   
   cm <- c(TP, FP, TN, FN, Specificity, Recall, Precision, FPR, p_threshold)
   names(cm) <-c("TP", "FP", "TN", "FN", "Specificity", "Recall", "Precision", "FPR", "p_threshold") 
   cm
+}
+
+compress_model <- function(model){
+  model$trainingData <- model$trainingData[1,]
+  model$resampledCM <- NULL
+  model$control <- NULL
+  model
 }
 ```
 
@@ -68,8 +75,9 @@ calc_cm_metrics <- function(p_threshold, df) {
 ```{r, echo = FALSE}
 # ampir
 #
-precursor_model <- readRDS("cache/tuned_precursor.rds")
-mature_model <- readRDS("cache/tuned_mature.rds")
+precursor_model <- compress_model(readRDS("cache/tuned_precursor_imbal_nobench.rds"))
+mature_model <- compress_model(readRDS("cache/tuned_mature.rds"))
+
 xbench <- read_faa("raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta")
 
 if ( file.exists("cache/xbench_ampir_raw.rds") ){
@@ -168,7 +176,10 @@ ref_df <- reference_proteomes %>% select(seq_name=Entry,seq_aa=Sequence)
 if ( file.exists("cache/ref_predictions_ampir.rds")){
   ref_predictions_ampir <- read_rds("cache/ref_predictions_ampir.rds")
 } else {
-  ampir_genome_model <- readRDS("cache/tuned_precursor_imbal_nobench.rds")
+  ampir_genome_model <- compress_model(readRDS("cache/tuned_precursor_imbal_nobench.rds"))
+  
+  
+  
   ref_predictions_ampir_prec <- predict_amps(as.data.frame(ref_df), n_cores=4, model = ampir_genome_model) %>% add_column(method="ampir_precursor")
   ref_predictions_ampir_mature <- predict_amps(as.data.frame(ref_df), n_cores=4, model = mature_model) %>% add_column(method="ampir_mature")
   
@@ -186,15 +197,20 @@ organisms = c("Homo sapiens (Human)","Arabidopsis thaliana (Mouse-ear cress)")
 
 get_genome_roc <- function(data, name){
   do.call(rbind,lapply(organisms,function(org){ 
-    as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics , data %>% filter(Organism==org)))) %>%
+    as.data.frame(t(sapply(seq(0.001, 0.999, 0.001), calc_cm_metrics , data %>% filter(Organism==org)))) %>%
     add_column(organism=org)
   })) %>%   
   add_column(model = name)
 }
 
-ampir_genome_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(meth){
-  get_genome_roc(ampir_genome_bench %>% filter(method==meth),meth)
-}))
+if ( file.exists("cache/ampir_genome_roc.rds")){
+  ampir_genome_roc <- read_rds("cache/ampir_genome_roc.rds")
+} else {
+  ampir_genome_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(meth){
+    get_genome_roc(ampir_genome_bench %>% filter(method==meth),meth)
+  }))
+  write_rds(ampir_genome_roc,"cache/ampir_genome_roc.rds")
+}
 ```
 
 

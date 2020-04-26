@@ -106,9 +106,12 @@ combined <- rbind(apd,dramp,dbamp,swissprot)
 One of the most striking differences between AMP databases becomes clear simply by looking at the length distributions. The `APD` and `DRAMP` databases emphasise short peptides (mostly < 50 amino acids) which reflects their focus on mature peptides rather than full length precursor proteins.
 
 ```{r}
-ggplot(combined,aes(x=length)) + geom_histogram() +
-  facet_wrap(~database, scales = "free") +
-  labs(x = "Sequence length", y = "Frequency")
+library(ggpubr)
+ggplot(combined,aes(x=length)) + geom_histogram(binwidth = 3) +
+  facet_wrap(~database, scales = "free_y", ncol = 1) +
+  labs(x = "Sequence length", y = "Frequency") + xlim(0,300) +
+  theme_pubclean()
+ggsave("figures/amp_lengths.png", height = 6, width = 6)
 ```
 
 
@@ -134,8 +137,9 @@ uniprot_peptides %>%
   mutate(type = ifelse(type=="TRUE","Mature",type)) %>% 
   mutate(type = ifelse(type=="FALSE","Precursor",type)) %>% 
   ggplot(aes(x=Length)) + geom_density(aes(color=type)) + 
-  xlim(0,300) + 
+  xlim(0,300) + theme_pubclean() +
   theme(legend.title = element_blank())
+ggsave("figures/swissprot_lengths.png", height = 4, width = 8)
 ```
 
 

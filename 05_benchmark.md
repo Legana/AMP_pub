@@ -120,6 +120,6 @@ enrichment is of great practical use, reducing the number of false
 experimental leads per true positive from many thousands down to tens or
 hundreds.
 
-    ## Warning: Removed 414 rows containing missing values (geom_path).
+    ## Warning: Removed 4497 rows containing missing values (geom_path).
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->

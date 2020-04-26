@@ -23,7 +23,7 @@ Rscript tune_model.R outfile=../cache/tuned_precursor.rds train=../cache/feature
 Inspecting the results reveals the variation of model performance with the tuning parameters.  If sigma is small and/or cost is small then the model will be more 'local'
 
 ```{r}
-tuning_data <- readRDS("cache/tuned_precursor_imbal.rds")
+tuning_data <- readRDS("cache/tuned_mature.rds")
 
 trellis.par.set(caretTheme())
 plot(tuning_data)  
@@ -32,30 +32,5 @@ tuning_data$bestTune
 ```
 
 
-
-```{r}
-tuning_data$coefnames
-```
-
-
-To keep the final model size small for `ampir` distribution the training is performed with optimal parameters one more time.  This results in a train object with all information required by ampir but without the suboptimal models.
-
-```{r, eval=FALSE}
-#predictors = colnames(tuning_data$trainingData)[-1]
-
-featuresTrain <- readRDS("cache/featuresTrain_precursor.rds")
-
-#predictor_indices <- which(colnames(featuresTrain) %in%  predictors)
-predictor_indices <- c(2:28)
-
-tuned_compact_model <- train(Label~.,
-      data = featuresTrain[,c(predictor_indices,46)],
-      method="svmRadial",
-      trControl = trainControl(method = "repeatedcv", number = 10, repeats = 3, classProbs = TRUE),
-      preProcess = c("center", "scale"),
-      tuneGrid = tuning_data$bestTune)
-
-saveRDS(tuned_compact_model,"cache/ampir_default_model.rds")
-```
 
 
