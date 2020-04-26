@@ -37,9 +37,9 @@ appears to be regularly updated and contained 3177 AMPs in March 2020.
 An outdated (2017) AMP sequence list is downloadable from
 <http://aps.unmc.edu/AP/downloads.php> which currently contains 2,338
 sequences. To include the updated AMP list, the [web query
-interface](http://aps.unmc.edu/AP/database/mysql.php) was used to obtain
-the full 3,177 AMPs along with sufficient metadata to filter unwanted
-entries.
+interface](http://aps.unmc.edu/AP/database/query_input.php) was used to
+obtain the full 3,177 AMPs along with sufficient metadata to filter
+unwanted entries.
 
 ### DRAMP
 
@@ -116,7 +116,7 @@ a machine learning model.
 ## Database used for the `ampir` default model
 
 Since our goal with `ampir` is to obtain the maximum possible utility
-for genome-wide scans we sought to build a positive AMP dataset
+for genome-wide scans, we sought to build a positive AMP dataset
 consisting entirely of precursor proteins. In typical genome-scanning
 operations this is the only information available.
 
@@ -155,8 +155,8 @@ cd-hit -i raw_data/amp_databases/ampir_positive.fasta -o raw_data/amp_databases/
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 Certain organisms are particularly well annotated for AMPs. We find that
-our final database contains a large number of *Arabidopsis* sequences,
-human, mouse, chicken and rat sequences.
+our final database contains a large number of *Arabidopsis*, human,
+mouse, chicken and rat sequences.
 
     ## # A tibble: 6 x 3
     ##   Organism                               nentries n90_entries
@@ -170,23 +170,23 @@ human, mouse, chicken and rat sequences.
 
 ### Database files
 
-  - Full database (prior to cd-hit clustering) along with Swissprot
+  - Full database (prior to `cd-hit` clustering) along with SwissProt
     metadata is available at `raw_data/amp_databases/ampir_db.tsv`
   - A FASTA formatted file with 90% clustered sequences
     `raw_data/amp_databases/ampir_positive90.fasta`
 
-## ampir mature-peptide model
+## `ampir` mature-peptide model
 
 Another approach to AMP prediction is to focus entirely on mature
 peptides as these are the most likely to have shared/convergent
 physicochemical properties since they are the active molecules.
 
-For this approach we build a database as follows;
+For this approach we build a database as follows:
 
 1.  Include all AMPs from the APD, DRAMP and dbAMP databases with
-    lengths \>20AA and \< 60AA
-2.  Include mature peptides from Swissprot (also with length \>20AA and
-    \<60AA)
+    lengths \>20 AA and \< 60 AA
+2.  Include mature peptides from SwissProt (also with length \>20 AA and
+    \<60 AA)
 3.  Remove sequences that are identical or that contain non-standard
     amino
 acids

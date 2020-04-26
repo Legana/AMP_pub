@@ -44,7 +44,7 @@ apd <- readxl::read_excel("raw_data/amp_databases/APD_032020.xlsx", col_names = 
 ```
 
 
-The [Antimicrobial Peptide Database](http://aps.unmc.edu/AP/main.php) appears to be regularly updated and contained `r nrow(apd)` AMPs in March 2020. An outdated (2017) AMP sequence list is downloadable from http://aps.unmc.edu/AP/downloads.php which currently contains 2,338 sequences. To include the updated AMP list, the [web query interface](http://aps.unmc.edu/AP/database/mysql.php) was used to obtain the full 3,177 AMPs along with sufficient metadata to filter unwanted entries. 
+The [Antimicrobial Peptide Database](http://aps.unmc.edu/AP/main.php) appears to be regularly updated and contained `r nrow(apd)` AMPs in March 2020. An outdated (2017) AMP sequence list is downloadable from http://aps.unmc.edu/AP/downloads.php which currently contains 2,338 sequences. To include the updated AMP list, the [web query interface](http://aps.unmc.edu/AP/database/query_input.php) was used to obtain the full 3,177 AMPs along with sufficient metadata to filter unwanted entries. 
 
 ### DRAMP
 
@@ -128,7 +128,7 @@ uniprot_peptides <- uniprot %>%
   mutate(maturity = ifelse(maturity==TRUE,"Mature",maturity))
 ```
 
-The SwissProt database provides a `Peptide` field which allows us to distinguish between entries for mature peptides and precursors. If the Peptide length is the same as the total length, it is a mature peptide. For entries where such information is available we see a very clear split with mature peptides having a typical length of 25 amino acids (AA) whereas precursors are slightly longer at around 60-75 AA. Note that the length distribution of mature peptides matches the APD length distribution very well but all other databases, including DRAMP include longer sequences and therefore are likely to include some fraction of precursors. Note that there are a total of `r uniprot_peptides %>% filter(is_mature_peptide) %>% nrow()` mature peptides, `r uniprot_peptides %>% filter(!is_mature_peptide) %>% nrow()` precursors with peptide annotation information, and `r uniprot_peptides %>% filter(is.na(is_mature_peptide)) %>% filter(Status=="reviewed") %>% nrow()` reviewed AMPs without Peptide information.  The `NA` has a notably broader distribution of lengths reflecting the possibility that it includes a mix of both types.  
+The SwissProt database provides a `Peptide` field which allows us to distinguish between entries for mature peptides and precursors. If the Peptide length is the same as the total length, it is a mature peptide. For entries where such information is available we see a very clear split with mature peptides having a typical length of 25 amino acids (AA) whereas precursors are slightly longer at around 60-75 AA. Note that the length distribution of mature peptides matches the APD length distribution very well but all other databases, including DRAMP include longer sequences and therefore are likely to include some fraction of precursors. Note that there are a total of `r uniprot_peptides %>% filter(is_mature_peptide) %>% nrow()` mature peptides, `r uniprot_peptides %>% filter(!is_mature_peptide) %>% nrow()` precursors with peptide annotation information, and `r uniprot_peptides %>% filter(is.na(is_mature_peptide)) %>% filter(Status=="reviewed") %>% nrow()` reviewed AMPs without Peptide information. The `NA` has a notably broader distribution of lengths reflecting the possibility that it includes a mix of both types.  
 
 ```{r, warning=FALSE, message=FALSE}
 uniprot_peptides %>% 
@@ -166,7 +166,7 @@ SwissProt also includes a small number of larger proteins (>500 AA) that are lis
 
 ## Database used for the `ampir` default model
 
-Since our goal with `ampir` is to obtain the maximum possible utility for genome-wide scans we sought to build a positive AMP dataset consisting entirely of precursor proteins. In typical genome-scanning operations this is the only information available.  
+Since our goal with `ampir` is to obtain the maximum possible utility for genome-wide scans, we sought to build a positive AMP dataset consisting entirely of precursor proteins. In typical genome-scanning operations this is the only information available.  
 
 To achieve this we used the following criteria to design our database:
 
@@ -197,7 +197,7 @@ ampir_db <- uniprot_overlap %>%
 This leaves an initial database with `r ampir_db %>% nrow` entries, of which `r ampir_db %>% filter(Status=="unreviewed") %>% nrow` are unreviewed.  
 
 
-As a final step we write the database to a FASTA file and then use `cd-hit` to cluster sequences to 90% identity, keeping only a single representative sequence for each cluster.  This reduces the database size but roughly maintains the same length distribution.
+As a final step we write the database to a FASTA file and then use `cd-hit` to cluster sequences to 90% identity, keeping only a single representative sequence for each cluster. This reduces the database size but roughly maintains the same length distribution.
 
 ```{r}
 # Main DB
@@ -216,7 +216,7 @@ ampir_db_summary <- ampir_db %>% mutate(in_90 = (Entry %in% ampir_90$seq_name))
 ggplot(ampir_db_summary,aes(x=Length)) + geom_histogram() + facet_wrap(~in_90,ncol = 1)
 ```
 
-Certain organisms are particularly well annotated for AMPs.  We find that our final database contains a large number of *Arabidopsis* sequences, human, mouse, chicken and rat sequences. 
+Certain organisms are particularly well annotated for AMPs. We find that our final database contains a large number of *Arabidopsis*, human, mouse, chicken and rat sequences. 
 
 ```{r}
 ampir_db_summary %>% group_by(Organism) %>% 
@@ -225,7 +225,7 @@ ampir_db_summary %>% group_by(Organism) %>%
 
 ### Database files
 
-- Full database (prior to cd-hit clustering) along with Swissprot metadata is available at `raw_data/amp_databases/ampir_db.tsv`
+- Full database (prior to `cd-hit` clustering) along with SwissProt metadata is available at `raw_data/amp_databases/ampir_db.tsv`
 - A FASTA formatted file with 90% clustered sequences `raw_data/amp_databases/ampir_positive90.fasta`
 
 
@@ -233,14 +233,14 @@ ampir_db_summary %>% group_by(Organism) %>%
 write_tsv(ampir_db,"raw_data/amp_databases/ampir_db.tsv")
 ```
 
-## ampir mature-peptide model
+## `ampir` mature-peptide model
 
 Another approach to AMP prediction is to focus entirely on mature peptides as these are the most likely to have shared/convergent physicochemical properties since they are the active molecules. 
 
-For this approach we build a database as follows;
+For this approach we build a database as follows:
 
-1. Include all AMPs from the APD, DRAMP and dbAMP databases with lengths >20AA and < 60AA
-2. Include mature peptides from Swissprot (also with length >20AA and <60AA)
+1. Include all AMPs from the APD, DRAMP and dbAMP databases with lengths >20 AA and < 60 AA
+2. Include mature peptides from SwissProt (also with length >20 AA and <60 AA)
 3. Remove sequences that are identical or that contain non-standard amino acids
 
 ```{r}
