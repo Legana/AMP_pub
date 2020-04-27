@@ -72,9 +72,18 @@ One of the most striking differences between AMP databases becomes clear
 simply by looking at the length distributions. The `APD` and `DRAMP`
 databases emphasise short peptides (mostly \< 50 amino acids) which
 reflects their focus on mature peptides rather than full length
-precursor proteins.
+precursor
+    proteins.
+
+    ## Warning: Removed 234 rows containing non-finite values (stat_bin).
+
+    ## Warning: Removed 8 rows containing missing values (geom_bar).
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+    ## Warning: Removed 234 rows containing non-finite values (stat_bin).
+    
+    ## Warning: Removed 8 rows containing missing values (geom_bar).
 
 The SwissProt database provides a `Peptide` field which allows us to
 distinguish between entries for mature peptides and precursors. If the
@@ -87,8 +96,9 @@ distribution very well but all other databases, including DRAMP include
 longer sequences and therefore are likely to include some fraction of
 precursors. Note that there are a total of 768 mature peptides, 806
 precursors with peptide annotation information, and 1647 reviewed AMPs
-without Peptide information. The `NA` has a notably broader distribution
-of lengths reflecting the possibility that it includes a mix of both
+without Peptide information. The `Unknown` category has a notably
+broader distribution of lengths reflecting the possibility that it
+includes a mix of both
 types.
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
@@ -152,21 +162,18 @@ distribution.
 cd-hit -i raw_data/amp_databases/ampir_positive.fasta -o raw_data/amp_databases/ampir_positive90.fasta -c 0.90 -g 1
 ```
 
-![](01_collate_databases_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
-
 Certain organisms are particularly well annotated for AMPs. We find that
 our final database contains a large number of *Arabidopsis*, human,
 mouse, chicken and rat sequences.
 
-    ## # A tibble: 6 x 3
-    ##   Organism                               nentries n90_entries
-    ##   <chr>                                     <int>       <int>
-    ## 1 Arabidopsis thaliana (Mouse-ear cress)      289         282
-    ## 2 Mus musculus (Mouse)                         96          77
-    ## 3 Homo sapiens (Human)                         84          61
-    ## 4 Rattus norvegicus (Rat)                      59          52
-    ## 5 Bos taurus (Bovine)                          43          34
-    ## 6 Gallus gallus (Chicken)                      23          19
+| Organism                               | nentries | n90\_entries |
+| :------------------------------------- | -------: | -----------: |
+| Arabidopsis thaliana (Mouse-ear cress) |      289 |          282 |
+| Mus musculus (Mouse)                   |       96 |           77 |
+| Homo sapiens (Human)                   |       84 |           61 |
+| Rattus norvegicus (Rat)                |       59 |           52 |
+| Bos taurus (Bovine)                    |       43 |           34 |
+| Gallus gallus (Chicken)                |       23 |           19 |
 
 ### Database files
 
@@ -188,10 +195,9 @@ For this approach we build a database as follows:
 2.  Include mature peptides from SwissProt (also with length \>20 AA and
     \<60 AA)
 3.  Remove sequences that are identical or that contain non-standard
-    amino
-acids
+    amino acids
 
-![](01_collate_databases_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+The resulting database has a high proportion of peptides
 
 Finally cluster these sequences to 90% identity with
 `cd-hit`
@@ -199,3 +205,11 @@ Finally cluster these sequences to 90% identity with
 ``` bash
 cd-hit -i raw_data/amp_databases/ampir_mature_positive.fasta -o raw_data/amp_databases/ampir_mature_positive90.fasta -c 0.90 -g 1
 ```
+
+### Database files
+
+  - Full database (prior to `cd-hit` clustering) along with SwissProt
+    metadata is available at
+    `raw_data/amp_databases/ampir_mature_positive.fasta`
+  - A FASTA formatted file with 90% clustered sequences
+    `raw_data/amp_databases/ampir_mature_positive90.fasta`
