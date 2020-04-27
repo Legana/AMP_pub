@@ -15,7 +15,7 @@ library(caret)
 set.seed(3141)
 ```
 
-Since `ampir` uses supervised learning to create a classifier it needs a training set consisting of confirmed "positive" AMP (or precursor) sequences and also a background dataset consisting of non-AMP sequences.  Construction of this training data is a critical step and has an enormous effect on the performance of the predictor. In [01_collate_databases](01_collate_databases.md) the process of positive dataset construction is decribed. Here we describe how the background data and overall training sets are built.
+Since `ampir` uses supervised learning to create a classifier it needs a training set consisting of confirmed "positive" AMP (or precursor) sequences and also a background dataset consisting of non-AMP sequences.  Construction of these training data is a critical step and has an enormous effect on the performance of the predictor. In [01_collate_databases](01_collate_databases.md) the process of positive dataset construction is decribed. Here we describe how the background data and overall training sets are built.
 
 ## Precursor Background Dataset
 
@@ -32,7 +32,7 @@ As our basis for a background dataset we use all reviewed proteins in the UniPro
 cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_90.fasta -c 0.90 -g 1 -T 32 -M 300000
 ```
 
-**Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered Swissprot data that are not present in the UniProt AMP database.  To avoid the computational load of using the entire dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant fasta entries and writes them to a file. 
+**Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered Swissprot data that are not present in the UniProt AMP database.  To avoid the computational load of using the entire dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant FASTA entries and writes them to a file. 
 
 At this stage we keep more background proteins than needed for a balanced dataset. This is for several reasons. Firstly a small number of background proteins might be removed under additional filtering criteria. Secondly we may choose to use an unbalanced dataset in order to achieve better overall performance on whole genome scans.
 
