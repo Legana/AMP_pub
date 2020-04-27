@@ -9,7 +9,7 @@ distributions are relatively well-behaved and should be amenable to
 centering and scaling. This is at least partly because our large protein
 cut-off of (500) removes a small number of very large proteins that
 cause skew in the Mw and Charge distributions. Also notable is the fact
-that higher order lamba values from the Pseudo-amino acid composition
+that higher order lambda values from the Pseudo-amino acid composition
 seem show little difference between target and background (this is not
 true of low order values though).
 

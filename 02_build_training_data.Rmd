@@ -32,7 +32,7 @@ As our basis for a background dataset we use all reviewed proteins in the UniPro
 cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_90.fasta -c 0.90 -g 1 -T 32 -M 300000
 ```
 
-**Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered Swissprot data that are not present in the Uniprot AMP database.  For creating a balanced dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant fasta entries and writes them to a file. 
+**Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered Swissprot data that are not present in the Uniprot AMP database.  To avoid the computational load of using the entire dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant fasta entries and writes them to a file. 
 
 At this stage we keep more background proteins than needed for a balanced dataset. This is for several reasons. Firstly a small number of background proteins might be removed under additional filtering criteria. Secondly we may choose to use an unbalanced dataset in order to achieve better overall performance on whole genome scans.
 
@@ -112,8 +112,8 @@ export_training_and_test(features_tg_bg_1,"precursor")
 
 
 # For precursors with imbalanced data
-#
-tg_bg_imbal <- rbind(tg,bg_raw)
+# 1:10 ratio
+tg_bg_imbal <- rbind(tg,bg_raw %>% sample_n(14830))
 
 features_tg_bg_imbal <- ampir:::calculate_features(tg_bg_imbal) %>% 
   add_column(Label = tg_bg_imbal$Label)
