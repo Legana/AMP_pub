@@ -11,16 +11,9 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, eval = TRUE)
 library(caret)
 ```
 
-The default model included with ampir is an svm with radial kernel and has two tuning parameters, sigma and C (cost).  Optimal values for these tuning parameters were obtained by using model tuning functions available in `caret`.  Since this is computationally intensive it was performed on an HPC system. The R script `scripts/tune_model.R` provides a convenient wrapper for the required functions and allows it to be run easily on an HPC system. 
+The default models included with ampir are both svms with radial kernel and have two tuning parameters, sigma and C (cost).  Optimal values for these tuning parameters were obtained by using model tuning functions available in `caret`.  Since this is computationally intensive it was performed on an HPC system. The R script `scripts/tune_model.R` provides a convenient wrapper for the required functions and allows it to be run easily on an HPC system. See the `scripts` directory for details of how this was run.
 
-This needs to be run on an HPC system with R installed and with packages `caret`, `ampir`, `doParallel`, and `R.utils` installed
-
-```bash
-module load R/3.6.1
-Rscript tune_model.R outfile=../cache/tuned_precursor.rds train=../cache/featuresTrain_precursor.rds test=../cache/featuresTest_precursor.rds ncores=24
-```
-
-Inspecting the results reveals the variation of model performance with the tuning parameters.  If sigma is small and/or cost is small then the model will be more 'local'
+Inspecting the results for the mature peptide model reveals the variation of model performance with the tuning parameters.  
 
 ```{r}
 tuning_data <- readRDS("cache/tuned_mature.rds")
@@ -31,6 +24,15 @@ plot(tuning_data)
 tuning_data$bestTune
 ```
 
+And for the precursor model
 
+```{r}
+tuning_data <- readRDS("cache/tuned_precursor_imbal.rds")
+
+trellis.par.set(caretTheme())
+plot(tuning_data)  
+
+tuning_data$bestTune
+```
 
 

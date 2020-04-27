@@ -1,8 +1,8 @@
 Benchmarking
 ================
 
-Benchmarking the performance of AMP predictors is challenging for a
-number of reasons;
+When benchmarking the performance of AMP predictors a number of
+important factors need to be considered;
 
 1.  Any benchmark dataset will likely include some AMPs used for
     training in one or more of the predictors. Since most predictors are
@@ -17,14 +17,15 @@ number of reasons;
 3.  A realistic test of AMP prediction in genome-wide scans should use a
     benchmark dataset that is highly unbalanced, just as a real genome
     protein set would be. For example in the Arabidopsis genome AMPs
-    make up less than 1% of proteins and this number certainly not
-    likely to be anywhere close to 50% for any species. Real genome
-    scans also contain non-AMP proteins that may resemble AMPs in some
+    make up less than 1% of proteins.  
+4.  Real genomes contain non-AMP proteins that may resemble AMPs in some
     ways (eg secreted proteins, transmembrane proteins) and which will
-    therefore make the classification problem more difficult.
+    therefore make the classification problem more difficult. Any
+    benchmark that does not include these proteins will most likely
+    provide a inflated estimates of accuracy.
 
 In light of these issues we tested the performance of ampir against
-contemporary AMP predictors using two very different benchmarks.
+contemporary AMP predictors using two very different benchmark datasets.
 
 1.  The [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019)
     benchmark dataset. This was included in the interests of consistency
@@ -62,6 +63,13 @@ which is not unexpected given that;
     choice and other model choices) of all models except
     ampir\_precursor
 
+A notable feature of the ROC curve for this benchmark is that some
+predictors (ampscan V2; iamppred) don’t have curves that extend all the
+way down to on the X-axis. This is because the probability estimates for
+these predictors evntually reach a regime where both true and false
+positives have a value equal to 1 and further reductions in FPR can’t be
+achieved by increasing stringency of the probability threshold.
+
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ### Real Genome Benchmark
@@ -72,7 +80,7 @@ whole genome scan.
 
 One approach is to use whole genomes that have been well annotated for
 AMPs. Here we chose the Human and Arabidopsis genomes because these
-represent phylogeentically distinct lineages (animals and plants) are
+represent phylogenetically distinct lineages (animals and plants) are
 their genomes among the best annotated for AMPs. A few other points to
 note about this test are;
 
@@ -80,8 +88,10 @@ note about this test are;
     only because other predictors were unable to handle the large number
     of candidates sequences (~100k) in a practical manner.
   - We used a specially generated model for ampir that was trained
-    without Human or Arabidopsis proteins for the test but it should be
-    noted that other predictors would have no such restriction
+    without Human or Arabidopsis proteins to avoid any potential for
+    overfitting resulting in inflacted accuracy estimates in this test.
+    It should be noted that other predictors would have no such
+    restriction.
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
@@ -93,33 +103,29 @@ it is unable to achieve a FPR less than about 0.25. This is not a good
 property for a genome-scanning predictor because 25% of an entire genome
 is in the order of 10k false positives. Ampir provides a good balance
 and achieves moderate Recall at very low FPR for both organisms. No
-predictor was able to achieve high Recall at an acceptably low FPR
-meaning that while genome-wide scanning can be used to identify novel
-AMPs such stringent filtering is required that a high proportion of true
-AMPs will inevitably be missed.
+predictor was able to achieve high recall at an acceptably low FPR (this
+is explored further in the figure below).
 
 While ROC curves and the confusion matrix are useful measures for
 benchmarking many classification problems they do not properly capture
 the highly imbalanced composition of genome-wide data, where for example
 one might be scanning 50-100k proteins and expecting just 100-300 true
-positives. In this case it is perhaps more useful to look at the
-precision since this represents an outcome of practical importance,
-namely the proportion of predicted AMPs that are true positives at a
-given p threshold. This is useful because a common use case when genome
-scanning is to attempt to identify a subset of the genome that is
-strongly enriched in true AMPs, possibly for the purpose of further
-experimental validation, or to make broad inferences about the genomic
-suite of AMPs for a species.
+positives. In this case it is important to examine the low FPR region of
+the ROC curve, and to emphasise precision when doing so. The key outcome
+of practical importance here is the proportion of predicted AMPs that
+are true positives for a given number of false positives. This is useful
+because a common use case when genome scanning is to attempt to identify
+a subset of the genome that is strongly enriched in true AMPs, possibly
+for the purpose of further experimental validation, or to make broad
+inferences about the genomic suite of AMPs for a species.
 
 On this measure it can be seen that genome-wide prediction of AMPs is
-still an unsolved problem. Although ampir clearly performs the best,
-none of the predictors were able to obtain a prediction set with
-precision better than about 15%. Nevertheless, given the difficulties in
-identifying AMPs and the importance of this task this level of
-enrichment is of great practical use, reducing the number of false
-experimental leads per true positive from many thousands down to tens or
-hundreds.
-
-    ## Warning: Removed 4497 rows containing missing values (geom_path).
+still an imperfectly solved problem. Although the ampir precursor model
+clearly performs far better than any other predictor, none were able to
+predict more than 50% of true AMPs while controlling false positives to
+under 500. Nevertheless, given the difficulties in identifying AMPs and
+the importance of this task this level of enrichment is of great
+practical use, reducing the number of false experimental leads per true
+positive from many thousands down to tens or hundreds.
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->

@@ -13,7 +13,7 @@ library(tidyverse)
 set.seed(10)
 ```
 
-As an indication of features that are likely to be useful for classification we plot their distributions for background and target.  Also note that these feature distributions are sometimes heavily influenced by background filtering.  In the plot below we see that all distributions are relatively well-behaved and should be amenable to centering and scaling.  This is at least partly because our large protein cut-off of (500) removes a small number of very large proteins that cause skew in the Mw and Charge distributions.  Also notable is the fact that higher order lamba values from the Pseudo-amino acid composition seem show little difference between target and background (this is not true of low order values though).
+As an indication of features that are likely to be useful for classification we plot their distributions for background and target.  Also note that these feature distributions are sometimes heavily influenced by background filtering.  In the plot below we see that all distributions are relatively well-behaved and should be amenable to centering and scaling.  This is at least partly because our large protein cut-off of (500) removes a small number of very large proteins that cause skew in the Mw and Charge distributions.  Also notable is the fact that higher order lambda values from the Pseudo-amino acid composition seem show little difference between target and background (this is not true of low order values though).
 
 ```{r, fig.height=20}
 features_tg_bg_1 <- read_rds("cache/features_precursor.rds")
