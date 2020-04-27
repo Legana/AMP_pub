@@ -23,6 +23,6 @@ using the
 command:
 
 ``` bash
-wget 'https://cloudstor.aarnet.edu.au/plus/s/kYedwzkgUBjCmos' -O data.tgz
+wget 'https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY' -O data.tgz
 tar -zxvf data.tgz 
 ```

@@ -21,8 +21,7 @@ This repository contains code used for the [ampir](https://github.com/Legana/amp
 The files required to run the code in these Rmd files can be obtained [here](https://cloudstor.aarnet.edu.au/plus/s/kYedwzkgUBjCmos) or by using the command:
 
 ```bash
-wget 'https://cloudstor.aarnet.edu.au/plus/s/kYedwzkgUBjCmos' -O data.tgz
+wget 'https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY' -O data.tgz
 tar -zxvf data.tgz 
 ```
-
 
