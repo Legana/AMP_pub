@@ -48,8 +48,7 @@ echo cache/features_precursor_imbal_nobench.rds >> data_list
 
 # RFE and tuned model results
 echo cache/tuned_mature.rds >> data_list
-echo cache/tuned_precursor.rds >> data_list
-echo cache/tuned_precursor_nobench.rds >> data_list
+echo cache/tuned_mature_final.rds >> data_list
 echo cache/tuned_precursor_imbal.rds >> data_list
 echo cache/tuned_precursor_imbal_nobench.rds >> data_list
 
