@@ -13,7 +13,7 @@ library(tidyverse)
 set.seed(10)
 ```
 
-As an indication of features that are likely to be useful for classification we plot their distributions for background and target.  Also note that these feature distributions are sometimes heavily influenced by background filtering.  In the plot below we see that all distributions are relatively well-behaved and should be amenable to centering and scaling.  This is at least partly because our large protein cut-off of (500) removes a small number of very large proteins that cause skew in the Mw and Charge distributions.  Also notable is the fact that higher order lamba values from the Pseudo-amino acid composition seem show little difference between target and background (this is not true of low order values though).
+As an indication of features that are likely to be useful for classification we plot their distributions for background and target. Also note that these feature distributions are sometimes heavily influenced by background filtering. In the plot below we see that all distributions are relatively well-behaved and should be amenable to centering and scaling. This is at least partly because our large protein cut-off of (500 AA) removes a small number of very large proteins that cause skew in the Mw and Charge distributions. Also notable is the fact that higher order lamba values from the Pseudo-amino acid composition seem to show little difference between target and background (this is not true of low order values though).
 
 ```{r, fig.height=20}
 features_tg_bg_1 <- read_rds("cache/features_precursor.rds")
@@ -32,7 +32,7 @@ ggplot(features_bg_tg_1_long,aes(x=Value)) +
 
 ### PCA
 
-PCA suggests that these predictors have some (but imperfect) power to separate the two classes.  This gives an indication of how well models will perform in general but doesn't capture the capabilities of supervised learning methods like SVM.
+PCA suggests that these predictors have some (but imperfect) power to separate the two classes. This gives an indication of how well models will perform in general but doesn't capture the capabilities of supervised learning methods like SVM.
 
 ```{r, message=FALSE, warning=FALSE}
 pca_features_1 <- features_tg_bg_1[,-c(1,46)]
@@ -73,7 +73,7 @@ plot_grid(first_col, second_col, ncol = 2, rel_widths = c(3, 1))
 
 ## Correlated Predictors
 
-Although a small number these predictors are correlated there are none with near-perfect correlation (max cor < 0.9).  We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
+Although a small number these predictors are correlated there are none with near-perfect correlation (max cor < 0.9). We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
 
 ```{r}
 featuresCM <- cor(features_tg_bg_1[,-c(1,46)])
@@ -82,9 +82,9 @@ summary(featuresCM[upper.tri(featuresCM)])
 
 ## Recursive feature elimination (RFE)
 
-RFE analysis in principle can be used to find an optimal subset of the features to be included in the model. In practice we used this as a guide only. Since this is a computationally intensive process it was performed using the `rfe.R` and `rfe.sh` scripts on an HPC system.  The resulting `rfe` outputs suggest that the best performance can be obtained with 20-30 predictors.  
+RFE analysis in principle can be used to find an optimal subset of the features to be included in the model. In practice we used this as a guide only. Since this is a computationally intensive process it was performed using the `rfe.R` and `rfe.sh` scripts on an HPC system. The resulting `rfe` outputs suggest that the best performance can be obtained with 20-30 predictors.  
 
-The set of features identified as optimal by rfe includes all bulk physicochemical properties as well as most simple amino acid composition measures.  Higher order pseudoamino-acid composition measures do not appear to be important to model performance according RFE.
+The set of features identified as optimal by RFE includes all bulk physicochemical properties as well as most simple amino acid composition measures. Higher order pseudoamino-acid composition measures do not appear to be important to model performance according RFE.
 
 ```{r}
 svmProfile <- readRDS("cache/rfe_precursor.rds")
