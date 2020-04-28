@@ -4,12 +4,13 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 ```{r}
 library(ampir)
 library(tidyverse)
+library(ggpubr)
 ```
 
 ## Public AMP databases
@@ -106,7 +107,6 @@ combined <- rbind(apd,dramp,dbamp,swissprot)
 One of the most striking differences between AMP databases becomes clear simply by looking at the length distributions. The `APD` and `DRAMP` databases emphasise short peptides (mostly < 50 amino acids) which reflects their focus on mature peptides rather than full length precursor proteins.
 
 ```{r}
-library(ggpubr)
 ggplot(combined,aes(x=length)) + geom_histogram(binwidth = 3) +
   facet_wrap(~database, scales = "free_y", ncol = 1) +
   labs(x = "Sequence length", y = "Frequency") + xlim(0,300) +
@@ -138,7 +138,8 @@ uniprot_peptides %>%
   mutate(type = ifelse(type=="FALSE","Precursor",type)) %>% 
   ggplot(aes(x=Length)) + geom_density(aes(color=type)) + 
   xlim(0,300) + theme_pubclean() +
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank()) +
+  labs(x= "Sequence length", y = "Density")
 ggsave("figures/swissprot_lengths.png", height = 4, width = 8)
 ```
 
@@ -156,8 +157,9 @@ Another indicator that a protein is an AMP precursor is the presence of a signal
 uniprot_peptides %>% 
   filter(Status=="reviewed") %>% 
   ggplot(aes(x=Length)) + 
-  geom_density(aes(color=signal)) + 
-  facet_wrap(~maturity, scales = "free", ncol = 1) + xlim(0,500)
+  geom_density(aes(colour=signal)) + 
+  facet_wrap(~maturity, scales = "free", ncol = 1) + xlim(0,500) +
+  labs(x = "Sequence length", y = "Density", colour = "Signal\npeptide")
 ```
 
 

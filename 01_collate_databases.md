@@ -3,9 +3,9 @@ Databases used for testing and training ampir
 
 ## Public AMP databases
 
-The following databases were accessed as of March 2020. All ampir models
-were trained using data from one or more of these databases (see details
-below).
+The following databases were accessed as of March 2020. All `ampir`
+models were trained using data from one or more of these databases (see
+details below).
 
 Four recently updated antimicrobial peptide (AMP) databases were used:
 
@@ -21,7 +21,7 @@ Four recently updated antimicrobial peptide (AMP) databases were used:
 
 Raw downloads for these databases are included in the data distribution.
 After unpacking they should be present at the following file
-locations
+locations:
 
 | Database Name | File                                                                    |
 | ------------- | ----------------------------------------------------------------------- |
@@ -43,13 +43,13 @@ unwanted entries.
 
 ### DRAMP
 
-[DRAMP’s download page](http://dramp.cpu-bioinfor.org/downloads/),
+[DRAMP’s download page](http://dramp.cpu-bioinfor.org/downloads/)
 provides access to a general AMP dataset (which contains both natural
 and synthetic AMPs). This general dataset was posted on 06/08/2019 but
 according to the “news and events” section, the [natural
 dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php) has been
 updated several times since then. Because the natural dataset contains
-the AMPs we are interested in, and is also more regularly updated (it
+the AMPs we are interested in and is also more regularly updated (it
 currently contains 4394 sequences), the natural AMP data was obtained
 using a [scrape script](scripts/scrape_dramp.sh).
 
@@ -72,18 +72,9 @@ One of the most striking differences between AMP databases becomes clear
 simply by looking at the length distributions. The `APD` and `DRAMP`
 databases emphasise short peptides (mostly \< 50 amino acids) which
 reflects their focus on mature peptides rather than full length
-precursor
-    proteins.
-
-    ## Warning: Removed 234 rows containing non-finite values (stat_bin).
-
-    ## Warning: Removed 8 rows containing missing values (geom_bar).
+precursor proteins.
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
-    ## Warning: Removed 234 rows containing non-finite values (stat_bin).
-    
-    ## Warning: Removed 8 rows containing missing values (geom_bar).
 
 The SwissProt database provides a `Peptide` field which allows us to
 distinguish between entries for mature peptides and precursors. If the
