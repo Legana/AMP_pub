@@ -50,10 +50,10 @@ contemporary AMP predictors using several benchmark datasets.
     toxin or neuropeptide.
 3.  A whole-genome scanning benchmark for species with the best
     available annotated AMP repertoires. We chose an animal (Human) and
-    a plant (Arabidopsis thaliana) for this
-test.
+    a plant (Arabidopsis thaliana) for this test.
 
-##### Table 1: AMP predictors with their papers and model accessiblity
+Table 1: AMP predictors with their papers and model
+accessiblity
 
 | AMP predictor name | Reference                                                           | Availability                                                                          |
 | ------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
@@ -160,4 +160,42 @@ to emphasise behaviour in the low false positive (FP) regime (FP \< 500)
 because this is most relevant in whole genome scans. Part C is a
 receiver operating characteristic (ROC) curve based on the ampir
 reserved testing data. It shows FPR (False Positive Rate) versus Recall
-(True Positive Rate).
+(True Positive
+Rate).
+
+## Performance Statistics
+
+|                      | ampep | ampir\_precursor | ampir\_mature | ampscanv2 | iamppred |
+| -------------------- | ----: | ---------------: | ------------: | --------: | -------: |
+| Sensitivity          |   1.0 |             0.31 |          0.96 |      0.98 |     0.96 |
+| Specificity          |   1.0 |             0.90 |          0.12 |      0.68 |     0.32 |
+| Pos Pred Value       |   1.0 |             0.77 |          0.52 |      0.75 |     0.59 |
+| Neg Pred Value       |   1.0 |             0.57 |          0.75 |      0.97 |     0.90 |
+| Precision            |   1.0 |             0.77 |          0.52 |      0.75 |     0.59 |
+| Recall               |   1.0 |             0.31 |          0.96 |      0.98 |     0.96 |
+| F1                   |   1.0 |             0.44 |          0.68 |      0.85 |     0.73 |
+| Prevalence           |   0.5 |             0.50 |          0.50 |      0.50 |     0.50 |
+| Detection Rate       |   0.5 |             0.16 |          0.48 |      0.49 |     0.48 |
+| Detection Prevalence |   0.5 |             0.20 |          0.92 |      0.65 |     0.82 |
+| Balanced Accuracy    |   1.0 |             0.61 |          0.54 |      0.83 |     0.64 |
+| AUC                  |   1.0 |             0.80 |          0.93 |      0.94 |     0.86 |
+
+Table 2: Model performance on Xiao et al. benchmark
+dataset
+
+|                      | ampep | ampir\_precursor | ampir\_mature | ampscanv2 | iamppred |
+| -------------------- | ----: | ---------------: | ------------: | --------: | -------: |
+| Sensitivity          |  0.99 |             0.26 |          0.91 |      0.98 |     0.93 |
+| Specificity          |  0.54 |             0.89 |          0.87 |      0.49 |     0.47 |
+| Pos Pred Value       |  0.41 |             0.87 |          0.95 |      0.39 |     0.37 |
+| Neg Pred Value       |  0.99 |             0.28 |          0.77 |      0.98 |     0.95 |
+| Precision            |  0.41 |             0.87 |          0.95 |      0.39 |     0.37 |
+| Recall               |  0.99 |             0.26 |          0.91 |      0.98 |     0.93 |
+| F1                   |  0.58 |             0.40 |          0.93 |      0.56 |     0.53 |
+| Prevalence           |  0.25 |             0.75 |          0.75 |      0.25 |     0.25 |
+| Detection Rate       |  0.25 |             0.19 |          0.68 |      0.24 |     0.23 |
+| Detection Prevalence |  0.59 |             0.22 |          0.72 |      0.62 |     0.63 |
+| Balanced Accuracy    |  0.76 |             0.57 |          0.89 |      0.73 |     0.70 |
+| AUC                  |  0.90 |             0.63 |          0.96 |      0.79 |     0.74 |
+
+Table 3: Model performance on ampir test sets
