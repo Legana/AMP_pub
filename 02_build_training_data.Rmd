@@ -60,19 +60,18 @@ bg_raw <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>%
 
 ## Mature Peptide Background Dataset
 
-As a background dataset for mature peptides the ideal would be to take mature peptides from SwissProt that were not AMPs. Since there are not many of these we start by extracting all approximately peptide-sized sequences from SwissProt and then use the Peptide field to find instances which correspond to mature peptides.
+As a background dataset for mature peptides the ideal would be to take mature peptides from SwissProt that were not AMPs. We could use the Peptide field to find instances which correspond to mature peptides but there are very few such peptides verified and they all tend to be neuropeptides and toxins.  A broader range of small peptides can be obtained simply by using a size range filter on the SwissProt data. 
 
 1. Use non-AMP sequences clustered to 90% identity from SwissProt as a starting point
-2. Keep only sequences >10AA and <60AA
-3. Include only mature peptide sequences
-4. Remove non-standard amino acids
+2. Keep only sequences >10AA and <40AA
+3. Remove non-standard amino acids
 
 ```bash
 comm -23 \
   <(cat uniprot-filtered-reviewed_yes_90.fasta | bioawk -c fastx '{print $name}' | sort) \
   <(cat amp_databases/uniprot-keyword__Antimicrobial+\[KW-0929\]_.fasta | bioawk -c fastx '{print $name}' | sort) | \
   xargs samtools faidx uniprot-filtered-reviewed_yes_90.fasta |\
-  bioawk -c fastx 'length($seq)<50{printf(">%s\n%s\n",$name,$seq)}' \
+  bioawk -c fastx 'length($seq)<40{printf(">%s\n%s\n",$name,$seq)}' \
   > amp_databases/ampir_mature_negative90.fasta
 ```
 
@@ -90,8 +89,8 @@ bg_mature <- read_faa("raw_data/amp_databases/ampir_mature_negative90.fasta") %>
   mutate(pep_end = as.integer(str_match(Peptide, "PEPTIDE.*?([0-9]+)..([0-9]+)")[,3])) %>% 
   mutate(pep_length = pep_end - pep_start + 1) %>% 
   mutate(is_mature_peptide = abs(pep_length - Length)<3) %>% 
-  filter(is_mature_peptide) %>% 
-  filter(nchar(seq_aa) > 10) %>% filter(nchar(seq_aa) < 60) %>% 
+#  filter(is_mature_peptide) %>% 
+  filter(nchar(seq_aa) > 10) %>% filter(nchar(seq_aa) < 40) %>% 
   select(seq_name=Entry,seq_aa) %>% 
   filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) %>% 
   add_column(Label = "Bg") 
@@ -143,7 +142,7 @@ export_training_and_test <- function(features,suffix){
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 # For precursors with imbalanced data
 # 1:10 ratio
 tg_bg_imbal <- rbind(tg,bg_raw)
