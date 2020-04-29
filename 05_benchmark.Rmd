@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 library(ampir)
 library(caret)
 library(tidyverse)
+library(pROC)
 ```
 
 
@@ -26,14 +27,14 @@ In light of these issues we tested the performance of `ampir` against contempora
 1. The [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) benchmark dataset. This was included in the interests of consistency with benchmarking from previous work but results from this benchmark are not likely to reflect performance in a genome-scanning context.
 2. A more realistic but much more challenging benchmark based on genomes for species with the best available annotated AMP repertoires. We chose an animal (Human) and a plant (*Arabidopsis thaliana*) for this test. 
 
-##### Table 1: AMP predictors with their papers and model accessiblity 
+<font size="2"> *Table 1: AMP predictors with their papers and model accessiblity* </font>
 
 | AMP predictor name | Reference | Availability |
 | ------------------------ | --------------- | -------------- |
 | AMP scanner v2 | [Veltri et al. 2018](https://doi.org/10.1093/bioinformatics/bty179) | [amp scanner webserver](https://www.dveltri.com/ascan/v2/ascan.html) |
 | amPEP  | [Bhadra et al. 2018](https://doi.org/10.1038/s41598-018-19752-w) | [MATLAB source code](https://sourceforge.net/projects/axpep/files/AmPEP_MATLAB_code/)
 | iAMPpred | [Meher et al. 2017](https://doi.org/10.1038/srep42362) | [iAMPpred webserver](http://cabgrid.res.in:8080/amppred/)
-| iAMP-2L | [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) | [iAMP-2L web server](http://www.jci-bioinfo.cn/iAMP-2L)
+| iAMP-2L | [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) | [iAMP-2L webserver](http://www.jci-bioinfo.cn/iAMP-2L)
 *`iAMP-2L` could not be included in the ROC curve as the model output is binary only
 
 AMP predictors were accessed in ***April 2020***
@@ -45,7 +46,7 @@ Most predictors performed very well against the Xiao et al. benchmark which is n
   - The benchmark proteins form a substantial proportion of training data for most methods (except ampir_precursor which performed badly)
   - The Xiao et al. benchmark reflects the goals (and hence background data choice and other model choices) of all models except ampir_precursor
 
-A notable feature of the AUROC curve for this benchmark is that some predictors (ampscanner V2; iAMPpred) don't have curves that extend all the way down to on the X-axis. This is because the probability estimates for these predictors evntually reach a regime where both true and false positives have a value equal to 1 and further reductions in FPR can't be achieved by increasing stringency of the probability threshold. 
+A notable feature of the AUROC curve for this benchmark is that some predictors (ampscanner V2, iAMPpred) don't have curves that extend all the way down to on the X-axis. This is because the probability estimates for these predictors evntually reach a regime where both true and false positives have a value equal to 1 and further reductions in FPR can't be achieved by increasing stringency of the probability threshold. 
 
 ```{r}
 calc_cm_metrics <- function(p_threshold, df) {
@@ -95,11 +96,11 @@ if ( file.exists("cache/xbench_ampir_raw.rds") ){
 
 xbench_ampir <- xbench_ampir_raw %>% 
   mutate(actual = ifelse(grepl(seq_name,pattern = "^AP"), "Tg", "Bg")) %>% 
-  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
-
+  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
 
 ampir_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(mdl){
-  as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics, xbench_ampir %>% filter(model==mdl)))) %>%
+  as.data.frame(t(sapply(seq(0.001, 0.999, 0.001), calc_cm_metrics, xbench_ampir %>% filter(model==mdl)))) %>%
   add_column(model = mdl)
 }))
 ```
@@ -108,11 +109,13 @@ ampir_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(m
 
 ```{r}
 # ampep
-xbench_ampep <- read_csv("raw_data/benchmarking/results/ampep/ampep_iamp2l_bench.txt") %>% 
+xbench_ampep <- read_csv("raw_data/benchmarking/results/ampep/ampep_iamp2l_bench.txt") %>%
   mutate(actual = ifelse(grepl(Row,pattern = "^AP"), "Tg", "Bg")) %>% 
-  rename(prob_AMP = score)
+  rename(prob_AMP = score) %>%
+  mutate(predicted = ifelse(prediction == 1, "Tg", "Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
 
-ampep_roc <- as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics, xbench_ampep))) %>%
+ampep_roc <- as.data.frame(t(sapply(seq(0.001, 0.999, 0.001), calc_cm_metrics, xbench_ampep))) %>%
   add_column(model = "ampep")
 ```
 
@@ -120,21 +123,25 @@ ampep_roc <- as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics, xben
 # ampscanv2
 xbench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/iamp2l/1585811335833_Prediction_Summary.csv") %>% 
   mutate(actual = ifelse(grepl(SeqID,pattern = "^AP"), "Tg", "Bg")) %>% 
-  rename(prob_AMP = Prediction_Probability)
+  rename(prob_AMP = Prediction_Probability) %>%
+  mutate(predicted = ifelse(Prediction_Class == "AMP", "Tg", "Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
+  
 
-ampscan_roc <- as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics, xbench_ampscanv2))) %>%
+ampscan_roc <- as.data.frame(t(sapply(seq(0.001, 0.999, 0.001), calc_cm_metrics, xbench_ampscanv2))) %>%
   add_column(model = "ampscanv2")
 ```
 
 ```{r}
 xbench_iampred <- read_csv("raw_data/benchmarking/results/iamppred/iamp2l_bench.csv") %>% 
   mutate(actual = ifelse(grepl(name_fasta,pattern = "^AP"), "Tg", "Bg")) %>% 
-  mutate(prob_AMP = pmax(antibacterial,antiviral,antifungal))
+  mutate(prob_AMP = pmax(antibacterial,antiviral,antifungal)) %>%
+  mutate(predicted = ifelse(prob_AMP >= 0.5, "Tg", "Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
 
-iampred_roc <- as.data.frame(t(sapply(seq(0.01, 0.99, 0.01), calc_cm_metrics, xbench_iampred))) %>%
+iampred_roc <- as.data.frame(t(sapply(seq(0.001, 0.999, 0.001), calc_cm_metrics, xbench_iampred))) %>%
   add_column(model = "iamppred")
 ```
-
 
 
 ```{r}
@@ -142,12 +149,124 @@ models_roc <- rbind(ampir_roc,ampep_roc,ampscan_roc,iampred_roc)
 ```
 
 
-
-
 ```{r}
 ggplot(models_roc) + 
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
-  xlim(0,1) 
+  xlim(0,1) +
+  labs(x = "False Positive Rate", y = "True Positive Rate")
+```
+<font size="2"> *Figure 1: AUROC curve showing the performance of various models on Xiao et al. benchmark set* </font>
+
+
+```{r}
+#ampir
+
+#precursor model
+xbench_ampir_prec <- filter(xbench_ampir, model == "ampir_precursor")
+x_cm_prec <- confusionMatrix(xbench_ampir_prec$predicted, xbench_ampir_prec$actual, positive = "Tg")
+xrc_prec <- roc(xbench_ampir_prec$actual, xbench_ampir_prec$prob_AMP) 
+xampir_prec_auc <- as.numeric(xrc_prec$auc)
+
+#mature model
+xbench_ampir_mat <- filter(xbench_ampir, model == "ampir_mature")
+x_cm_mat <- confusionMatrix(xbench_ampir_mat$predicted, xbench_ampir_mat$actual, positive = "Tg")
+xrc_mat <- roc(xbench_ampir_mat$actual, xbench_ampir_mat$prob_AMP) 
+xampir_mat_auc <- as.numeric(xrc_mat$auc)
+
+```
+
+```{r}
+# ampep
+xcm_ampep <- confusionMatrix(xbench_ampep$predicted, xbench_ampep$actual, positive = "Tg")
+xrc_ampep <- roc(xbench_ampep$actual, xbench_ampep$prob_AMP) 
+xampep_auc <- as.numeric(xrc_ampep$auc)
+
+# ampscanner
+
+xcm_ampscan <- confusionMatrix(xbench_ampscanv2$predicted, xbench_ampscanv2$actual, positive = "Tg")
+xrc_ampscan <- roc(xbench_ampscanv2$actual, xbench_ampscanv2$prob_AMP) 
+xampscan_auc <- as.numeric(xrc_ampscan$auc)
+
+# iamppred
+
+xcm_iamppred <- confusionMatrix(xbench_iampred$predicted, xbench_iampred$actual, positive = "Tg")
+xrc_iamppred <- roc(xbench_iampred$actual, xbench_iampred$prob_AMP) 
+xiamppred_auc <- as.numeric(xrc_iamppred$auc)
+```
+
+```{r}
+# tabulate 
+
+xampir_prec_perf <- c(x_cm_prec$byClass[c(11,5:7)], xampir_prec_auc)
+xampir_mat_perf <- c(x_cm_mat$byClass[c(11,5:7)], xampir_mat_auc)
+xampep_perf <- c(xcm_ampep$byClass[c(11,5:7)], xampep_auc)
+xampscan_perf <- c(xcm_ampscan$byClass[c(11,5:7)], xampscan_auc)
+xiamppred_perf <- c(xcm_iamppred$byClass[c(11,5:7)], xiamppred_auc)
+
+model_performance <- rbind(xampir_prec_perf, xampir_mat_perf, xampep_perf, xampscan_perf, xiamppred_perf)
+
+model_performance_df <- as.data.frame(model_performance, row.names = c("ampir_precursor", "ampir_mature", "amPEP", "ampscanner", "iAMPpred")) %>%
+  rownames_to_column(var = "Model") %>%
+  rename(Accuracy = "Balanced Accuracy", AUC = "V5")
+```
+
+
+```{r}
+knitr::kable(model_performance_df, digits = 2, caption = "Table 2: Model performance on Xiao et al. benchmark dataset")
+```
+
+
+### Using independent test sets from `ampir`
+
+```{r}
+# ampir 
+
+# precursor model 
+
+featuresTest_precursor <- readRDS("cache/featuresTest_precursor_imbal_nobench.rds") %>%
+  mutate(Label = factor(Label))
+
+test_precursor_prediction <- predict(precursor_model, featuresTest_precursor)
+cm_prec <- confusionMatrix(test_precursor_prediction, featuresTest_precursor$Label, positive = "Tg")
+
+# calculate area under the curve 
+test_prob_precursor <- predict(precursor_model, featuresTest_precursor, type = "prob")
+rc_prec <- roc(featuresTest_precursor$Label, test_prob_precursor$Tg) 
+ampir_prec_auc <- rc_prec$auc
+
+# mature model
+
+featuresTest_mature <- readRDS("cache/featuresTest_mature.rds") %>%
+    mutate(Label = factor(Label))
+
+test_mature_prediction <- predict(mature_model, featuresTest_mature)
+cm_mat <- confusionMatrix(test_mature_prediction, featuresTest_mature$Label, positive = "Tg")
+
+test_prob_mature <- predict(mature_model, featuresTest_mature, type = "prob")
+rc_mat <- roc(featuresTest_mature$Label, test_prob_mature$Tg) 
+ampir_mat_auc <- rc_mat$auc
+```
+
+```{r}
+#tabulate
+
+ampir_prec_perf <- c(cm_prec$byClass[c(11,5:7)], ampir_prec_auc)
+ampir_mat_perf <- c(cm_mat$byClass[c(11,5:7)], ampir_mat_auc)
+
+ampir_test_set_performance <- rbind(ampir_prec_perf, ampir_mat_perf)
+
+ampir_test_set_performance_df <- as.data.frame(ampir_test_set_performance, row.names = c("ampir_precursor", "ampir_mature")) %>%
+  rownames_to_column(var = "Model") %>%
+  rename(Accuracy = "Balanced Accuracy", AUC = "V5")
+```
+
+```{r}
+knitr::kable(ampir_test_set_performance_df, digits = 2, caption = "Table 3: Model performance on ampir test sets")
+```
+
+
+```{r}
+#TODO:need to use test sets on other predictors websites to get prediction results to benchmark them
 ```
 
 
@@ -161,7 +280,7 @@ One approach is to use whole genomes that have been well annotated for AMPs. Her
 - We used a specially generated model for `ampir` that was trained without Human or *Arabidopsis* proteins to avoid any potential for overfitting resulting in inflacted accuracy estimates in this test. It should be noted that other predictors would have no such restriction.
 
 
-```{r}
+```{r, eval=FALSE}
 human_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx",guess_max = 10000)
 arath_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/arath/uniprot-proteome_up000006548.xlsx",guess_max = 40000)
 
@@ -170,7 +289,7 @@ reference_proteomes <- rbind(human_proteome, arath_proteome) %>%
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 # ampir
 
 ref_df <- reference_proteomes %>% select(seq_name=Entry,seq_aa=Sequence)
@@ -217,7 +336,7 @@ if ( file.exists("cache/ampir_genome_roc.rds")){
 
 
 
-```{r}
+```{r, eval=FALSE}
 ampscan_files <- c(list.files("raw_data/benchmarking/results/ampscanv2/arath/", pattern="*.csv",full.names = T),
                    list.files("raw_data/benchmarking/results/ampscanv2/human/", pattern="*.csv",full.names = T))
 
@@ -231,7 +350,7 @@ ampscan_genome_roc <- get_genome_roc(ampscan_genome_bench,"ampscanv2")
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 ampep_files <- list.files("raw_data/benchmarking/results/ampep/","*_ampep.txt", full.names = T)
 
 ampep_genome_bench <- do.call(rbind,lapply(ampep_files,read_csv)) %>% 
@@ -243,7 +362,7 @@ ampep_genome_bench <- do.call(rbind,lapply(ampep_files,read_csv)) %>%
 ampep_genome_roc <- get_genome_roc(ampep_genome_bench,"ampep")
 ```
 
-```{r}
+```{r, eval=FALSE}
 genome_rocs <- rbind(ampir_genome_roc,ampscan_genome_roc,ampep_genome_roc)
 
 ggplot(genome_rocs) + 
@@ -258,7 +377,7 @@ While AUROC curves and the confusion matrix are useful measures for benchmarking
 
 On this measure it can be seen that genome-wide prediction of AMPs is still an imperfectly solved problem.  Although the `ampir precursor` model clearly performs far better than any other predictor, none were able to predict more than 50% of true AMPs while controlling false positives to under 500. Nevertheless, given the difficulties in identifying AMPs and the importance of this task, this level of enrichment is of great practical use, reducing the number of false experimental leads per true positive from many thousands down to tens or hundreds. 
 
-```{r, fig.width=8, fig.height=3}
+```{r, fig.width=8, fig.height=3, eval=FALSE}
 library(RColorBrewer)
 models <- c("ampep","ampir_mature","ampir_precursor","ampscanv2","iamppred")
 model_colors <- brewer.pal(5,"Set1")
