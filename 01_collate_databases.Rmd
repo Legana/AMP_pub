@@ -4,17 +4,18 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 ```{r}
 library(ampir)
 library(tidyverse)
+library(ggpubr)
 ```
 
 ## Public AMP databases
 
-The following databases were accessed as of March 2020.  All ampir models were trained using data from one or more of these databases (see details below). 
+The following databases were accessed as of March 2020.  All `ampir` models were trained using data from one or more of these databases (see details below). 
 
 Four recently updated antimicrobial peptide (AMP) databases were used:
 
@@ -23,7 +24,7 @@ Four recently updated antimicrobial peptide (AMP) databases were used:
 * [dbAMP](http://140.138.77.240/~dbamp/index.php) by [Jhong et al. 2018](https://www.ncbi.nlm.nih.gov/pubmed/30380085)
 * [UniProt](https://www.uniprot.org/uniprot/?query=keyword%3A%22Antimicrobial+%5BKW-0929%5D%22&sort=score) using the keyword "Antimicrobial [KW-0929]".
 
-Raw downloads for these databases are included in the data distribution.  After unpacking they should be present at the following file locations
+Raw downloads for these databases are included in the data distribution. After unpacking they should be present at the following file locations:
 
 | Database Name | File |
 | ------------------------ | --------------- |
@@ -58,7 +59,7 @@ dramp <- read_faa("raw_data/amp_databases/dramp_nat_tidy.fasta") %>%
 ```
 
 
-[DRAMP's download page](http://dramp.cpu-bioinfor.org/downloads/), provides access to a general AMP dataset (which contains both natural and synthetic AMPs). This general dataset was posted on 06/08/2019 but according to the "news and events" section, the [natural dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php) has been updated several times since then. Because the natural dataset contains the AMPs we are interested in, and is also more regularly updated (it currently contains `r nrow(dramp)` sequences), the natural AMP data was obtained using a [scrape script](scripts/scrape_dramp.sh).
+[DRAMP's download page](http://dramp.cpu-bioinfor.org/downloads/) provides access to a general AMP dataset (which contains both natural and synthetic AMPs). This general dataset was posted on 06/08/2019 but according to the "news and events" section, the [natural dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php) has been updated several times since then. Because the natural dataset contains the AMPs we are interested in and is also more regularly updated (it currently contains `r nrow(dramp)` sequences), the natural AMP data was obtained using a [scrape script](scripts/scrape_dramp.sh).
 
 
 ### dbAMP 
@@ -106,7 +107,6 @@ combined <- rbind(apd,dramp,dbamp,swissprot)
 One of the most striking differences between AMP databases becomes clear simply by looking at the length distributions. The `APD` and `DRAMP` databases emphasise short peptides (mostly < 50 amino acids) which reflects their focus on mature peptides rather than full length precursor proteins.
 
 ```{r}
-library(ggpubr)
 ggplot(combined,aes(x=length)) + geom_histogram(binwidth = 3) +
   facet_wrap(~database, scales = "free_y", ncol = 1) +
   labs(x = "Sequence length", y = "Frequency") + xlim(0,300) +
@@ -138,7 +138,8 @@ uniprot_peptides %>%
   mutate(type = ifelse(type=="FALSE","Precursor",type)) %>% 
   ggplot(aes(x=Length)) + geom_density(aes(color=type)) + 
   xlim(0,300) + theme_pubclean() +
-  theme(legend.title = element_blank())
+  theme(legend.title = element_blank()) +
+  labs(x= "Sequence length", y = "Density")
 ggsave("figures/swissprot_lengths.png", height = 4, width = 8)
 ```
 
@@ -156,8 +157,9 @@ Another indicator that a protein is an AMP precursor is the presence of a signal
 uniprot_peptides %>% 
   filter(Status=="reviewed") %>% 
   ggplot(aes(x=Length)) + 
-  geom_density(aes(color=signal)) + 
-  facet_wrap(~maturity, scales = "free", ncol = 1) + xlim(0,500)
+  geom_density(aes(colour=signal)) + 
+  facet_wrap(~maturity, scales = "free", ncol = 1) + xlim(0,500) +
+  labs(x = "Sequence length", y = "Density", colour = "Signal\npeptide")
 ```
 
 

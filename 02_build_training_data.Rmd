@@ -15,7 +15,7 @@ library(caret)
 set.seed(3141)
 ```
 
-Since `ampir` uses supervised learning to create a classifier it needs a training set consisting of confirmed "positive" AMP (or precursor) sequences and also a background dataset consisting of non-AMP sequences.  Construction of this training data is a critical step and has an enormous effect on the performance of the predictor.  In [01_collate_databases](01_collate_databases.md) the process of positive dataset construction is decribed. Here we describe how the background data and overall training sets are built.
+Since `ampir` uses supervised learning to create a classifier it needs a training set consisting of confirmed "positive" AMP (or precursor) sequences and also a background dataset consisting of non-AMP sequences.  Construction of these training data is a critical step and has an enormous effect on the performance of the predictor. In [01_collate_databases](01_collate_databases.md) the process of positive dataset construction is decribed. Here we describe how the background data and overall training sets are built.
 
 ## Precursor Background Dataset
 
@@ -27,13 +27,13 @@ As our basis for a background dataset we use all reviewed proteins in the UniPro
 4. Remove sequences with AMP-like lengths 50AA , and very large lengths (>500AA)
 5. Randomly sample the background data so that AMP:non-AMP ratio is 1:10
 
-**Step 1** is computationally intensive and was performed using cd-hit using SwissProt data downloaded on 7 April 2020. The resulting clustered file is included in the data distribution as `uniprot-filtered-reviewed_yes_90.fasta`
+**Step 1** is computationally intensive and was performed using `cd-hit` using SwissProt data downloaded on 7 April 2020. The resulting clustered file is included in the data distribution as `uniprot-filtered-reviewed_yes_90.fasta`
 
 ```bash
 cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_90.fasta -c 0.90 -g 1 -T 32 -M 300000
 ```
 
-**Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered Swissprot data that are not present in the Uniprot AMP database.  To avoid the computational load of using the entire dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant fasta entries and writes them to a file. 
+**Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered Swissprot data that are not present in the UniProt AMP database.  To avoid the computational load of using the entire dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant FASTA entries and writes them to a file. 
 
 At this stage we keep more background proteins than needed for a balanced dataset. This is for several reasons. Firstly a small number of background proteins might be removed under additional filtering criteria. Secondly we may choose to use an unbalanced dataset in order to achieve better overall performance on whole genome scans.
 
@@ -124,11 +124,11 @@ bg_legacy <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>%
 
 ## Training and Test Sets
 
-Using the target and background proteins identified above we create paired training and test sets. In all cases we use 80% of data for training and reserve 20% for testing. These datasets are saved to cache and used for model training and tuning scripts. The training sets created are;
+Using the target and background proteins identified above we create paired training and test sets. In all cases we use 80% of data for training and reserve 20% for testing. These datasets are saved to cache and used for model training and tuning scripts. The training sets created are:
 
 1. Precursor training (balanced mix of target and background precursors)
 2. Mature peptide training
-3. Precursor training but with Human and Arabidopsis sequences removed (for benchmarking purposes)
+3. Precursor training but with Human and *Arabidopsis* sequences removed (for benchmarking purposes)
 
 ```{r}
 export_training_and_test <- function(features,suffix){
@@ -190,7 +190,6 @@ arath_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/arath/unipr
 
 names_to_exclude <- c(human_proteome$Entry,arath_proteome$Entry)
 
-export_training_and_test(features_tg_bg_1 %>% filter(!(seq_name %in% names_to_exclude)),"precursor_nobench")
 export_training_and_test(features_tg_bg_imbal %>% filter(!(seq_name %in% names_to_exclude)),"precursor_imbal_nobench")
 ```
 

@@ -2,7 +2,7 @@ Benchmarking
 ================
 
 When benchmarking the performance of AMP predictors a number of
-important factors need to be considered;
+important factors need to be considered:
 
 1.  Any benchmark dataset will likely include some AMPs used for
     training in one or more of the predictors. Since most predictors are
@@ -106,10 +106,10 @@ a realistic test must involve data with composition similar to that of a
 complete proteome.
 
 One approach is to use whole genomes that have been well annotated for
-AMPs. Here we chose the Human and Arabidopsis genomes because these
-represent phylogenetically distinct lineages (animals and plants) are
-their genomes among the best annotated for AMPs. A few other points to
-note about this test are;
+AMPs. Here we chose the Human and *Arabidopsis* genomes because these
+represent phylogenetically distinct lineages (animals and plants), and
+their genomes are among the best annotated for AMPs. A few other points
+to note about this test are:
 
   - We were able to run this test for `ampir`, `ampep` and `ampscan_v2`
     only because other predictors were unable to handle the large number

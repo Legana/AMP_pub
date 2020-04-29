@@ -27,7 +27,7 @@ predictors, all Xc1 predictors and the first two Xc2 predictors.
 
 PCA suggests that these predictors have some (but imperfect) power to
 separate the two classes. This gives an indication of how well models
-will perform in general but doesn’t capture the capabilities of
+will perform in general but does not capture the capabilities of
 supervised learning methods like SVM.
 
 ![](03_feature_selection_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
@@ -54,10 +54,10 @@ performed using the `rfe.R` and `rfe.sh` scripts on an HPC system. The
 resulting `rfe` outputs suggest that the best performance can be
 obtained with 20-30 predictors.
 
-The set of features identified as optimal by rfe includes all bulk
+The set of features identified as optimal by RFE includes all bulk
 physicochemical properties as well as most simple amino acid composition
 measures. Higher order pseudoamino-acid composition measures do not
-appear to be important to model performance according
+appear to be important to model performance according to
     RFE.
 
     ##  [1] "Amphiphilicity" "Charge"         "Hydrophobicity" "Mw"            

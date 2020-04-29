@@ -3,9 +3,9 @@ Databases used for testing and training ampir
 
 ## Public AMP databases
 
-The following databases were accessed as of March 2020. All ampir models
-were trained using data from one or more of these databases (see details
-below).
+The following databases were accessed as of March 2020. All `ampir`
+models were trained using data from one or more of these databases (see
+details below).
 
 Four recently updated antimicrobial peptide (AMP) databases were used:
 
@@ -21,7 +21,7 @@ Four recently updated antimicrobial peptide (AMP) databases were used:
 
 Raw downloads for these databases are included in the data distribution.
 After unpacking they should be present at the following file
-locations
+locations:
 
 | Database Name | File                                                                    |
 | ------------- | ----------------------------------------------------------------------- |
@@ -43,13 +43,13 @@ unwanted entries.
 
 ### DRAMP
 
-[DRAMP’s download page](http://dramp.cpu-bioinfor.org/downloads/),
+[DRAMP’s download page](http://dramp.cpu-bioinfor.org/downloads/)
 provides access to a general AMP dataset (which contains both natural
 and synthetic AMPs). This general dataset was posted on 06/08/2019 but
 according to the “news and events” section, the [natural
 dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php) has been
 updated several times since then. Because the natural dataset contains
-the AMPs we are interested in, and is also more regularly updated (it
+the AMPs we are interested in and is also more regularly updated (it
 currently contains 4394 sequences), the natural AMP data was obtained
 using a [scrape script](scripts/scrape_dramp.sh).
 
@@ -72,18 +72,9 @@ One of the most striking differences between AMP databases becomes clear
 simply by looking at the length distributions. The `APD` and `DRAMP`
 databases emphasise short peptides (mostly \< 50 amino acids) which
 reflects their focus on mature peptides rather than full length
-precursor
-    proteins.
-
-    ## Warning: Removed 234 rows containing non-finite values (stat_bin).
-
-    ## Warning: Removed 8 rows containing missing values (geom_bar).
+precursor proteins.
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
-    ## Warning: Removed 234 rows containing non-finite values (stat_bin).
-    
-    ## Warning: Removed 8 rows containing missing values (geom_bar).
 
 The SwissProt database provides a `Peptide` field which allows us to
 distinguish between entries for mature peptides and precursors. If the
@@ -127,12 +118,23 @@ a machine learning model.
 
 **AmPEP Training Data**
 
-The AmPEP AMP predictor provides has made its training data available
-directly for download. The length distribution of sequences in this
-database is interesting. It shows that sequences classified as AMPs form
-a clear peak corresponding to mature peptides whereas non-AMP
-(background) sequences are clearly larger and more likely to represent
-full length proteins.
+The AmPEP AMP predictor provides its training data available directly
+for download. The length distribution of sequences in this database is
+interesting. It shows that sequences classified as AMPs form a clear
+peak corresponding to mature peptides whereas non-AMP (background)
+sequences are clearly larger and more likely to represent full length
+proteins.
+
+**AMP Scanner v2 Data**
+
+AMP Scanner data used for training, testing and evaluation are available
+directly for download from
+<https://www.dveltri.com/ascan/v2/about.html>. In contrast with the
+AmPEP data the lengths of positive and negative datasets are much more
+closely matched for AMPScanv2. The reflects specific steps taken by the
+authors of AMPScanv2 (detailed in Veltri et al) to extract random
+sub-sequences from non-AMPs that have a matching length distribution to
+the AMPs themselves.
 
 **Xiao et al Benchmark data**
 
@@ -144,18 +146,20 @@ This helps explain the extraordinary accuracy of AmPEP when tested with
 this benchmark. A more worrying issue is that this benchmark, and the
 AmPEP training data have length distributions which suggest that
 positive cases are mature peptides while negative cases are full length
-proteins. It is hard to imagine a situation where such a predictor would
-actually be useful. If users have a mature peptide sequence (or several)
-available they will already know that they have a mature peptide and
-their goal will be to determine whether it is an AMP or a different type
-of mature peptide. We would therefore recommend that future work use a
-negative dataset that has a similar length distribution to the positive
-dataset (ie reflecting other types of mature
+proteins. A predictor optimised to perform well on such data will
+therefore be effective at distinguishing mature peptides from precursor
+proteins but perhaps not so effective at distinguishing between AMP and
+non-AMP mature peptides (arguably a more important and interesting
+task). We would therefore recommend that future work use a negative
+dataset that is as close as possible to a set of non-AMP mature
+peptides. Since this is difficult to obtain the negative data should at
+least have a similar length distribution to the positive dataset (ie
+reflecting other types of mature
 peptides).
 
-![](01_collate_databases_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
-## Database used for the `ampir` default model
+## Database used for the `ampir` default (precursor) model
 
 Since our goal with `ampir` is to obtain the maximum possible utility
 for genome-wide scans, we sought to build a positive AMP dataset
@@ -223,8 +227,8 @@ physicochemical properties since they are the active molecules.
 For this approach we build a database as follows:
 
 1.  Include all AMPs from the APD, DRAMP and dbAMP databases with
-    lengths \>20 AA and \< 60 AA
-2.  Include mature peptides from SwissProt (also with length \>20 AA and
+    lengths \>10 AA and \< 60 AA
+2.  Include mature peptides from SwissProt (also with length \>10 AA and
     \<60 AA)
 3.  Remove sequences that are identical or that contain non-standard
     amino acids
