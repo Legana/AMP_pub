@@ -27,7 +27,7 @@ In light of these issues we tested the performance of `ampir` against contempora
 1. The [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) benchmark dataset. This was included in the interests of consistency with benchmarking from previous work but results from this benchmark are not likely to reflect performance in a genome-scanning context.
 2. A more realistic but much more challenging benchmark based on genomes for species with the best available annotated AMP repertoires. We chose an animal (Human) and a plant (*Arabidopsis thaliana*) for this test. 
 
-<font size="2"> *Table 1: AMP predictors with their papers and model accessiblity* </font>
+Table 1: AMP predictors with their papers and model accessiblity
 
 | AMP predictor name | Reference | Availability |
 | ------------------------ | --------------- | -------------- |
@@ -156,6 +156,7 @@ ggplot(models_roc) +
   labs(x = "False Positive Rate", y = "True Positive Rate")
 ```
 <font size="2"> *Figure 1: AUROC curve showing the performance of various models on Xiao et al. benchmark set* </font>
+
 
 
 ```{r}

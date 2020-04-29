@@ -36,9 +36,8 @@ contemporary AMP predictors using two very different benchmark datasets:
     repertoires. We chose an animal (Human) and a plant (*Arabidopsis
     thaliana*) for this test.
 
-<font size="2"> *Table 1: AMP predictors with their papers and model
-accessiblity*
-</font>
+Table 1: AMP predictors with their papers and model
+accessiblity
 
 | AMP predictor name | Reference                                                           | Availability                                                                          |
 | ------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
