@@ -123,6 +123,38 @@ evidence of antibacterial activity but their mode of action and vast
 difference in size make them outliers from the point of view of building
 a machine learning model.
 
+### Other peptide datasets
+
+**AmPEP Training Data**
+
+The AmPEP AMP predictor provides has made its training data available
+directly for download. The length distribution of sequences in this
+database is interesting. It shows that sequences classified as AMPs form
+a clear peak corresponding to mature peptides whereas non-AMP
+(background) sequences are clearly larger and more likely to represent
+full length proteins.
+
+**Xiao et al Benchmark data**
+
+The benchmark data provided by Xiao et al 2013 has been used in several
+studies to provide a somewhat independent estimate of prediction
+accuracy. Although this data is restricted to sequences less than 100AA
+it otherwise resembles the AmPEP data in overall length distribution.
+This helps explain the extraordinary accuracy of AmPEP when tested with
+this benchmark. A more worrying issue is that this benchmark, and the
+AmPEP training data have length distributions which suggest that
+positive cases are mature peptides while negative cases are full length
+proteins. It is hard to imagine a situation where such a predictor would
+actually be useful. If users have a mature peptide sequence (or several)
+available they will already know that they have a mature peptide and
+their goal will be to determine whether it is an AMP or a different type
+of mature peptide. We would therefore recommend that future work use a
+negative dataset that has a similar length distribution to the positive
+dataset (ie reflecting other types of mature
+peptides).
+
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
 ## Database used for the `ampir` default model
 
 Since our goal with `ampir` is to obtain the maximum possible utility

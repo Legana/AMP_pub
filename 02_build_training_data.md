@@ -36,10 +36,10 @@ cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_9
 **Step 2** To exclude any potential AMPs from this dataset we use the
 unix `comm` command to create a list of all SwissProt identifiers in the
 clustered Swissprot data that are not present in the Uniprot AMP
-database. For creating a balanced dataset, this is then piped to another
-unix command `shuf` which takes a random subset of the identifiers and
-this is finally piped to `samtools faidx` which extracts the relevant
-fasta entries and writes them to a file.
+database. To avoid the computational load of using the entire dataset,
+this is then piped to another unix command `shuf` which takes a random
+subset of the identifiers and this is finally piped to `samtools faidx`
+which extracts the relevant fasta entries and writes them to a file.
 
 At this stage we keep more background proteins than needed for a
 balanced dataset. This is for several reasons. Firstly a small number of
@@ -60,13 +60,13 @@ sequences with non-standard AA’s removed
 
 ## Mature Peptide Background Dataset
 
-As a background dataset for mature peptides we have several options. One
-would be to simply take peptides as random substrings from the full
-protein database. Another is to select proteins in swissprot with
-lengths similar to mature peptides. This latter option is probably more
-representative of a real classification problem where we decide apriori
-to only look at short peptides within a larger dataset and wish to
-distinguish AMPs from other typical short peptides/proteins like toxins.
+As a background dataset for mature peptides we have several options. The
+ideal would be to take mature peptides from SwissProt that were not AMPs
+since this most closely reflects a likely use case for the predictor. In
+this situation however our goal is to compare ampir with previous work
+so we adopted a process of background dataset construction similar to
+existing approaches.
+
 Specifically the method used for constructing a mature peptide
 background for `ampir` is;
 
