@@ -7,11 +7,11 @@ Also note that these feature distributions are sometimes heavily
 influenced by background filtering. In the plot below we see that all
 distributions are relatively well-behaved and should be amenable to
 centering and scaling. This is at least partly because our large protein
-cut-off of (500) removes a small number of very large proteins that
+cut-off of (500 AA) removes a small number of very large proteins that
 cause skew in the Mw and Charge distributions. Also notable is the fact
-that higher order lambda values from the Pseudo-amino acid composition
-seem show little difference between target and background (this is not
-true of low order values though).
+that higher order lamba values from the Pseudo-amino acid composition
+seem to show little difference between target and background (this is
+not true of low order values though).
 
 ![](03_feature_selection_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
@@ -19,7 +19,7 @@ true of low order values though).
 
 PCA suggests that these predictors have some (but imperfect) power to
 separate the two classes. This gives an indication of how well models
-will perform in general but doesn’t capture the capabilities of
+will perform in general but does not capture the capabilities of
 supervised learning methods like SVM.
 
 ![](03_feature_selection_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
@@ -32,7 +32,7 @@ remove any features on the basis of correlation since this is unlikely
 to negatively affect model performance.
 
     ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-    ## -0.45928 -0.07624  0.11473  0.16738  0.35693  0.87868
+    ## -0.49066 -0.07784  0.11654  0.16758  0.35732  0.87584
 
 ## Recursive feature elimination (RFE)
 
@@ -43,10 +43,10 @@ performed using the `rfe.R` and `rfe.sh` scripts on an HPC system. The
 resulting `rfe` outputs suggest that the best performance can be
 obtained with 20-30 predictors.
 
-The set of features identified as optimal by rfe includes all bulk
+The set of features identified as optimal by RFE includes all bulk
 physicochemical properties as well as most simple amino acid composition
 measures. Higher order pseudoamino-acid composition measures do not
-appear to be important to model performance according
+appear to be important to model performance according to
     RFE.
 
 ![](03_feature_selection_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->

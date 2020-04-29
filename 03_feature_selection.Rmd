@@ -84,7 +84,7 @@ summary(featuresCM[upper.tri(featuresCM)])
 
 RFE analysis in principle can be used to find an optimal subset of the features to be included in the model. In practice we used this as a guide only. Since this is a computationally intensive process it was performed using the `rfe.R` and `rfe.sh` scripts on an HPC system. The resulting `rfe` outputs suggest that the best performance can be obtained with 20-30 predictors.  
 
-The set of features identified as optimal by RFE includes all bulk physicochemical properties as well as most simple amino acid composition measures. Higher order pseudoamino-acid composition measures do not appear to be important to model performance according to RFE.
+The set of features identified as optimal by RFE includes all bulk physicochemical properties as well as most simple amino acid composition measures. Higher order pseudoamino-acid composition measures do not appear to be important to model performance according to  RFE.
 
 ```{r}
 svmProfile <- readRDS("cache/rfe_precursor.rds")
