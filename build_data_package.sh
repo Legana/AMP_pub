@@ -28,6 +28,7 @@ echo raw_data/amp_databases/ampir_positive90.fasta >> data_list
 echo raw_data/amp_databases/ampir_mature_positive.fasta >> data_list
 echo raw_data/amp_databases/ampir_mature_positive90.fasta >> data_list
 echo raw_data/amp_databases/ampir_db.tsv >> data_list
+echo raw_data/amp_databases/ampir_mature_negative90.fasta >> data_list
 
 # ampir negative data
 echo raw_data/amp_databases/ampir_negative90.fasta >> data_list
