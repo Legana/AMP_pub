@@ -9,7 +9,7 @@ This repository contains code used for the
   - [Collate data](01_collate_databases.md) : Rmd file
     [01\_collate\_databases.Rmd](01_collate_databases.Rmd)
   - [Build training sets](02_build_training_data.md) : Rmd file
-    [0202\_build\_training\_data.Rmd](02_build_training_data.Rmd)
+    [02\_build\_training\_data.Rmd](02_build_training_data.Rmd)
   - [Feature selection analysis](03_feature_selection.md) : Rmd file
     [03\_feature\_selection.Rmd](03_feature_selection.Rmd)
   - [Model tuning](04_tune_model.md) : Rmd file
@@ -18,7 +18,7 @@ This repository contains code used for the
     [05\_benchmark.Rmd](05_benchmark.Rmd)
 
 The files required to run the code in these Rmd files can be obtained
-[here](https://cloudstor.aarnet.edu.au/plus/s/kYedwzkgUBjCmos) or by
+[here](https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY) or by
 using the
 command:
 

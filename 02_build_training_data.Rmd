@@ -146,7 +146,7 @@ export_training_and_test <- function(features,suffix){
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 # For precursors with imbalanced data
 # 1:10 ratio
 tg_bg_imbal <- rbind(tg,bg_raw)
@@ -158,7 +158,7 @@ export_training_and_test(features_tg_bg_imbal,"precursor_imbal")
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 # For mature peptides
 #
 tg_bg_mature <- rbind(tg_mature, bg_mature) %>% filter(nchar(seq_aa)>10)
@@ -185,7 +185,7 @@ export_training_and_test(features_legacy,"legacy")
 
 For the precursor model we evaluate its performance using whole genome scans based on the Human proteome (UniProt: `UP000005640`) and *Arabidopsis* proteome (UniProt: `up000006548`). For model evaluation purposes only we generate training data where proteins from either of these databases are removed.
 
-```{r}
+```{r, eval=FALSE}
 #For whole genome benchmarking we remove Human and Arabidopsis data
 
 human_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx",guess_max = 10000)
@@ -196,11 +196,14 @@ names_to_exclude <- c(human_proteome$Entry,arath_proteome$Entry)
 export_training_and_test(features_tg_bg_imbal %>% filter(!(seq_name %in% names_to_exclude)),"precursor_imbal_nobench")
 ```
 
-For the mature peptide model we evaluate its performance using the 20% of training data that was held out for model evaluation.  
+For each model we evaluate its performance using the 20% of training data that was held out for model evaluation.  
 
-```{r}
+```{r, eval=FALSE}
 mature_test <- read_rds("cache/featuresTest_mature.rds")
 tg_bg_mature %>% filter(seq_name %in% mature_test$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/mature_eval.fasta")
+
+precursor_test <- read_rds("cache/featuresTest_precursor_imbal.rds")
+tg_bg_imbal %>% filter(seq_name %in% precursor_test$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/precursor_eval.fasta")
 ```
 
 

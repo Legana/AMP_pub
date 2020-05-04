@@ -86,6 +86,7 @@ mature_model <- compress_model(readRDS("cache/tuned_mature.rds"))
 
 xbench <- read_faa("raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta")
 ampir_bench <- read_faa("raw_data/benchmarking/datasets/ampir/mature_eval.fasta")
+ampir_prec_bench <- read_faa("raw_data/benchmarking/datasets/ampir/precursor_eval.fasta")
 
 predict_bench <- function(cachename,benchdata){
   if ( file.exists(cachename) ){
@@ -101,12 +102,17 @@ predict_bench <- function(cachename,benchdata){
 
 xbench_ampir_raw <- predict_bench("cache/xbench_ampir_raw.rds",xbench)
 ampir_bench_raw <- predict_bench("cache/ampir_bench_raw.rds",ampir_bench)
+ampir_prec_bench_raw <- predict_bench("cache/ampir_prec_bench_raw.rds",ampir_bench)
 
 xbench_ampir <- xbench_ampir_raw %>% 
   mutate(actual = ifelse(grepl(seq_name,pattern = "^AP"), "Tg", "Bg")) %>% 
   mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
 
 ampir_bench <- ampir_bench_raw %>% 
+  mutate(actual = ifelse(grepl(seq_name,pattern = "_Tg"), "Tg", "Bg")) %>% 
+  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
+
+ampir_prec_bench <- ampir_prec_bench_raw %>% 
   mutate(actual = ifelse(grepl(seq_name,pattern = "_Tg"), "Tg", "Bg")) %>% 
   mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
 
@@ -137,6 +143,12 @@ ampir_bench_ampep <- read_csv("raw_data/benchmarking/results/ampep/mature_eval_a
   mutate(predicted = ifelse(prediction == 1, "Tg", "Bg")) %>%
   mutate(actual = factor(actual), predicted = factor(predicted))
 
+ampir_prec_bench_ampep <- read_csv("raw_data/benchmarking/results/ampep/precursor_eval_ampep.txt") %>% 
+  mutate(actual = ifelse(grepl(Row,pattern = "^AP"), "Tg", "Bg")) %>% 
+  rename(prob_AMP = score) %>% 
+  mutate(predicted = ifelse(prediction == 1, "Tg", "Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
+
 ampep_roc <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_ampep))) %>%
   add_column(model = "ampep") %>% add_column(benchmark = "Xiao")
 
@@ -154,6 +166,12 @@ xbench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/iamp2l/158
   
 
 ampir_bench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/ampir/1588056261666_Prediction_Summary.csv") %>% 
+  mutate(actual = ifelse(grepl(SeqID,pattern = "^AP"), "Tg", "Bg")) %>% 
+  rename(prob_AMP = Prediction_Probability) %>%
+  mutate(predicted = ifelse(Prediction_Class == "AMP", "Tg", "Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
+
+ampir_prec_bench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/ampir_prec/1588630046504_Prediction_Summary.csv") %>% 
   mutate(actual = ifelse(grepl(SeqID,pattern = "^AP"), "Tg", "Bg")) %>% 
   rename(prob_AMP = Prediction_Probability) %>%
   mutate(predicted = ifelse(Prediction_Class == "AMP", "Tg", "Bg")) %>%
@@ -179,6 +197,8 @@ ampir_bench_iampred <- read_tsv("raw_data/benchmarking/results/iamppred/ampir_ma
   mutate(prob_AMP = pmax(antibacterial,antiviral,antifungal)) %>%
   mutate(predicted = ifelse(prob_AMP >= 0.5, "Tg", "Bg")) %>%
   mutate(actual = factor(actual), predicted = factor(predicted))
+
+# TODO: ampir_prec_bench_iampred yet
 
 iampred_roc <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_iampred))) %>%
   add_column(model = "iamppred") %>% add_column(benchmark = "Xiao")
@@ -389,6 +409,15 @@ ampir_bench_data <- list(ampir_mature = ampir_bench %>% filter(model=="ampir_mat
 ampir_bench_stats <- sapply(ampir_bench_data,get_performance_stats)
 ```
 
+```{r}
+ampir_prec_bench_data <- list(ampir_mature = ampir_prec_bench %>% filter(model=="ampir_mature"),
+                         ampir_precursor = ampir_prec_bench %>% filter(model=="ampir_precursor"),
+                         ampscannerv2=ampir_prec_bench_ampscanv2,
+                         ampep=ampir_prec_bench_ampep)
+ampir_prec_bench_stats <- sapply(ampir_bench_data,get_performance_stats)
+```
+
+
 **Table 5.2:** Model performance on Xiao et al. benchmark dataset
 ```{r}
 knitr::kable(xbench_stats, digits = 2)
@@ -401,4 +430,7 @@ knitr::kable(ampir_bench_stats, digits = 2)
 ```
 
 
-
+**Table 5.4:** Model performance on `ampir_precursor` test set
+```{r}
+knitr::kable(ampir_prec_bench_stats, digits = 2)
+```
