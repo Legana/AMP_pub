@@ -12,8 +12,7 @@ Four recently updated antimicrobial peptide (AMP) databases were used:
   - [APD 3](http://aps.unmc.edu/AP/) by [Wang et
     al. 2016](https://academic.oup.com/nar/article/44/D1/D1087/2503090)
   - [DRAMP 2.0](http://dramp.cpu-bioinfor.org/) by [Kang et
-    al. 2019](https://www.ncbi.nlm.nih.gov/pubmed/31409791). Also see
-    [DRAMP GitHub](https://github.com/CPUDRAMP/DRAMP2.0)
+    al. 2019](https://www.ncbi.nlm.nih.gov/pubmed/31409791).
   - [dbAMP](http://140.138.77.240/~dbamp/index.php) by [Jhong et
     al. 2018](https://www.ncbi.nlm.nih.gov/pubmed/30380085)
   - [UniProt](https://www.uniprot.org/uniprot/?query=keyword%3A%22Antimicrobial+%5BKW-0929%5D%22&sort=score)
@@ -131,20 +130,21 @@ AMP Scanner data used for training, testing and evaluation are available
 directly for download from
 <https://www.dveltri.com/ascan/v2/about.html>. In contrast with the
 AmPEP data the lengths of positive and negative datasets are much more
-closely matched for AMPScanv2. The reflects specific steps taken by the
-authors of AMPScanv2 (detailed in Veltri et al) to extract random
-sub-sequences from non-AMPs that have a matching length distribution to
-the AMPs themselves.
+closely matched for AMPScanv2. This reflects specific steps taken by the
+authors of AMP scannner v2 (detailed in [Veltri et
+al. 2018](https://doi.org/10.1093/bioinformatics/bty179%5D)) to extract
+random sub-sequences from non-AMPs that have a matching length
+distribution to the AMPs themselves.
 
-**Xiao et al Benchmark data**
+**Xiao et al. Benchmark data**
 
-The benchmark data provided by Xiao et al 2013 has been used in several
+The benchmark data provided by Xiao et al. 2013 has been used in several
 studies to provide a somewhat independent estimate of prediction
-accuracy. Although this data is restricted to sequences less than 100AA
+accuracy. Although this data is restricted to sequences less than 100 AA
 it otherwise resembles the AmPEP data in overall length distribution.
 This helps explain the extraordinary accuracy of AmPEP when tested with
 this benchmark. A more worrying issue is that this benchmark, and the
-AmPEP training data have length distributions which suggest that
+AmPEP training data, have length distributions which suggest that
 positive cases are mature peptides while negative cases are full length
 proteins. A predictor optimised to perform well on such data will
 therefore be effective at distinguishing mature peptides from precursor
@@ -152,9 +152,9 @@ proteins but perhaps not so effective at distinguishing between AMP and
 non-AMP mature peptides (arguably a more important and interesting
 task). We would therefore recommend that future work use a negative
 dataset that is as close as possible to a set of non-AMP mature
-peptides. Since this is difficult to obtain the negative data should at
-least have a similar length distribution to the positive dataset (ie
-reflecting other types of mature
+peptides. Since this is difficult to obtain, the negative data should at
+least have a similar length distribution to the positive dataset
+(i.e. reflecting other types of mature
 peptides).
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->

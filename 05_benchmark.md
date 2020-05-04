@@ -12,7 +12,7 @@ important factors need to be considered:
 2.  An existing benchmark dataset provided by [Xiao et
     al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) has been
     adopted by several subsequent authors but the composition of this
-    dataset has the following issues;
+    dataset has the following issues:
       - Positive (AMP) cases in this dataset are mature peptides whereas
         in a genome scan only precursors sequences are usually
         available.
@@ -25,34 +25,34 @@ important factors need to be considered:
         behaviour).
 3.  A realistic test of AMP prediction in genome-wide scans should use a
     benchmark dataset that is highly unbalanced, just as a real genome
-    protein set would be. For example in the Arabidopsis genome AMPs
+    protein set would be. For example in the *Arabidopsis* genome AMPs
     make up less than 1% of proteins.  
 4.  Real genomes contain non-AMP proteins that may resemble AMPs in some
-    ways (eg secreted proteins, transmembrane proteins) and which will
+    ways (e.g. secreted proteins, transmembrane proteins) and which will
     therefore make the classification problem more difficult. Any
     benchmark that does not include these proteins will most likely
-    provide a inflated estimates of accuracy.
+    provide inflated estimates of accuracy.
 
-In light of these issues we tested the performance of ampir against
-contemporary AMP predictors using several benchmark datasets.
+In light of these issues we tested the performance of `ampir` against
+contemporary AMP predictors using several benchmark datasets:
 
 1.  The [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019)
-    benchmark dataset. This was included in the interests of consistency
+    benchmark dataset. This was included in the interest of consistency
     with benchmarking from previous work but results from this benchmark
     are not likely to reflect real-world performance.
-2.  A subset of the ampir mature peptide training data which we set
+2.  A subset of the `ampir` mature peptide training data which we set
     aside for model evaluation and was not used in training. This
     dataset consists of known AMP mature peptides as positive cases and
     non-AMP mature peptides as negative cases. It should reflect
     real-world performance in situations where a researcher has access
-    to a mature peptide sequence (eg by mass spectrometry) and wishes to
-    determine if it is an AMP or another type of small peptide such as a
-    toxin or neuropeptide.
+    to a mature peptide sequence (e.g. by mass spectrometry) and wishes
+    to determine if it is an AMP or another type of small peptide such
+    as a toxin or neuropeptide.
 3.  A whole-genome scanning benchmark for species with the best
     available annotated AMP repertoires. We chose an animal (Human) and
-    a plant (Arabidopsis thaliana) for this test.
+    a plant (*Arabidopsis thaliana*) for this test.
 
-Table 1: AMP predictors with their papers and model
+**Table 5.1:** AMP predictors with their papers and model
 accessiblity
 
 | AMP predictor name | Reference                                                           | Availability                                                                          |
@@ -66,17 +66,17 @@ AMP predictors were accessed in ***April 2020***
 ### Mature peptide benchmarks
 
 Both the [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019)
-benchmark and the ampir testing set should are focussed on mature
-peptide prediction since mature peptides form the bulk of positive
-cases). The benchmarks differ most substantially in the composition of
-their background datasets. The Xiao et al background data has a peak in
-length distribution around 80-90AA whereas for the ampir test set this
-is more similar to the target set at around 40AA.
+benchmark and the `ampir` testing set are focussed on mature peptide
+prediction (since mature peptides form the bulk of positive cases). The
+benchmarks differ most substantially in the composition of their
+background datasets. The Xiao et al. background data has a peak in
+length distribution around 80-90 AA whereas for the `ampir` test set
+this is more similar to the target set at around 40 AA.
 
 The plot below shows performance of all predictors in the form of
 receiver operating characteristic (ROC) curves. These show the tradeoff
 between false positive rate and true positive rate (also called recall).
-A few points to note from this plot;
+A few points to note from this plot:
 
   - The `ampir_mature` model performs well on both datasets whereas the
     `ampir_precursor` model performs very poorly. Users of `ampir`
@@ -86,13 +86,13 @@ A few points to note from this plot;
   - Some predictors do not perform well at the extremes of the ROC
     curve. This reflects the ability of the predictor to produce
     accurate probability values across the full range of probabilities.
-    In the case of ampscan v2 for example we see that its curve does not
-    extend into the low false positive regime. This is because its
-    probability distribution is strongly concentrated at the extremes (0
-    and 1), and a relatively large number of non-AMP peptides have been
-    assigned a probability of 1.
-  - The best performing predictors in the low FP regime are `ampep` and
-    `ampir`
+    In the case of `ampscanner v2` for example we see that its curve
+    does not extend into the low false positive regime. This is because
+    its probability distribution is strongly concentrated at the
+    extremes (0 and 1), and a relatively large number of non-AMP
+    peptides have been assigned a probability of 1.
+  - The best performing predictors in the low false positive regime are
+    `ampep` and `ampir`.
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
@@ -111,11 +111,11 @@ represent phylogenetically distinct lineages (animals and plants), and
 their genomes are among the best annotated for AMPs. A few other points
 to note about this test are:
 
-  - We were able to run this test for `ampir`, `ampep` and `ampscan_v2`
-    only because other predictors were unable to handle the large number
-    of candidates sequences (~100k) in a practical manner.
-  - We used a specially generated model for ampir that was trained
-    without Human or Arabidopsis proteins to avoid any potential for
+  - We were able to run this test for `ampir`, `ampep` and `ampscanner
+    v2` only because other predictors were unable to handle the large
+    number of candidates sequences (~100k) in a practical manner.
+  - We used a specially generated model for `ampir` that was trained
+    without Human or *Arabidopsis* proteins to avoid any potential for
     overfitting resulting in inflacted accuracy estimates in this test.
     It should be noted that other predictors would have no such
     restriction.
@@ -123,25 +123,25 @@ to note about this test are:
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 **Figure 5.2:** Performance of various AMP predictors in classifying
-whole proteome data for Human and Arabidopsis.
+whole proteome data for Human and *Arabidopsis*.
 
 In Figure 5.2 we show ROC curves for all predictors on the Human and
-Arabidopsis data but it is important to remember that in this context
+*Arabidopsis* data but it is important to remember that in this context
 the low false positive regime is especially important. This is because
 of the extremely low frequency of true positives in the data (less than
 1%). This is explored further in Figure 5.3 but for now it is important
-to note that ampscanv2 is not shown in Figure 5.3 because its ROC curve
-does not extend into this important regime despite the fact that it
-otherwise appears to perform very well. Ampep and ampir\_mature both
-perform very poorly reflecting the emphasis of their training data on
-mature peptides rather than precursor proteins.
+to note that `ampscanner v2` is not shown in Figure 5.3 because its ROC
+curve does not extend into this important regime despite the fact that
+it otherwise appears to perform very well. `AmPEP` and `ampir_mature`
+both perform very poorly reflecting the emphasis of their training data
+on mature peptides rather than precursor proteins.
 
 In order to properly capture the real-world performance of predictors on
 genome scans it is important to use a plot that emphasises the absolute
 numbers of true and false positives. On this measure (shown in Figure
 5.3) it can be seen that genome-wide prediction of AMPs is still an
-imperfectly solved problem. Although the ampir precursor model clearly
-performs far better than any other predictor, none were able to predict
+imperfectly solved problem. Although the `ampir` precursor model clearly
+performs far better than any other predictors, none were able to predict
 more than 50% of true AMPs while controlling false positives to under
 500. Nevertheless, given the difficulties in identifying AMPs and the
 importance of this task this level of enrichment is of great practical
@@ -155,47 +155,33 @@ prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al.,
 shown for parts A and B because it was impractical to run on large
 numbers of sequences. Parts A and B are scaled so that the limits of the
 y-axis show the full complement of known AMPs in each genome (291 for
-Arabidopsis, 101 for Human), and the limits of the x-axis are restricted
-to emphasise behaviour in the low false positive (FP) regime (FP \< 500)
-because this is most relevant in whole genome scans. Part C is a
-receiver operating characteristic (ROC) curve based on the ampir
+*Arabidopsis*, 101 for Human), and the limits of the x-axis are
+restricted to emphasise behaviour in the low false positive (FP) regime
+(FP \< 500) because this is most relevant in whole genome scans. Part C
+is a receiver operating characteristic (ROC) curve based on the `ampir`
 reserved testing data. It shows FPR (False Positive Rate) versus Recall
-(True Positive
-Rate).
+(True Positive Rate).
 
 ## Performance Statistics
 
-|                      | ampep | ampir\_precursor | ampir\_mature | ampscanv2 | iamppred |
-| -------------------- | ----: | ---------------: | ------------: | --------: | -------: |
-| Sensitivity          |   1.0 |             0.31 |          0.96 |      0.98 |     0.96 |
-| Specificity          |   1.0 |             0.90 |          0.12 |      0.68 |     0.32 |
-| Pos Pred Value       |   1.0 |             0.77 |          0.52 |      0.75 |     0.59 |
-| Neg Pred Value       |   1.0 |             0.57 |          0.75 |      0.97 |     0.90 |
-| Precision            |   1.0 |             0.77 |          0.52 |      0.75 |     0.59 |
-| Recall               |   1.0 |             0.31 |          0.96 |      0.98 |     0.96 |
-| F1                   |   1.0 |             0.44 |          0.68 |      0.85 |     0.73 |
-| Prevalence           |   0.5 |             0.50 |          0.50 |      0.50 |     0.50 |
-| Detection Rate       |   0.5 |             0.16 |          0.48 |      0.49 |     0.48 |
-| Detection Prevalence |   0.5 |             0.20 |          0.92 |      0.65 |     0.82 |
-| Balanced Accuracy    |   1.0 |             0.61 |          0.54 |      0.83 |     0.64 |
-| AUC                  |   1.0 |             0.80 |          0.93 |      0.94 |     0.86 |
-
-Table 2: Model performance on Xiao et al. benchmark
+**Table 5.2:** Model performance on Xiao et al. benchmark
 dataset
 
-|                      | ampep | ampir\_precursor | ampir\_mature | ampscanv2 | iamppred |
-| -------------------- | ----: | ---------------: | ------------: | --------: | -------: |
-| Sensitivity          |  0.99 |             0.26 |          0.91 |      0.98 |     0.93 |
-| Specificity          |  0.54 |             0.89 |          0.87 |      0.49 |     0.47 |
-| Pos Pred Value       |  0.41 |             0.87 |          0.95 |      0.39 |     0.37 |
-| Neg Pred Value       |  0.99 |             0.28 |          0.77 |      0.98 |     0.95 |
-| Precision            |  0.41 |             0.87 |          0.95 |      0.39 |     0.37 |
-| Recall               |  0.99 |             0.26 |          0.91 |      0.98 |     0.93 |
-| F1                   |  0.58 |             0.40 |          0.93 |      0.56 |     0.53 |
-| Prevalence           |  0.25 |             0.75 |          0.75 |      0.25 |     0.25 |
-| Detection Rate       |  0.25 |             0.19 |          0.68 |      0.24 |     0.23 |
-| Detection Prevalence |  0.59 |             0.22 |          0.72 |      0.62 |     0.63 |
-| Balanced Accuracy    |  0.76 |             0.57 |          0.89 |      0.73 |     0.70 |
-| AUC                  |  0.90 |             0.63 |          0.96 |      0.79 |     0.74 |
+|                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
+| ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
+| Balanced Accuracy |          0.97 |             0.61 |         0.83 |     1 |     0.64 |
+| Precision         |          0.96 |             0.76 |         0.75 |     1 |     0.59 |
+| Recall            |          0.98 |             0.31 |         0.98 |     1 |     0.96 |
+| F1                |          0.97 |             0.44 |         0.85 |     1 |     0.73 |
+| AUC               |          0.99 |             0.80 |         0.94 |     1 |     0.86 |
 
-Table 3: Model performance on ampir test sets
+**Table 5.3:** Model performance on `ampir` test
+set
+
+|                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
+| ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
+| Balanced Accuracy |          0.91 |             0.58 |         0.73 |  0.76 |     0.70 |
+| Precision         |          0.91 |             0.73 |         0.39 |  0.41 |     0.37 |
+| Recall            |          0.90 |             0.26 |         0.98 |  0.99 |     0.93 |
+| F1                |          0.91 |             0.39 |         0.56 |  0.58 |     0.53 |
+| AUC               |          0.97 |             0.66 |         0.79 |  0.90 |     0.74 |

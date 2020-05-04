@@ -13,9 +13,9 @@ library(tidyverse)
 set.seed(10)
 ```
 
-As an indication of features that are likely to be useful for classification we plot their distributions for background and target.  Also note that these feature distributions are sometimes heavily influenced by background filtering.  In the plots below we see that all distributions are relatively well-behaved and should be amenable to centering and scaling.  This is at least partly because our large protein cut-off of (500) removes a small number of very large proteins that cause skew in the Mw and Charge distributions.  
+As an indication of features that are likely to be useful for classification we plot their distributions for background and target. Also note that these feature distributions are sometimes heavily influenced by background filtering. In the plots below we see that all distributions are relatively well-behaved and should be amenable to centering and scaling. This is at least partly because our large protein cut-off of (500 amino acids) removes a small number of very large proteins that cause skew in the Mw and Charge distributions.  
 
-For both sets of data it is clear that higher order lambda values from the Pseudo-amino acid composition seem show little difference between target and background (this is not true of low order values though). For both precursor and mature peptide models we used all physicochemical predictors, all Xc1 predictors and the first two Xc2 predictors.
+For both sets of data it is clear that higher order lambda values from the Pseudo-amino acid composition seem to show little difference between target and background (this is not true of low order values though). For both precursor and mature peptide models we used all physicochemical predictors, all Xc1 predictors and the first two Xc2 predictors.
 
 ```{r, fig.height=20}
 features_tg_bg_1 <- read_rds("cache/features_precursor.rds")
@@ -28,7 +28,9 @@ features_long <- rbind(features_bg_tg_1_long,features_bg_tg_mature_long)
 
 ggplot(features_long %>% filter(database=="precursors"),aes(x=Value)) + 
   geom_density(aes(color=Label)) + 
-  facet_wrap(~Feature, scales = "free", ncol = 3)
+  facet_wrap(~Feature, scales = "free", ncol = 3) +
+  labs(x= "Feature", y = "Density") +
+  scale_color_discrete(name = "", labels = c("Background", "Target"))
 ```
 **Figure 3.1:** Feature distributions for precursor training data
 
@@ -36,14 +38,15 @@ ggplot(features_long %>% filter(database=="precursors"),aes(x=Value)) +
 ```{r, fig.height=20}
 ggplot(features_long %>% filter(database=="mature"),aes(x=Value)) + 
   geom_density(aes(color=Label)) + 
-  facet_wrap(~Feature, scales = "free", ncol = 3)
+  facet_wrap(~Feature, scales = "free", ncol = 3) +
+  labs(x= "Feature", y = "Density") +
+  scale_color_discrete(name = "", labels = c("Background", "Target"))
 ```
-
 **Figure 3.2:** Feature distributions for mature peptide training data
 
 ### PCA
 
-PCA suggests that these predictors have some (but imperfect) power to separate the two classes. This gives an indication of how well models will perform in general but does not capture the capabilities of supervised learning methods like SVM.
+Principal component analysis (PCA) suggests that these predictors have some (but imperfect) power to separate the two classes. This gives an indication of how well models will perform in general but does not capture the capabilities of supervised learning methods like SVM.
 
 ```{r, message=FALSE, warning=FALSE}
 pca_features_1 <- features_tg_bg_1[,-c(1,46)]
@@ -53,7 +56,7 @@ pca_1_plot <- pca_1$x %>% as.data.frame() %>%  rownames_to_column("seq_name") %>
 
 p_sc <- ggplot(pca_1_plot,aes(x=PC1,y=PC2)) + geom_point(aes(color=Label)) + theme(legend.position = "none")
 p_xd <- ggplot(pca_1_plot,aes(x=PC1)) + geom_density(aes(color=Label))
-p_yd <- ggplot(pca_1_plot,aes(x=PC2)) + geom_density(aes(color=Label)) + coord_flip()
+p_yd <- ggplot(pca_1_plot,aes(x=PC2)) + geom_density(aes(color=Label)) + coord_flip()  + scale_color_discrete(name = "", labels = c("Background", "Target"))
 
 library(cowplot)
 
@@ -83,9 +86,11 @@ plot_grid(first_col, second_col, ncol = 2, rel_widths = c(3, 1))
 ```
 **Figure 3.3:** PCA with marginal density plots showing the ability of this unsupervised clustering method to separate classes. The plot shows data from the precursor training set
 
+
+
 ## Correlated Predictors
 
-Although a small number these predictors are correlated there are none with near-perfect correlation (max cor < 0.9). We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
+Although a small number show these predictors are correlated there are none with near-perfect correlation (max cor < 0.9). We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
 
 ```{r}
 featuresCM <- cor(features_tg_bg_1[,-c(1,46)])
@@ -96,7 +101,7 @@ summary(featuresCM[upper.tri(featuresCM)])
 
 RFE analysis in principle can be used to find an optimal subset of the features to be included in the model. In practice we used this as a guide only. Since this is a computationally intensive process it was performed using the `rfe.R` and `rfe.sh` scripts on an HPC system. The resulting `rfe` outputs suggest that the best performance can be obtained with 20-30 predictors.  
 
-The set of features identified as optimal by RFE includes all bulk physicochemical properties as well as most simple amino acid composition measures. Higher order pseudoamino-acid composition measures do not appear to be important to model performance according to  RFE.
+The set of features identified as optimal by RFE includes all bulk physicochemical properties as well as most simple amino acid composition measures. Higher order pseudoamino-acid composition measures do not appear to be important to model performance according to RFE.
 
 ```{r}
 svmProfile <- readRDS("cache/rfe_precursor.rds")
