@@ -395,7 +395,7 @@ knitr::kable(xbench_stats, digits = 2)
 ```
 
 
-**Table 5.3:** Model performance on `ampir` test set
+**Table 5.3:** Model performance on `ampir_mature` test set
 ```{r}
 knitr::kable(ampir_bench_stats, digits = 2)
 ```

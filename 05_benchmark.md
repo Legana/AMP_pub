@@ -175,7 +175,7 @@ dataset
 | F1                |          0.97 |             0.44 |         0.85 |     1 |     0.73 |
 | AUC               |          0.99 |             0.80 |         0.94 |     1 |     0.86 |
 
-**Table 5.3:** Model performance on `ampir` test
+**Table 5.3:** Model performance on `ampir_mature` test
 set
 
 |                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
