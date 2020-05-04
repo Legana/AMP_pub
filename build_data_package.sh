@@ -33,6 +33,7 @@ echo raw_data/amp_databases/ampir_mature_negative90.fasta >> data_list
 # ampir negative data
 echo raw_data/amp_databases/ampir_negative90.fasta >> data_list
 echo raw_data/amp_databases/uniprot-length_[0+TO+60]+NOT+keyword__Antimicrobial+[KW-0929]_+A--.xlsx >> data_list
+echo raw_data/amp_databases/ampir_mature_negative90.fasta >> data_list
 
 # Precalculated training and test feature sets
 echo cache/features_precursor.rds >> data_list

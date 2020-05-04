@@ -1,13 +1,11 @@
-Build a training dataset for ampir
+Build a training dataset for `ampir`
 ================
-
-    ## Warning: package 'purrr' was built under R version 3.6.2
 
 Since `ampir` uses supervised learning to create a classifier it needs a
 training set consisting of confirmed “positive” AMP (or precursor)
-sequences and also a background dataset consisting of non-AMP sequences.
-Construction of these training data is a critical step and has an
-enormous effect on the performance of the predictor. In
+sequences and also a background (or “negative”) dataset consisting of
+non-AMP sequences. Construction of these training data is a critical
+step and has an enormous effect on the performance of the predictor. In
 [01\_collate\_databases](01_collate_databases.md) the process of
 positive dataset construction is decribed. Here we describe how the
 background data and overall training sets are built.
@@ -19,12 +17,12 @@ the UniProt database. Our goal is to use fairly minimal filtering on
 these so that they have roughly the same composition as a typical set of
 non-AMP proteins in a genome. The filtering is as follows:
 
-1.  Use cd-hit to cluster sequences to 90% identity
-2.  Remove any sequences in the Uniprot AMP dataset
+1.  Use `cd-hit` to cluster sequences to 90% identity
+2.  Remove any sequences in the UniProt AMP dataset
 3.  Check that no sequences in the background dataset contain
     non-standard amino acids.
-4.  Remove sequences with AMP-like lengths 50AA , and very large lengths
-    (\>500AA)
+4.  Remove sequences with AMP-like lengths 50 AA, and very large lengths
+    (\>500 AA)
 5.  Randomly sample the background data so that AMP:non-AMP ratio is
     1:10
 
@@ -39,7 +37,7 @@ cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_9
 
 **Step 2** To exclude any potential AMPs from this dataset we use the
 unix `comm` command to create a list of all SwissProt identifiers in the
-clustered Swissprot data that are not present in the UniProt AMP
+clustered SwissProt data that are not present in the UniProt AMP
 database. To avoid the computational load of using the entire dataset,
 this is then piped to another unix command `shuf` which takes a random
 subset of the identifiers and this is finally piped to `samtools faidx`
@@ -60,21 +58,21 @@ comm -23 \
 ```
 
 **Steps 3, 4 and 5** are fairly trivial. Length filters are applied and
-sequences with non-standard AA’s removed
+sequences with non-standard AAs removed
 
 ## Mature Peptide Background Dataset
 
 As a background dataset for mature peptides the ideal would be to take
-mature peptides from SwissProt that were not AMPs. Since there are not
-many of these we start by extracting all approximately peptide-sized
-sequences from SwissProt and then use the Peptide field to find
-instances which correspond to mature peptides.
+mature peptides from SwissProt that are not AMPs. We could use the
+Peptide field to find instances which correspond to mature peptides but
+there are very few such peptides verified and they tend to be
+neuropeptides and toxins. A broader range of small peptides can be
+obtained simply by using a size range filter on the SwissProt data:
 
 1.  Use non-AMP sequences clustered to 90% identity from SwissProt as a
     starting point
-2.  Keep only sequences \>10AA and \<60AA
-3.  Include only mature peptide sequences
-4.  Remove non-standard amino acids
+2.  Keep only sequences \>10 AA and \<40 AA
+3.  Remove non-standard amino acids
 
 <!-- end list -->
 
@@ -83,17 +81,17 @@ comm -23 \
   <(cat uniprot-filtered-reviewed_yes_90.fasta | bioawk -c fastx '{print $name}' | sort) \
   <(cat amp_databases/uniprot-keyword__Antimicrobial+\[KW-0929\]_.fasta | bioawk -c fastx '{print $name}' | sort) | \
   xargs samtools faidx uniprot-filtered-reviewed_yes_90.fasta |\
-  bioawk -c fastx 'length($seq)<50{printf(">%s\n%s\n",$name,$seq)}' \
+  bioawk -c fastx 'length($seq)<40{printf(">%s\n%s\n",$name,$seq)}' \
   > amp_databases/ampir_mature_negative90.fasta
 ```
 
 Examination of the length distributions reveals a slightly larger
-proportion of short peptides in the background data compared with
-target. Since there are relatively few mature peptides of this type
-available in swissprot this could reflect acquisition bias towards
-peptides of academic or industrial interest such as neuropeptides. As
-Swissprot grows to become more representative it should be possible to
-improve both positive and negative datasets
+proportion of short peptides in the background data compared with the
+target (positive) data. Since there are relatively few mature peptides
+of this type available in SwissProt this could reflect acquisition bias
+towards peptides of academic or industrial interest such as
+neuropeptides. As SwissProt grows to become more representative it
+should be possible to improve both positive and negative datasets
 here.
 
 ![](02_build_training_data_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
@@ -107,7 +105,7 @@ proteins in the background data.
 
 1.  Use non-AMP sequences clustered to 90% identity from SwissProt as a
     starting point
-2.  Keep only sequences \>20AA and \<100AA
+2.  Keep only sequences \>20 AA and \<100 AA
 3.  Remove sequences with non-standard amino acids
 4.  Sample this dataset randomly so that it is balanced (same number of
     peptides as the positive data)
@@ -129,8 +127,8 @@ created are:
 ## Benchmarking Data
 
 For the precursor model we evaluate its performance using whole genome
-scans based on the Human proteome (Uniprot: `UP000005640`) and
-Arabidopsis proteome (Uniprot: `up000006548`). For model evaluation
+scans based on the Human proteome (UniProt: `UP000005640`) and
+*Arabidopsis* proteome (UniProt: `up000006548`). For model evaluation
 purposes only we generate training data where proteins from either of
 these databases are removed.
 
