@@ -114,7 +114,52 @@ evidence of antibacterial activity but their mode of action and vast
 difference in size make them outliers from the point of view of building
 a machine learning model.
 
-## Database used for the `ampir` default model
+### Other peptide datasets
+
+**AmPEP Training Data**
+
+The AmPEP AMP predictor provides its training data available directly
+for download. The length distribution of sequences in this database is
+interesting. It shows that sequences classified as AMPs form a clear
+peak corresponding to mature peptides whereas non-AMP (background)
+sequences are clearly larger and more likely to represent full length
+proteins.
+
+**AMP Scanner v2 Data**
+
+AMP Scanner data used for training, testing and evaluation are available
+directly for download from
+<https://www.dveltri.com/ascan/v2/about.html>. In contrast with the
+AmPEP data the lengths of positive and negative datasets are much more
+closely matched for AMPScanv2. The reflects specific steps taken by the
+authors of AMPScanv2 (detailed in Veltri et al) to extract random
+sub-sequences from non-AMPs that have a matching length distribution to
+the AMPs themselves.
+
+**Xiao et al Benchmark data**
+
+The benchmark data provided by Xiao et al 2013 has been used in several
+studies to provide a somewhat independent estimate of prediction
+accuracy. Although this data is restricted to sequences less than 100AA
+it otherwise resembles the AmPEP data in overall length distribution.
+This helps explain the extraordinary accuracy of AmPEP when tested with
+this benchmark. A more worrying issue is that this benchmark, and the
+AmPEP training data have length distributions which suggest that
+positive cases are mature peptides while negative cases are full length
+proteins. A predictor optimised to perform well on such data will
+therefore be effective at distinguishing mature peptides from precursor
+proteins but perhaps not so effective at distinguishing between AMP and
+non-AMP mature peptides (arguably a more important and interesting
+task). We would therefore recommend that future work use a negative
+dataset that is as close as possible to a set of non-AMP mature
+peptides. Since this is difficult to obtain the negative data should at
+least have a similar length distribution to the positive dataset (ie
+reflecting other types of mature
+peptides).
+
+![](01_collate_databases_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+## Database used for the `ampir` default (precursor) model
 
 Since our goal with `ampir` is to obtain the maximum possible utility
 for genome-wide scans, we sought to build a positive AMP dataset
@@ -182,8 +227,8 @@ physicochemical properties since they are the active molecules.
 For this approach we build a database as follows:
 
 1.  Include all AMPs from the APD, DRAMP and dbAMP databases with
-    lengths \>20 AA and \< 60 AA
-2.  Include mature peptides from SwissProt (also with length \>20 AA and
+    lengths \>10 AA and \< 60 AA
+2.  Include mature peptides from SwissProt (also with length \>10 AA and
     \<60 AA)
 3.  Remove sequences that are identical or that contain non-standard
     amino acids

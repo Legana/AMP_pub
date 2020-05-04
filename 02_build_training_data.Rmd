@@ -1,5 +1,5 @@
 ---
-title: Build a training dataset for ampir
+title: Build a training dataset for `ampir`
 output: github_document
 ---
 
@@ -15,7 +15,7 @@ library(caret)
 set.seed(3141)
 ```
 
-Since `ampir` uses supervised learning to create a classifier it needs a training set consisting of confirmed "positive" AMP (or precursor) sequences and also a background dataset consisting of non-AMP sequences.  Construction of these training data is a critical step and has an enormous effect on the performance of the predictor. In [01_collate_databases](01_collate_databases.md) the process of positive dataset construction is decribed. Here we describe how the background data and overall training sets are built.
+Since `ampir` uses supervised learning to create a classifier it needs a training set consisting of confirmed "positive" AMP (or precursor) sequences and also a background (or "negative") dataset consisting of non-AMP sequences. Construction of these training data is a critical step and has an enormous effect on the performance of the predictor. In [01_collate_databases](01_collate_databases.md) the process of positive dataset construction is decribed. Here we describe how the background data and overall training sets are built.
 
 ## Precursor Background Dataset
 
@@ -23,8 +23,9 @@ As our basis for a background dataset we use all reviewed proteins in the UniPro
 
 1. Use `cd-hit` to cluster sequences to 90% identity
 2. Remove any sequences in the UniProt AMP dataset
-3. Check that no sequences in the background dataset contain non-standard AA. 
-4. Remove sequences with lengths <50 AA and >500 AA
+3. Check that no sequences in the background dataset contain non-standard amino acids. 
+4. Remove sequences with AMP-like lengths 50 AA, and very large lengths (>500 AA)
+5. Randomly sample the background data so that AMP:non-AMP ratio is 1:10
 
 **Step 1** is computationally intensive and was performed using `cd-hit` using SwissProt data downloaded on 7 April 2020. The resulting clustered file is included in the data distribution as `uniprot-filtered-reviewed_yes_90.fasta`
 
@@ -32,7 +33,7 @@ As our basis for a background dataset we use all reviewed proteins in the UniPro
 cd-hit -i uniprot-filtered-reviewed_yes.fasta -o uniprot-filtered-reviewed_yes_90.fasta -c 0.90 -g 1 -T 32 -M 300000
 ```
 
-**Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered Swissprot data that are not present in the UniProt AMP database. To avoid the computational load of using the entire dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant FASTA entries and writes them to a file. 
+**Step 2** To exclude any potential AMPs from this dataset we use the unix `comm` command to create a list of all SwissProt identifiers in the clustered SwissProt data that are not present in the UniProt AMP database. To avoid the computational load of using the entire dataset, this is then piped to another unix command `shuf` which takes a random subset of the identifiers and this is finally piped to `samtools faidx` which extracts the relevant FASTA entries and writes them to a file. 
 
 At this stage we keep more background proteins than needed for a balanced dataset. This is for several reasons. Firstly a small number of background proteins might be removed under additional filtering criteria. Secondly we may choose to use an unbalanced dataset in order to achieve better overall performance on whole genome scans.
 
@@ -44,7 +45,7 @@ comm -23 \
   xargs samtools faidx uniprot-filtered-reviewed_yes_90.fasta > amp_databases/ampir_negative90.fasta
 ```
 
-**Step 3 and 4** are fairly trivial. Length filters are applied and sequences with non-standard AA removed
+**Steps 3, 4 and 5** are fairly trivial. Length filters are applied and sequences with non-standard AAs removed
 
 ```{r}
 tg <- read_faa("raw_data/amp_databases/ampir_positive90.fasta") %>%
@@ -53,34 +54,76 @@ tg <- read_faa("raw_data/amp_databases/ampir_positive90.fasta") %>%
 bg_raw <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>%
   add_column(Label = "Bg") %>% 
   filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) %>% 
-  filter(nchar(seq_aa) > 50) %>% filter(nchar(seq_aa) < 500)
-
-bg_1 <- bg_raw %>% sample_n(nrow(tg))
+  filter(nchar(seq_aa) > 50) %>% filter(nchar(seq_aa) < 500) %>% 
+  sample_n(10*nrow(tg))
 ```
 
 ## Mature Peptide Background Dataset
 
-As a background dataset for mature peptides we have several options. One would be to simply take peptides as random substrings from the full protein database. Another is to select proteins in SwissProt with lengths similar to mature peptides. This latter option is probably more representative of a real classification problem where we decide *a priori* to only look at short peptides within a larger dataset and wish to distinguish AMPs from other typical short peptides/proteins like toxins. Specifically the method used for constructing a mature peptide background for `ampir` is:
+As a background dataset for mature peptides the ideal would be to take mature peptides from SwissProt that are not AMPs. We could use the Peptide field to find instances which correspond to mature peptides but there are very few such peptides verified and they tend to be neuropeptides and toxins. A broader range of small peptides can be obtained simply by using a size range filter on the SwissProt data: 
 
 1. Use non-AMP sequences clustered to 90% identity from SwissProt as a starting point
-2. Keep only sequences >20 AA and <100 AA
-3. Remove sequences with non-standard AA
-4. Sample this dataset randomly so that it is balanced (same number of peptides as the positive data)
+2. Keep only sequences >10 AA and <40 AA
+3. Remove non-standard amino acids
+
+```bash
+comm -23 \
+  <(cat uniprot-filtered-reviewed_yes_90.fasta | bioawk -c fastx '{print $name}' | sort) \
+  <(cat amp_databases/uniprot-keyword__Antimicrobial+\[KW-0929\]_.fasta | bioawk -c fastx '{print $name}' | sort) | \
+  xargs samtools faidx uniprot-filtered-reviewed_yes_90.fasta |\
+  bioawk -c fastx 'length($seq)<40{printf(">%s\n%s\n",$name,$seq)}' \
+  > amp_databases/ampir_mature_negative90.fasta
+```
 
 ```{r}
-## Background fragment Dataset 
 
 tg_mature <- read_faa("raw_data/amp_databases/ampir_mature_positive90.fasta") %>% 
   add_column(Label = "Tg")
 
-bg_mature <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>% 
+bg_uniprot <- readxl::read_excel("raw_data/amp_databases/uniprot-length_[0+TO+60]+NOT+keyword__Antimicrobial+[KW-0929]_+A--.xlsx")
+
+bg_mature <- read_faa("raw_data/amp_databases/ampir_mature_negative90.fasta") %>%
+  separate(seq_name,into = c("db","Entry","ID"),sep = "\\|") %>% 
+  left_join(bg_uniprot, by = "Entry") %>% 
+  mutate(pep_start = as.integer(str_match(Peptide, "PEPTIDE.*?([0-9]+)")[,2])) %>% 
+  mutate(pep_end = as.integer(str_match(Peptide, "PEPTIDE.*?([0-9]+)..([0-9]+)")[,3])) %>% 
+  mutate(pep_length = pep_end - pep_start + 1) %>% 
+  mutate(is_mature_peptide = abs(pep_length - Length)<3) %>% 
+#  filter(is_mature_peptide) %>% 
+  filter(nchar(seq_aa) > 10) %>% filter(nchar(seq_aa) < 40) %>% 
+  select(seq_name=Entry,seq_aa) %>% 
+  filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) %>% 
+  add_column(Label = "Bg") 
+```
+
+Examination of the length distributions reveals a slightly larger proportion of short peptides in the background data compared with the target (positive) data. Since there are relatively few mature peptides of this type available in SwissProt this could reflect acquisition bias towards peptides of academic or industrial interest such as neuropeptides. As SwissProt grows to become more representative it should be possible to improve both positive and negative datasets here.
+
+```{r}
+rbind(bg_mature,tg_mature) %>% mutate(length=nchar(seq_aa)) %>% filter(length>10) %>% ggplot(aes(x=length)) + 
+  geom_density(aes(colour=Label)) +
+  labs(x= "Sequence length", y = "Density") +
+  scale_color_discrete(name = "", labels = c("Background", "Target")) +
+  guides(colour = guide_legend(reverse=TRUE))
+```
+
+
+
+## Legacy Background Dataset
+
+For comparison with previous approaches we built a background dataset with a similar composition to AmPEP and iAMPPred predictors. It contains mature AMPs as the positive dataset but includes some full length proteins in the background data. 
+
+1. Use non-AMP sequences clustered to 90% identity from SwissProt as a starting point
+2. Keep only sequences >20 AA and <100 AA
+3. Remove sequences with non-standard amino acids
+4. Sample this dataset randomly so that it is balanced (same number of peptides as the positive data)
+
+```{r}
+bg_legacy <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>% 
   filter(nchar(seq_aa) > 20) %>% filter(nchar(seq_aa) < 100) %>% 
   select(seq_name,seq_aa) %>% 
   filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) %>% 
-  add_column(Label = "Bg") %>% 
-  sample_n(nrow(tg_mature))
+  add_column(Label = "Bg") 
 ```
-
 
 ## Training and Test Sets
 
@@ -100,37 +143,47 @@ export_training_and_test <- function(features,suffix){
   saveRDS(featuresTrain, paste("cache/featuresTrain_",suffix,".rds",sep = ""))
   saveRDS(featuresTest, paste("cache/featuresTest_",suffix,".rds",sep = ""))
 }
-
-# For precursors
-#
-tg_bg_1 <- rbind(tg,bg_1)
-
-features_tg_bg_1 <- ampir:::calculate_features(tg_bg_1) %>% 
-  add_column(Label = tg_bg_1$Label)
-
-export_training_and_test(features_tg_bg_1,"precursor")
+```
 
 
+```{r}
 # For precursors with imbalanced data
 # 1:10 ratio
-tg_bg_imbal <- rbind(tg,bg_raw %>% sample_n(14830))
+tg_bg_imbal <- rbind(tg,bg_raw)
 
 features_tg_bg_imbal <- ampir:::calculate_features(tg_bg_imbal) %>% 
   add_column(Label = tg_bg_imbal$Label)
 
 export_training_and_test(features_tg_bg_imbal,"precursor_imbal")
+```
 
 
+```{r}
 # For mature peptides
 #
-tg_bg_mature <- rbind(tg_mature, bg_mature)
+tg_bg_mature <- rbind(tg_mature, bg_mature) %>% filter(nchar(seq_aa)>10)
 
-features_mature <- ampir:::calculate_features(tg_bg_mature) %>% 
+features_mature <- ampir:::calculate_features(tg_bg_mature, min_len = 10) %>% 
   add_column(Label = tg_bg_mature$Label)
 
 export_training_and_test(features_mature,"mature")
+
+
+# Legacy for mature peptides
+#
+tg_bg_legacy <- rbind(tg_mature, bg_legacy)
+
+features_legacy <- ampir:::calculate_features(tg_bg_legacy, min_len = 10) %>% 
+  add_column(Label = tg_bg_legacy$Label)
+
+export_training_and_test(features_legacy,"legacy")
+
 ```
 
+
+## Benchmarking Data
+
+For the precursor model we evaluate its performance using whole genome scans based on the Human proteome (UniProt: `UP000005640`) and *Arabidopsis* proteome (UniProt: `up000006548`). For model evaluation purposes only we generate training data where proteins from either of these databases are removed.
 
 ```{r}
 #For whole genome benchmarking we remove Human and Arabidopsis data
@@ -140,9 +193,16 @@ arath_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/arath/unipr
 
 names_to_exclude <- c(human_proteome$Entry,arath_proteome$Entry)
 
-export_training_and_test(features_tg_bg_1 %>% filter(!(seq_name %in% names_to_exclude)),"precursor_nobench")
 export_training_and_test(features_tg_bg_imbal %>% filter(!(seq_name %in% names_to_exclude)),"precursor_imbal_nobench")
 ```
+
+For the mature peptide model we evaluate its performance using the 20% of training data that was held out for model evaluation.  
+
+```{r}
+mature_test <- read_rds("cache/featuresTest_mature.rds")
+tg_bg_mature %>% filter(seq_name %in% mature_test$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/mature_eval.fasta")
+```
+
 
 
 

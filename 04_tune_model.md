@@ -1,7 +1,7 @@
 Model tuning
 ================
 
-The default models included with ampir are both svms with radial kernel
+The default models included with ampir are both SVMs with radial kernel
 and have two tuning parameters, sigma and C (cost). Optimal values for
 these tuning parameters were obtained by using model tuning functions
 available in `caret`. Since this is computationally intensive it was
@@ -16,9 +16,9 @@ variation of model performance with the tuning parameters.
 ![](04_tune_model_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
     ##    sigma C
-    ## 18  0.02 6
+    ## 80  0.08 2
 
-And for the precursor model
+And for the precursor model:
 
 ![](04_tune_model_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
