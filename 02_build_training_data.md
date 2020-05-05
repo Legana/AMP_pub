@@ -132,5 +132,5 @@ scans based on the Human proteome (UniProt: `UP000005640`) and
 purposes only we generate training data where proteins from either of
 these databases are removed.
 
-For the mature peptide model we evaluate its performance using the 20%
-of training data that was held out for model evaluation.
+For each model we evaluate its performance using the 20% of training
+data that was held out for model evaluation.

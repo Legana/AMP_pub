@@ -28,6 +28,7 @@ echo raw_data/amp_databases/ampir_positive90.fasta >> data_list
 echo raw_data/amp_databases/ampir_mature_positive.fasta >> data_list
 echo raw_data/amp_databases/ampir_mature_positive90.fasta >> data_list
 echo raw_data/amp_databases/ampir_db.tsv >> data_list
+echo raw_data/amp_databases/ampir_mature_negative90.fasta >> data_list
 
 # ampir negative data
 echo raw_data/amp_databases/ampir_negative90.fasta >> data_list
@@ -66,12 +67,15 @@ echo raw_data/benchmarking/datasets/arath/uniprot-proteome_up000006548.xlsx >> d
 echo raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx >> data_list
 echo raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta >> data_list
 echo raw_data/benchmarking/datasets/ampir/mature_eval.fasta >> data_list
+echo raw_data/benchmarking/datasets/ampir/precursor_eval.fasta >> data_list
 
 # benchmark results
 echo raw_data/benchmarking/results/ampep/ampep_iamp2l_bench.txt >> data_list
 echo raw_data/benchmarking/results/ampep/arath_ampep.txt >> data_list
 echo raw_data/benchmarking/results/ampep/human_ampep.txt >> data_list
 echo raw_data/benchmarking/results/ampep/mature_eval_ampep.txt >> data_list
+echo raw_data/benchmarking/results/ampep/precursor_eval_ampep.txt >> data_list
+
 
 echo raw_data/benchmarking/results/ampscanv2/arath/1585718632256_Prediction_Summary.csv >> data_list
 echo raw_data/benchmarking/results/ampscanv2/arath/1585718071814_Prediction_Summary.csv >> data_list
@@ -79,10 +83,13 @@ echo raw_data/benchmarking/results/ampscanv2/human/1585707195821_Prediction_Summ
 echo raw_data/benchmarking/results/ampscanv2/human/1585707368321_Prediction_Summary.csv >> data_list
 echo raw_data/benchmarking/results/ampscanv2/iamp2l/1585811335833_Prediction_Summary.csv >> data_list
 echo raw_data/benchmarking/results/ampscanv2/ampir/1588056261666_Prediction_Summary.csv >> data_list
+echo raw_data/benchmarking/results/ampscanv2/ampir_prec/1588630046504_Prediction_Summary.csv >> data_list
+
 
 echo raw_data/benchmarking/results/iamppred/iamp2l_bench.csv >> data_list
 echo raw_data/benchmarking/results/dbamp/20200403_060324.anti_finish.txt >> data_list
 echo raw_data/benchmarking/results/iamppred/ampir_mature.csv >> data_list
+
 
 tar -zcvf data_amp_pub.tgz -T data_list
 
