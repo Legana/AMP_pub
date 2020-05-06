@@ -1,4 +1,4 @@
-# ampir v0.1.0 model related data
+# ampir v0.1.0 model related data (old)
 
 echo ampir_0.1.0_data/svm_Radial98_final.rds >> data_list
 echo ampir_0.1.0_data/bg_tg98.rds >> data_list
@@ -7,7 +7,7 @@ echo ampir_0.1.0_data/features98TrainNov19.rds >> data_list
 echo ampir_0.1.0_data/features98TestNov19.rds >> data_list
 echo ampir_0.1.0_data/1000_test_sqns98_new.fasta >> data_list
 
-# ampir v0.2.0 related data
+# ampir v1.0.0 related data
 # AMP databases
 
 echo raw_data/amp_databases/APD_032020.xlsx > data_list
@@ -87,6 +87,7 @@ echo raw_data/benchmarking/results/ampscanv2/ampir_prec/1588630046504_Prediction
 
 
 echo raw_data/benchmarking/results/iamppred/iamp2l_bench.csv >> data_list
+echo raw_data/benchmarking/results/iamppred/ampir_precursor.tsv >> data_list
 echo raw_data/benchmarking/results/dbamp/20200403_060324.anti_finish.txt >> data_list
 echo raw_data/benchmarking/results/iamppred/ampir_mature.csv >> data_list
 
