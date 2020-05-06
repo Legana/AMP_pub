@@ -5,6 +5,7 @@
 .Rproj
 .DS_Store
 data.tgz
+data_amp_pub.tgz
 *Rproj
 ampir_0.1.0_data
 raw_data
