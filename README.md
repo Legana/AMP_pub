@@ -18,11 +18,11 @@ This repository contains code used for the
     [05\_benchmark.Rmd](05_benchmark.Rmd)
 
 The files required to run the code in these Rmd files can be obtained
-[here](https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY) or by
+[here](https://cloudstor.aarnet.edu.au/plus/s/ZYQAURCovsOf8q6) or by
 using the
 command:
 
 ``` bash
-wget 'https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY/download' -O data.tgz
+wget 'https://cloudstor.aarnet.edu.au/plus/s/ZYQAURCovsOf8q6/download' -O data.tgz
 tar -zxvf data.tgz 
 ```
