@@ -184,7 +184,7 @@ AMP Scanner data used for training, testing and evaluation are available directl
 ```{r}
 ampscan_data <- read_faa("raw_data/amp_databases/AMP_Scan2_OrigPaper_Dataset/AMP.tr.fa") %>% add_column(class="AMP") %>% 
   rbind(read_faa("raw_data/amp_databases/AMP_Scan2_OrigPaper_Dataset/DECOY.tr.fa") %>% add_column(class="non-AMP")) %>% 
-  mutate(length = nchar(seq_aa)) %>% add_column(database="Ampscanv2")
+  mutate(length = nchar(seq_aa)) %>% add_column(database="ampscanner v2")
 ```
 
 
@@ -202,8 +202,9 @@ ggplot(rbind(ampep_data,ampscan_data,xbench_data),aes(x=length)) +
   geom_density(aes(color=class)) +
   theme_pubclean() +
   theme(legend.title = element_blank()) + 
-  facet_wrap(~database, ncol = 1)
-ggsave("figures/ampep_bench_lengths.png", height = 4, width = 8)
+  facet_wrap(~database, ncol = 1) +
+  labs(x= "Sequence length", y = "Density")
+ggsave("figures/amp_predictors_lengths.png", height = 4, width = 8)
 
 ```
 
