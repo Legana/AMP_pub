@@ -12,4 +12,4 @@ echo "Working directory is $PBS_O_WORKDIR"
 
 module load R/3.6.1
 Rscript tune_model.R outfile=../cache/tuned_mature.rds train=../cache/featuresTrain_mature.rds ncores=76
-Rscript tune_model.R outfile=../cache/tuned_mature_final.rds train=../cache/features_mature.rds ncores=76
+#Rscript tune_model.R outfile=../cache/tuned_mature_final.rds train=../cache/features_mature.rds ncores=76

@@ -20,6 +20,7 @@ predictors, all Xc1 predictors and the first two Xc2 predictors.
 **Figure 3.1:** Feature distributions for precursor training data
 
 ![](03_feature_selection_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
 **Figure 3.2:** Feature distributions for mature peptide training data
 
 ### PCA
@@ -30,6 +31,7 @@ indication of how well models will perform in general but does not
 capture the capabilities of supervised learning methods like SVM.
 
 ![](03_feature_selection_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
 **Figure 3.3:** PCA with marginal density plots showing the ability of
 this unsupervised clustering method to separate classes. The plot shows
 data from the precursor training set

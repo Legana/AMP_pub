@@ -11,18 +11,12 @@ important factors need to be considered:
     not used to train any of the predictors.
 2.  An existing benchmark dataset provided by [Xiao et
     al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) has been
-    adopted by several subsequent authors but the composition of this
-    dataset has the following issues:
-      - Positive (AMP) cases in this dataset are mature peptides whereas
-        in a genome scan only precursors sequences are usually
-        available.
-      - The negative cases in the dataset have a length distribution
-        which suggests they are most likely full-length proteins (much
-        longer than the positive cases). This means that predictors
-        trained to perform well on this dataset might achieve high
-        accuracy simply by classifying sequences into mature vs
-        full-length proteins instead of AMP / non-AMP (the desired
-        behaviour).
+    adopted by several subsequent authors. The composition of this
+    dataset is geared toward a mature peptide test because the positive
+    cases are all mature peptides. The background dataset is perhaps not
+    ideal to represent a background of mature (non-AMP) peptides because
+    it has a length distribution suggesting that it contains a
+    significant fraction of full length precursors.
 3.  A realistic test of AMP prediction in genome-wide scans should use a
     benchmark dataset that is highly unbalanced, just as a real genome
     protein set would be. For example in the *Arabidopsis* genome AMPs
@@ -92,7 +86,7 @@ A few points to note from this plot:
     extremes (0 and 1), and a relatively large number of non-AMP
     peptides have been assigned a probability of 1.
   - The best performing predictors in the low false positive regime are
-    `ampep` and `ampir`.
+    `ampep` and `ampir_mature` in both datasets.
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
@@ -116,9 +110,11 @@ to note about this test are:
     number of candidates sequences (~100k) in a practical manner.
   - We used a specially generated model for `ampir` that was trained
     without Human or *Arabidopsis* proteins to avoid any potential for
-    overfitting resulting in inflacted accuracy estimates in this test.
-    It should be noted that other predictors would have no such
-    restriction.
+    inflated accuracy estimates in this test. It should be noted that
+    other predictors would have no such restriction.
+  - The actual number of true positives is probably an underestimate
+    since our knowledge of the AMP repertoires of both species is
+    incomplete.
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
@@ -137,18 +133,19 @@ both perform very poorly reflecting the emphasis of their training data
 on mature peptides rather than precursor proteins.
 
 In order to properly capture the real-world performance of predictors on
-genome scans it is important to use a plot that emphasises the absolute
-numbers of true and false positives. On this measure (shown in Figure
-5.3) it can be seen that genome-wide prediction of AMPs is still an
-imperfectly solved problem. Although the `ampir` precursor model clearly
-performs far better than any other predictors, none were able to predict
-more than 50% of true AMPs while controlling false positives to under
-500. Nevertheless, given the difficulties in identifying AMPs and the
+genome scans we use a plot that emphasises the absolute numbers of true
+and false positives. On this measure (shown in Figure 5.3) it can be
+seen that genome-wide prediction of AMPs is still an imperfectly solved
+problem. Although the `ampir` precursor model clearly performs far
+better than any other predictors, none were able to predict more than
+50% of true AMPs while controlling false positives to under 500.
+Nevertheless, given the difficulties in identifying AMPs and the
 importance of this task this level of enrichment is of great practical
 use, reducing the number of false experimental leads per true positive
 from many thousands down to tens or hundreds.
 
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
 **Figure 5.3:** Performance of `ampir` compared with three existing AMP
 prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al.,
 2018), AMP Scanner (Veltri et al., 2018). Results for iAMPpred are not
@@ -168,24 +165,24 @@ dataset
 
 |                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
 | ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.97 |             0.61 |         0.83 |     1 |     0.64 |
-| F1                |          0.97 |             0.44 |         0.85 |     1 |     0.73 |
-| AUC               |          0.99 |             0.80 |         0.94 |     1 |     0.86 |
+| Balanced Accuracy |          0.54 |             0.54 |         0.83 |     1 |     0.64 |
+| F1                |          0.67 |             0.36 |         0.85 |     1 |     0.73 |
+| AUC               |          0.90 |             0.73 |         0.94 |     1 |     0.86 |
 
 **Table 5.3:** Model performance on `ampir_mature` test
 set
 
 |                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
 | ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.91 |             0.58 |         0.73 |  0.76 |     0.70 |
-| F1                |          0.91 |             0.39 |         0.56 |  0.58 |     0.53 |
-| AUC               |          0.97 |             0.66 |         0.79 |  0.90 |     0.74 |
+| Balanced Accuracy |          0.86 |             0.60 |         0.72 |  0.71 |     0.66 |
+| F1                |          0.86 |             0.39 |         0.60 |  0.58 |     0.54 |
+| AUC               |          0.92 |             0.68 |         0.78 |  0.87 |     0.70 |
 
 **Table 5.4:** Model performance on `ampir_precursor` test
 set
 
 |                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
 | ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.50 |             0.94 |         0.70 |  0.46 |     0.47 |
-| F1                |          0.17 |             0.92 |         0.26 |  0.06 |     0.16 |
-| AUC               |          0.84 |             1.00 |         0.82 |  0.52 |     0.50 |
+| Balanced Accuracy |          0.50 |             0.88 |         0.70 |  0.46 |     0.47 |
+| F1                |          0.17 |             0.82 |         0.26 |  0.06 |     0.16 |
+| AUC               |          0.85 |             0.97 |         0.82 |  0.52 |     0.50 |
