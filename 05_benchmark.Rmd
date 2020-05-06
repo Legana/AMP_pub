@@ -102,7 +102,7 @@ predict_bench <- function(cachename,benchdata){
 
 xbench_ampir_raw <- predict_bench("cache/xbench_ampir_raw.rds",xbench)
 ampir_bench_raw <- predict_bench("cache/ampir_bench_raw.rds",ampir_bench)
-ampir_prec_bench_raw <- predict_bench("cache/ampir_prec_bench_raw.rds",ampir_bench)
+ampir_prec_bench_raw <- predict_bench("cache/ampir_prec_bench_raw.rds",ampir_prec_bench )
 
 xbench_ampir <- xbench_ampir_raw %>% 
   mutate(actual = ifelse(grepl(seq_name,pattern = "^AP"), "Tg", "Bg")) %>% 
@@ -378,8 +378,14 @@ legend_b <- get_legend(
 
 library(cowplot)
 prow <- plot_grid(pg,pp, rel_widths = c(2,1))
-plot_grid(prow,legend_b, ncol = 1,rel_heights = c(1,0.1))
-ggsave("figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
+
+prow2 <- annotate_figure(prow, fig.lab = "A", top = "B")
+prow3 <- annotate_figure(prow2, fig.lab = "C", fig.lab.pos = "top.right")
+
+plot_grid(prow3,legend_b, ncol = 1,rel_heights = c(1,0.1))
+
+
+ggsave(plot = prow3, filename = "figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
 ggsave("figures/benchmarks.eps", width = 178,units = "mm", height = 80,dpi = 600)
 ```
 **Figure 5.3:** Performance of `ampir` compared with three existing AMP prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al., 2018), AMP Scanner (Veltri et al., 2018). Results for iAMPpred are not shown for parts A and B because it was impractical to run on large numbers of sequences. Parts A and B are scaled so that the limits of the y-axis show the full complement of known AMPs in each genome (291 for *Arabidopsis*, 101 for Human), and the limits of the x-axis are restricted to emphasise behaviour in the low false positive (FP) regime (FP < 500) because this is most relevant in whole genome scans. Part C is a receiver operating characteristic (ROC) curve based on the `ampir` reserved testing data. 
@@ -392,7 +398,7 @@ get_performance_stats <- function(test_results){
   x_cm_prec <- confusionMatrix(factor(test_results$predicted), factor(test_results$actual), positive = "Tg")
   
   xrc_prec <- roc(test_results$actual, test_results$prob_AMP) 
-  c(x_cm_prec$byClass[c(11,5:7)],AUC=as.numeric(xrc_prec$auc))
+  c(x_cm_prec$byClass[c(11,7)],AUC=as.numeric(xrc_prec$auc))
 }
 
 # ampir
