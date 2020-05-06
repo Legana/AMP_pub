@@ -159,8 +159,7 @@ y-axis show the full complement of known AMPs in each genome (291 for
 restricted to emphasise behaviour in the low false positive (FP) regime
 (FP \< 500) because this is most relevant in whole genome scans. Part C
 is a receiver operating characteristic (ROC) curve based on the `ampir`
-reserved testing data. It shows FPR (False Positive Rate) versus Recall
-(True Positive Rate).
+reserved testing data.
 
 ## Performance Statistics
 
@@ -169,30 +168,30 @@ dataset
 
 |                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
 | ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.54 |             0.61 |         0.83 |     1 |     0.64 |
-| Precision         |          0.52 |             0.77 |         0.75 |     1 |     0.59 |
-| Recall            |          0.96 |             0.31 |         0.98 |     1 |     0.96 |
-| F1                |          0.68 |             0.44 |         0.85 |     1 |     0.73 |
-| AUC               |          0.93 |             0.80 |         0.94 |     1 |     0.86 |
+| Balanced Accuracy |          0.97 |             0.61 |         0.83 |     1 |     0.64 |
+| Precision         |          0.96 |             0.76 |         0.75 |     1 |     0.59 |
+| Recall            |          0.98 |             0.31 |         0.98 |     1 |     0.96 |
+| F1                |          0.97 |             0.44 |         0.85 |     1 |     0.73 |
+| AUC               |          0.99 |             0.80 |         0.94 |     1 |     0.86 |
 
 **Table 5.3:** Model performance on `ampir_mature` test
 set
 
 |                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
 | ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.89 |             0.57 |         0.73 |  0.76 |     0.70 |
-| Precision         |          0.95 |             0.87 |         0.39 |  0.41 |     0.37 |
-| Recall            |          0.91 |             0.26 |         0.98 |  0.99 |     0.93 |
-| F1                |          0.93 |             0.40 |         0.56 |  0.58 |     0.53 |
-| AUC               |          0.96 |             0.63 |         0.79 |  0.90 |     0.74 |
+| Balanced Accuracy |          0.91 |             0.58 |         0.73 |  0.76 |     0.70 |
+| Precision         |          0.91 |             0.73 |         0.39 |  0.41 |     0.37 |
+| Recall            |          0.90 |             0.26 |         0.98 |  0.99 |     0.93 |
+| F1                |          0.91 |             0.39 |         0.56 |  0.58 |     0.53 |
+| AUC               |          0.97 |             0.66 |         0.79 |  0.90 |     0.74 |
 
 **Table 5.4:** Model performance on `ampir_precursor` test
 set
 
 |                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
 | ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.89 |             0.57 |         0.73 |  0.76 |     0.70 |
-| Precision         |          0.95 |             0.87 |         0.39 |  0.41 |     0.37 |
-| Recall            |          0.91 |             0.26 |         0.98 |  0.99 |     0.93 |
-| F1                |          0.93 |             0.40 |         0.56 |  0.58 |     0.53 |
-| AUC               |          0.96 |             0.63 |         0.79 |  0.90 |     0.74 |
+| Balanced Accuracy |          0.89 |             0.57 |         0.70 |  0.46 |     0.47 |
+| Precision         |          0.95 |             0.87 |         0.15 |  0.05 |     0.09 |
+| Recall            |          0.91 |             0.26 |         0.89 |  0.07 |     0.90 |
+| F1                |          0.93 |             0.40 |         0.26 |  0.06 |     0.16 |
+| AUC               |          0.96 |             0.63 |         0.82 |  0.52 |     0.50 |

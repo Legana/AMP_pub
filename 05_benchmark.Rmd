@@ -106,15 +106,21 @@ ampir_prec_bench_raw <- predict_bench("cache/ampir_prec_bench_raw.rds",ampir_ben
 
 xbench_ampir <- xbench_ampir_raw %>% 
   mutate(actual = ifelse(grepl(seq_name,pattern = "^AP"), "Tg", "Bg")) %>% 
-  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
+  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
+
 
 ampir_bench <- ampir_bench_raw %>% 
   mutate(actual = ifelse(grepl(seq_name,pattern = "_Tg"), "Tg", "Bg")) %>% 
-  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
+  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
+
 
 ampir_prec_bench <- ampir_prec_bench_raw %>% 
   mutate(actual = ifelse(grepl(seq_name,pattern = "_Tg"), "Tg", "Bg")) %>% 
-  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg"))
+  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg")) %>%
+  mutate(actual = factor(actual), predicted = factor(predicted))
+
 
 ampir_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(mdl){
   as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_ampir %>% filter(model==mdl)))) %>%
@@ -144,7 +150,7 @@ ampir_bench_ampep <- read_csv("raw_data/benchmarking/results/ampep/mature_eval_a
   mutate(actual = factor(actual), predicted = factor(predicted))
 
 ampir_prec_bench_ampep <- read_csv("raw_data/benchmarking/results/ampep/precursor_eval_ampep.txt") %>% 
-  mutate(actual = ifelse(grepl(Row,pattern = "^AP"), "Tg", "Bg")) %>% 
+  mutate(actual = ifelse(grepl(Row,pattern = "_Tg$"), "Tg", "Bg")) %>% 
   rename(prob_AMP = score) %>% 
   mutate(predicted = ifelse(prediction == 1, "Tg", "Bg")) %>%
   mutate(actual = factor(actual), predicted = factor(predicted))
@@ -172,7 +178,7 @@ ampir_bench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/ampir
   mutate(actual = factor(actual), predicted = factor(predicted))
 
 ampir_prec_bench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/ampir_prec/1588630046504_Prediction_Summary.csv") %>% 
-  mutate(actual = ifelse(grepl(SeqID,pattern = "^AP"), "Tg", "Bg")) %>% 
+  mutate(actual = ifelse(grepl(SeqID,pattern = "_Tg$"), "Tg", "Bg")) %>% 
   rename(prob_AMP = Prediction_Probability) %>%
   mutate(predicted = ifelse(Prediction_Class == "AMP", "Tg", "Bg")) %>%
   mutate(actual = factor(actual), predicted = factor(predicted))
@@ -198,7 +204,11 @@ ampir_bench_iampred <- read_tsv("raw_data/benchmarking/results/iamppred/ampir_ma
   mutate(predicted = ifelse(prob_AMP >= 0.5, "Tg", "Bg")) %>%
   mutate(actual = factor(actual), predicted = factor(predicted))
 
-# TODO: ampir_prec_bench_iampred yet
+ampir_prec_bench_iampred <- read_tsv("raw_data/benchmarking/results/iamppred/ampir_precursor.tsv") %>%
+   mutate(actual = ifelse(grepl(seq_name,pattern = "_Tg$"), "Tg", "Bg")) %>%
+   mutate(prob_AMP = pmax(antibacterial,antiviral,antifungal)) %>%
+   mutate(predicted = ifelse(prob_AMP >= 0.5, "Tg", "Bg")) %>%
+   mutate(actual = factor(actual), predicted = factor(predicted))
 
 iampred_roc <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_iampred))) %>%
   add_column(model = "iamppred") %>% add_column(benchmark = "Xiao")
@@ -209,7 +219,7 @@ iampred_roc_ampir <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.
 
 
 ```{r}
-models_roc <- rbind(ampir_roc,ampir_bench_roc, 
+models_roc_mature <- rbind(ampir_roc,ampir_bench_roc, 
                     ampep_roc,ampep_roc_ampir,
                     ampscan_roc,ampscan_roc_ampir,
                     iampred_roc,iampred_roc_ampir)
@@ -217,7 +227,7 @@ models_roc <- rbind(ampir_roc,ampir_bench_roc,
 
 
 ```{r}
-ggplot(models_roc) + 
+ggplot(models_roc_mature) + 
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
   xlim(0,1) + facet_wrap(~benchmark) +
   labs(x = "False positive rate", y = "True positive rate")
@@ -329,7 +339,7 @@ ggplot(genome_rocs) +
 
 In Figure 5.2 we show ROC curves for all predictors on the Human and *Arabidopsis* data but it is important to remember that in this context the low false positive regime is especially important. This is because of the extremely low frequency of true positives in the data (less than 1%). This is explored further in Figure 5.3 but for now it is important to note that `ampscanner v2` is not shown in Figure 5.3 because its ROC curve does not extend into this important regime despite the fact that it otherwise appears to perform very well. `AmPEP` and `ampir_mature` both perform very poorly reflecting the emphasis of their training data on mature peptides rather than precursor proteins.
 
-In order to properly capture the real-world performance of predictors on genome scans it is important to use a plot that emphasises the absolute numbers of true and false positives. On this measure (shown in Figure 5.3) it can be seen that genome-wide prediction of AMPs is still an imperfectly solved problem.  Although the `ampir` precursor model clearly performs far better than any other predictors, none were able to predict more than 50% of true AMPs while controlling false positives to under 500. Nevertheless, given the difficulties in identifying AMPs and the importance of this task this level of enrichment is of great practical use, reducing the number of false experimental leads per true positive from many thousands down to tens or hundreds. 
+In order to properly capture the real-world performance of predictors on genome scans it is important to use a plot that emphasises the absolute numbers of true and false positives. On this measure (shown in Figure 5.3) it can be seen that genome-wide prediction of AMPs is still an imperfectly solved problem. Although the `ampir` precursor model clearly performs far better than any other predictors, none were able to predict more than 50% of true AMPs while controlling false positives to under 500. Nevertheless, given the difficulties in identifying AMPs and the importance of this task this level of enrichment is of great practical use, reducing the number of false experimental leads per true positive from many thousands down to tens or hundreds. 
 
 ```{r, fig.width=8, fig.height=3}
 library(RColorBrewer)
@@ -351,7 +361,7 @@ pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)",
   theme(strip.background = element_blank(), strip.placement = "outside", strip.text = element_text(size = 10)) +
   theme(axis.text = element_text(size=8))
 
-pp <- ggplot(models_roc %>% filter(benchmark=="ampir")) + 
+pp <- ggplot(models_roc_mature %>% filter(benchmark=="ampir")) + 
   geom_line(aes(x = FPR, y = Recall, colour = model),size=1.1) + 
   labs(x= "False positive rate", y = "True positive rate") +
   scale_color_manual(values = model_colors, labels = model_names, name="") +
@@ -372,8 +382,7 @@ plot_grid(prow,legend_b, ncol = 1,rel_heights = c(1,0.1))
 ggsave("figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
 ggsave("figures/benchmarks.eps", width = 178,units = "mm", height = 80,dpi = 600)
 ```
-**Figure 5.3:** Performance of `ampir` compared with three existing AMP prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al., 2018), AMP Scanner (Veltri et al., 2018). Results for iAMPpred are not shown for parts A and B because it was impractical to run on large numbers of sequences. Parts A and B are scaled so that the limits of the y-axis show the full complement of known AMPs in each genome (291 for *Arabidopsis*, 101 for Human), and the limits of the x-axis are restricted to emphasise behaviour in the low false positive (FP) regime (FP < 500) because this is most relevant in whole genome scans. Part C is a receiver operating characteristic (ROC) curve based on the `ampir` reserved testing data. It shows FPR (False Positive Rate) versus Recall (True Positive Rate).
-
+**Figure 5.3:** Performance of `ampir` compared with three existing AMP prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al., 2018), AMP Scanner (Veltri et al., 2018). Results for iAMPpred are not shown for parts A and B because it was impractical to run on large numbers of sequences. Parts A and B are scaled so that the limits of the y-axis show the full complement of known AMPs in each genome (291 for *Arabidopsis*, 101 for Human), and the limits of the x-axis are restricted to emphasise behaviour in the low false positive (FP) regime (FP < 500) because this is most relevant in whole genome scans. Part C is a receiver operating characteristic (ROC) curve based on the `ampir` reserved testing data. 
 
 
 ## Performance Statistics
@@ -413,8 +422,11 @@ ampir_bench_stats <- sapply(ampir_bench_data,get_performance_stats)
 ampir_prec_bench_data <- list(ampir_mature = ampir_prec_bench %>% filter(model=="ampir_mature"),
                          ampir_precursor = ampir_prec_bench %>% filter(model=="ampir_precursor"),
                          ampscannerv2=ampir_prec_bench_ampscanv2,
-                         ampep=ampir_prec_bench_ampep)
-ampir_prec_bench_stats <- sapply(ampir_bench_data,get_performance_stats)
+                         ampep=ampir_prec_bench_ampep,
+                         iamppred = ampir_prec_bench_iampred)
+
+
+ampir_prec_bench_stats <- sapply(ampir_prec_bench_data,get_performance_stats)
 ```
 
 
