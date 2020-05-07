@@ -18,7 +18,7 @@ variation of model performance with the tuning parameters.
 Best tune:
 
     ##    sigma C
-    ## 79  0.08 1
+    ## 57  0.06 1
 
 And for the precursor model:
 
