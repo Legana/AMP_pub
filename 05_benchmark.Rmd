@@ -348,7 +348,7 @@ model_names <- c("amPEP","ampir mature","ampir precursor","AMP Scanner v2","iAMP
 names(model_names) <- models
 
 library(ggpubr)
-pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)","Human Genome","Arabidopsis Genome")) %>% 
+pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)","Human Genome","A. thaliana Genome")) %>% 
   ggplot() + 
   geom_line(aes(x = FP, y = TP, colour = model),size=1.1) + 
   xlim(0,500) +
@@ -380,10 +380,10 @@ prow <- plot_grid(pg,pp, rel_widths = c(2,1))
 prow2 <- annotate_figure(prow, fig.lab = "A", top = "B")
 prow3 <- annotate_figure(prow2, fig.lab = "C", fig.lab.pos = "top.right")
 
-plot_grid(prow3,legend_b, ncol = 1,rel_heights = c(1,0.1))
+prow4 <- plot_grid(prow3,legend_b, ncol = 1,rel_heights = c(1,0.1))
 
 
-ggsave(plot = prow3, filename = "figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
+ggsave(plot = prow4, filename = "figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
 ggsave("figures/benchmarks.eps", width = 178,units = "mm", height = 80,dpi = 600)
 ```
 
