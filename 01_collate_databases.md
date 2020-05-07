@@ -131,7 +131,7 @@ directly for download from
 <https://www.dveltri.com/ascan/v2/about.html>. In contrast with the
 AmPEP data the lengths of positive and negative datasets are much more
 closely matched for AMPScanv2. This reflects specific steps taken by the
-authors of AMP scannner v2 (detailed in [Veltri et
+authors of AMP scanner v2 (detailed in [Veltri et
 al. 2018](https://doi.org/10.1093/bioinformatics/bty179%5D)) to extract
 random sub-sequences from non-AMPs that have a matching length
 distribution to the AMPs themselves.
