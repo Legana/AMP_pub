@@ -397,7 +397,7 @@ get_performance_stats <- function(test_results){
   x_cm_prec <- confusionMatrix(factor(test_results$predicted), factor(test_results$actual), positive = "Tg")
   
   xrc_prec <- roc(test_results$actual, test_results$prob_AMP) 
-  c(x_cm_prec$byClass[c(11,7)],AUC=as.numeric(xrc_prec$auc))
+  c(x_cm_prec$byClass,AUC=as.numeric(xrc_prec$auc))
 }
 
 # ampir

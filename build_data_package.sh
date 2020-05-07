@@ -88,6 +88,9 @@ echo raw_data/benchmarking/results/iamppred/ampir_precursor.csv >> data_list
 echo raw_data/benchmarking/results/dbamp/20200403_060324.anti_finish.txt >> data_list
 echo raw_data/benchmarking/results/iamppred/ampir_mature.csv >> data_list
 
+# Cache files to speed things up
+echo cache/ref_predictions_ampir.rds >> data_list
+echo cache/ampir_genome_roc.rds >> data_list
 
 tar -zcvf data_amp_pub.tgz -T data_list
 
