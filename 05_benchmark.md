@@ -163,26 +163,53 @@ reserved testing data.
 **Table 5.2:** Model performance on Xiao et al. benchmark
 dataset
 
-|                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
-| ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.54 |             0.54 |         0.83 |     1 |     0.64 |
-| F1                |          0.67 |             0.36 |         0.85 |     1 |     0.73 |
-| AUC               |          0.90 |             0.73 |         0.94 |     1 |     0.86 |
+|                      | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
+| -------------------- | ------------: | ---------------: | -----------: | ----: | -------: |
+| Sensitivity          |          0.95 |             0.25 |         0.98 |   1.0 |     0.96 |
+| Specificity          |          0.13 |             0.84 |         0.68 |   1.0 |     0.32 |
+| Pos Pred Value       |          0.52 |             0.61 |         0.75 |   1.0 |     0.59 |
+| Neg Pred Value       |          0.73 |             0.53 |         0.97 |   1.0 |     0.90 |
+| Precision            |          0.52 |             0.61 |         0.75 |   1.0 |     0.59 |
+| Recall               |          0.95 |             0.25 |         0.98 |   1.0 |     0.96 |
+| F1                   |          0.67 |             0.36 |         0.85 |   1.0 |     0.73 |
+| Prevalence           |          0.50 |             0.50 |         0.50 |   0.5 |     0.50 |
+| Detection Rate       |          0.48 |             0.13 |         0.49 |   0.5 |     0.48 |
+| Detection Prevalence |          0.91 |             0.21 |         0.65 |   0.5 |     0.82 |
+| Balanced Accuracy    |          0.54 |             0.54 |         0.83 |   1.0 |     0.64 |
+| AUC                  |          0.90 |             0.73 |         0.94 |   1.0 |     0.86 |
 
 **Table 5.3:** Model performance on `ampir_mature` test
 set
 
-|                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
-| ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.86 |             0.60 |         0.72 |  0.71 |     0.66 |
-| F1                |          0.86 |             0.39 |         0.60 |  0.58 |     0.54 |
-| AUC               |          0.92 |             0.68 |         0.78 |  0.87 |     0.70 |
+|                      | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
+| -------------------- | ------------: | ---------------: | -----------: | ----: | -------: |
+| Sensitivity          |          0.84 |             0.26 |         0.98 |  0.98 |     0.90 |
+| Specificity          |          0.88 |             0.94 |         0.47 |  0.44 |     0.42 |
+| Pos Pred Value       |          0.87 |             0.81 |         0.43 |  0.42 |     0.39 |
+| Neg Pred Value       |          0.85 |             0.57 |         0.99 |  0.98 |     0.91 |
+| Precision            |          0.87 |             0.81 |         0.43 |  0.42 |     0.39 |
+| Recall               |          0.84 |             0.26 |         0.98 |  0.98 |     0.90 |
+| F1                   |          0.86 |             0.39 |         0.60 |  0.58 |     0.54 |
+| Prevalence           |          0.49 |             0.49 |         0.29 |  0.29 |     0.29 |
+| Detection Rate       |          0.41 |             0.13 |         0.28 |  0.28 |     0.26 |
+| Detection Prevalence |          0.47 |             0.16 |         0.66 |  0.68 |     0.67 |
+| Balanced Accuracy    |          0.86 |             0.60 |         0.72 |  0.71 |     0.66 |
+| AUC                  |          0.92 |             0.68 |         0.78 |  0.87 |     0.70 |
 
 **Table 5.4:** Model performance on `ampir_precursor` test
 set
 
-|                   | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
-| ----------------- | ------------: | ---------------: | -----------: | ----: | -------: |
-| Balanced Accuracy |          0.50 |             0.88 |         0.70 |  0.46 |     0.47 |
-| F1                |          0.17 |             0.82 |         0.26 |  0.06 |     0.16 |
-| AUC               |          0.85 |             0.97 |         0.82 |  0.52 |     0.50 |
+|                      | ampir\_mature | ampir\_precursor | ampscannerv2 | ampep | iamppred |
+| -------------------- | ------------: | ---------------: | -----------: | ----: | -------: |
+| Sensitivity          |          1.00 |             0.77 |         0.89 |  0.07 |     0.90 |
+| Specificity          |          0.00 |             0.99 |         0.51 |  0.85 |     0.03 |
+| Pos Pred Value       |          0.09 |             0.87 |         0.15 |  0.05 |     0.09 |
+| Neg Pred Value       |          1.00 |             0.98 |         0.98 |  0.90 |     0.78 |
+| Precision            |          0.09 |             0.87 |         0.15 |  0.05 |     0.09 |
+| Recall               |          1.00 |             0.77 |         0.89 |  0.07 |     0.90 |
+| F1                   |          0.17 |             0.82 |         0.26 |  0.06 |     0.16 |
+| Prevalence           |          0.09 |             0.09 |         0.09 |  0.09 |     0.09 |
+| Detection Rate       |          0.09 |             0.07 |         0.08 |  0.01 |     0.08 |
+| Detection Prevalence |          1.00 |             0.08 |         0.52 |  0.14 |     0.96 |
+| Balanced Accuracy    |          0.50 |             0.88 |         0.70 |  0.46 |     0.47 |
+| AUC                  |          0.85 |             0.97 |         0.82 |  0.52 |     0.50 |
