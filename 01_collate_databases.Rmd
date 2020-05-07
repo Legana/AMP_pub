@@ -244,7 +244,7 @@ This leaves an initial database with `r ampir_db %>% nrow` entries, of which `r 
 
 As a final step we write the database to a FASTA file and then use `cd-hit` to cluster sequences to 90% identity, keeping only a single representative sequence for each cluster. This reduces the database size but roughly maintains the same length distribution.
 
-```{r}
+```{r, eval=FALSE}
 # Main DB
 df_to_faa(ampir_db %>% select(Entry, Sequence) %>% as.data.frame(), "raw_data/amp_databases/ampir_positive.fasta")
 ```
@@ -272,7 +272,7 @@ ampir_db_summary %>% group_by(Organism) %>%
 - A FASTA formatted file with 90% clustered sequences `raw_data/amp_databases/ampir_positive90.fasta`
 
 
-```{r}
+```{r, eval=FALSE}
 write_tsv(ampir_db,"raw_data/amp_databases/ampir_db.tsv")
 ```
 
@@ -297,7 +297,7 @@ ampir_mature <- combined %>%
 
 The resulting database has a high proportion of peptides
 
-```{r}
+```{r, eval=FALSE}
 # Main DB
 df_to_faa(ampir_mature %>% select(ID, seq) %>% as.data.frame(), "raw_data/amp_databases/ampir_mature_positive.fasta")
 ```

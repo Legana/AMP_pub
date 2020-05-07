@@ -36,29 +36,26 @@ echo raw_data/amp_databases/uniprot-length_[0+TO+60]+NOT+keyword__Antimicrobial+
 echo raw_data/amp_databases/ampir_mature_negative90.fasta >> data_list
 
 # Precalculated training and test feature sets
-echo cache/features_precursor.rds >> data_list
+echo raw_data/ampir_train_test/features_precursor.rds >> data_list
+echo raw_data/ampir_train_test/features_mature.rds >> data_list
+echo raw_data/ampir_train_test/featuresTest_mature.rds >> data_list
+echo raw_data/ampir_train_test/featuresTrain_mature.rds >> data_list
 
-echo cache/features_mature.rds >> data_list
-echo cache/featuresTest_mature.rds >> data_list
-echo cache/featuresTrain_mature.rds >> data_list
 
+echo raw_data/ampir_train_test/features_precursor_imbal.rds >> data_list
+echo raw_data/ampir_train_test/featuresTest_precursor_imbal.rds >> data_list
+echo raw_data/ampir_train_test/featuresTrain_precursor_imbal.rds >> data_list         
 
-echo cache/features_precursor_imbal.rds >> data_list
-echo cache/featuresTest_precursor_imbal.rds >> data_list
-echo cache/featuresTrain_precursor_imbal.rds >> data_list         
-
-echo cache/featuresTest_precursor_imbal_nobench.rds >> data_list  
-echo cache/featuresTrain_precursor_imbal_nobench.rds >> data_list 
-echo cache/features_precursor_imbal_nobench.rds >> data_list
+echo raw_data/ampir_train_test/features_precursor_imbal_nobench.rds >> data_list
 
 
 # RFE and tuned model results
-echo cache/tuned_mature.rds >> data_list
-echo cache/tuned_mature_final.rds >> data_list
-echo cache/tuned_precursor_imbal.rds >> data_list
-echo cache/tuned_precursor_imbal_nobench.rds >> data_list
+echo raw_data/ampir_models/tuned_mature.rds >> data_list
+echo raw_data/ampir_models/tuned_mature_final.rds >> data_list
+echo raw_data/ampir_models/tuned_precursor_imbal.rds >> data_list
+echo raw_data/ampir_models/tuned_precursor_imbal_nobench.rds >> data_list
 
-echo cache/rfe_precursor.rds >> data_list
+echo raw_data/ampir_train_test/rfe_precursor.rds >> data_list
 
 
 # benchmark data
@@ -82,12 +79,12 @@ echo raw_data/benchmarking/results/ampscanv2/arath/1585718071814_Prediction_Summ
 echo raw_data/benchmarking/results/ampscanv2/human/1585707195821_Prediction_Summary.csv >> data_list
 echo raw_data/benchmarking/results/ampscanv2/human/1585707368321_Prediction_Summary.csv >> data_list
 echo raw_data/benchmarking/results/ampscanv2/iamp2l/1585811335833_Prediction_Summary.csv >> data_list
-echo raw_data/benchmarking/results/ampscanv2/ampir/1588056261666_Prediction_Summary.csv >> data_list
-echo raw_data/benchmarking/results/ampscanv2/ampir_prec/1588630046504_Prediction_Summary.csv >> data_list
+echo raw_data/benchmarking/results/ampscanv2/ampir/1588756293516_Prediction_Summary.csv >> data_list
+echo raw_data/benchmarking/results/ampscanv2/ampir_prec/1588756490979_Prediction_Summary.csv >> data_list
 
 
 echo raw_data/benchmarking/results/iamppred/iamp2l_bench.csv >> data_list
-echo raw_data/benchmarking/results/iamppred/ampir_precursor.tsv >> data_list
+echo raw_data/benchmarking/results/iamppred/ampir_precursor.csv >> data_list
 echo raw_data/benchmarking/results/dbamp/20200403_060324.anti_finish.txt >> data_list
 echo raw_data/benchmarking/results/iamppred/ampir_mature.csv >> data_list
 

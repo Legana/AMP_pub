@@ -18,10 +18,10 @@ As an indication of features that are likely to be useful for classification we 
 For both sets of data it is clear that higher order lambda values from the Pseudo-amino acid composition seem to show little difference between target and background (this is not true of low order values though). For both precursor and mature peptide models we used all physicochemical predictors, all Xc1 predictors and the first two Xc2 predictors.
 
 ```{r, fig.height=20}
-features_tg_bg_1 <- read_rds("cache/features_precursor.rds")
+features_tg_bg_1 <- read_rds("raw_data/ampir_train_test/features_precursor.rds")
 features_bg_tg_1_long <- features_tg_bg_1 %>% gather(key = "Feature","Value",-seq_name,-Label) %>% add_column(database="precursors")
 
-features_tg_bg_mature <- read_rds("cache/features_mature.rds")
+features_tg_bg_mature <- read_rds("raw_data/ampir_train_test/features_mature.rds")
 features_bg_tg_mature_long <- features_tg_bg_mature %>% gather(key = "Feature","Value",-seq_name,-Label) %>% add_column(database="mature")
 
 features_long <- rbind(features_bg_tg_1_long,features_bg_tg_mature_long)
@@ -32,6 +32,7 @@ ggplot(features_long %>% filter(database=="precursors"),aes(x=Value)) +
   labs(x= "Feature", y = "Density") +
   scale_color_discrete(name = "", labels = c("Background", "Target"))
 ```
+
 **Figure 3.1:** Feature distributions for precursor training data
 
 
@@ -42,6 +43,7 @@ ggplot(features_long %>% filter(database=="mature"),aes(x=Value)) +
   labs(x= "Feature", y = "Density") +
   scale_color_discrete(name = "", labels = c("Background", "Target"))
 ```
+
 **Figure 3.2:** Feature distributions for mature peptide training data
 
 ### PCA
@@ -84,6 +86,7 @@ second_col = plot_grid(NULL, p_yd, ncol = 1, rel_heights = c(1, 3))
 
 plot_grid(first_col, second_col, ncol = 2, rel_widths = c(3, 1))
 ```
+
 **Figure 3.3:** PCA with marginal density plots showing the ability of this unsupervised clustering method to separate classes. The plot shows data from the precursor training set
 
 
@@ -104,7 +107,7 @@ RFE analysis in principle can be used to find an optimal subset of the features 
 The set of features identified as optimal by RFE includes all bulk physicochemical properties as well as most simple amino acid composition measures. Higher order pseudoamino-acid composition measures do not appear to be important to model performance according to RFE.
 
 ```{r}
-svmProfile <- readRDS("cache/rfe_precursor.rds")
+svmProfile <- readRDS("raw_data/ampir_train_test/rfe_precursor.rds")
 predictors(svmProfile)
 ```
 

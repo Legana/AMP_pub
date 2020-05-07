@@ -16,7 +16,7 @@ The default models included with `ampir` are both SVMs with radial kernel and ha
 Inspecting the results for the mature peptide model reveals the variation of model performance with the tuning parameters.  
 
 ```{r}
-tuning_data <- readRDS("cache/tuned_mature.rds")
+tuning_data <- readRDS("raw_data/ampir_models/tuned_mature.rds")
 
 trellis.par.set(caretTheme())
 plot(tuning_data)
@@ -30,7 +30,7 @@ tuning_data$bestTune
 And for the precursor model:
 
 ```{r}
-tuning_data <- readRDS("cache/tuned_precursor_imbal.rds")
+tuning_data <- readRDS("raw_data/ampir_models/tuned_precursor_imbal.rds")
 
 trellis.par.set(caretTheme())
 plot(tuning_data)

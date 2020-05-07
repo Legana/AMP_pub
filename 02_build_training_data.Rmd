@@ -76,7 +76,6 @@ comm -23 \
 ```
 
 ```{r}
-
 tg_mature <- read_faa("raw_data/amp_databases/ampir_mature_positive90.fasta") %>% 
   add_column(Label = "Tg")
 
@@ -199,10 +198,10 @@ export_training_and_test(features_tg_bg_imbal %>% filter(!(seq_name %in% names_t
 For each model we evaluate its performance using the 20% of training data that was held out for model evaluation.  
 
 ```{r, eval=FALSE}
-mature_test <- read_rds("cache/featuresTest_mature.rds")
+mature_test <- read_rds("raw_data/ampir_train_test/featuresTest_mature.rds")
 tg_bg_mature %>% filter(seq_name %in% mature_test$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/mature_eval.fasta")
 
-precursor_test <- read_rds("cache/featuresTest_precursor_imbal.rds")
+precursor_test <- read_rds("raw_data/ampir_train_test/featuresTest_precursor_imbal.rds")
 tg_bg_imbal %>% filter(seq_name %in% precursor_test$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/precursor_eval.fasta")
 ```
 
