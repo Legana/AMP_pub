@@ -82,7 +82,7 @@ For entries where such information is available we see a very clear
 split with mature peptides having a typical length of 25 amino acids
 (AA) whereas precursors are slightly longer at around 60-75 AA. Note
 that the length distribution of mature peptides matches the APD length
-distribution very well but all other databases, including DRAMP include
+distribution very well but all other databases, including dbAMP include
 longer sequences and therefore are likely to include some fraction of
 precursors. Note that there are a total of 768 mature peptides, 806
 precursors with peptide annotation information, and 1647 reviewed AMPs
