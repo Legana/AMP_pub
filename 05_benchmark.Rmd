@@ -17,8 +17,8 @@ library(pROC)
 
 When benchmarking the performance of AMP predictors a number of important factors need to be considered:
 
-1. Any benchmark dataset will likely include some AMPs used for training in one or more of the predictors.  Since most predictors are not open source they are provided as-is and it is almost impossible to devise a completely impartial benchmark based on AMPs that were not used to train any of the predictors.
-2. An existing benchmark dataset provided by [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) has been adopted by several subsequent authors. The composition of this dataset is geared toward a mature peptide test because the positive cases are all mature peptides.  The background dataset is perhaps not ideal to represent a background of mature (non-AMP) peptides because it has a length distribution suggesting that it contains a significant fraction of full length precursors.
+1. Any benchmark dataset will likely include some AMPs used for training in one or more of the predictors. Since most predictors are not open source they are provided as-is and it is almost impossible to devise a completely impartial benchmark based on AMPs that were not used to train any of the predictors.
+2. An existing benchmark dataset provided by [Xiao et al. 2013](https://doi.org/10.1016/j.ab.2013.01.019) has been adopted by several subsequent authors. The composition of this dataset is geared toward a mature peptide test because the positive cases are all mature peptides. The background dataset is perhaps not ideal to represent a background of mature (non-AMP) peptides because it has a length distribution suggesting that it contains a significant fraction of full length precursors.
 3. A realistic test of AMP prediction in genome-wide scans should use a benchmark dataset that is highly unbalanced, just as a real genome protein set would be. For example in the *Arabidopsis* genome AMPs make up less than 1% of proteins.  
 4. Real genomes contain non-AMP proteins that may resemble AMPs in some ways (e.g. secreted proteins, transmembrane proteins) and which will therefore make the classification problem more difficult. Any benchmark that does not include these proteins will most likely provide inflated estimates of accuracy.
 
@@ -348,7 +348,7 @@ model_names <- c("amPEP","ampir mature","ampir precursor","AMP Scanner v2","iAMP
 names(model_names) <- models
 
 library(ggpubr)
-pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)","Human Genome","Arabidopsis Genome")) %>% 
+pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)","Human Genome","A. thaliana Genome")) %>% 
   ggplot() + 
   geom_line(aes(x = FP, y = TP, colour = model),size=1.1) + 
   xlim(0,500) +
@@ -380,10 +380,10 @@ prow <- plot_grid(pg,pp, rel_widths = c(2,1))
 prow2 <- annotate_figure(prow, fig.lab = "A", top = "B")
 prow3 <- annotate_figure(prow2, fig.lab = "C", fig.lab.pos = "top.right")
 
-plot_grid(prow3,legend_b, ncol = 1,rel_heights = c(1,0.1))
+prow4 <- plot_grid(prow3,legend_b, ncol = 1,rel_heights = c(1,0.1))
 
 
-ggsave(plot = prow3, filename = "figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
+ggsave(plot = prow4, filename = "figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
 ggsave("figures/benchmarks.eps", width = 178,units = "mm", height = 80,dpi = 600)
 ```
 

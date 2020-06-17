@@ -19,11 +19,11 @@ This repository contains code used for the [ampir](https://github.com/Legana/amp
 - [Benchmarking](05_benchmark.md) : Rmd file [05_benchmark.Rmd](05_benchmark.Rmd)
 - [Case studies](06_case_studies.md) : Rmd file [06_case_studies.Rmd](06_case_studies.Rmd)
 
-The files required to run the code in these Rmd files can be obtained [here](https://cloudstor.aarnet.edu.au/plus/s/ZYQAURCovsOf8q6) or by using the command:
+The files required to run the code in these Rmd files can be obtained [here](https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY) or by using the command:
 
 
 ```bash
-wget 'https://cloudstor.aarnet.edu.au/plus/s/ZYQAURCovsOf8q6/download' -O data.tgz
+wget 'https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY/download' -O data.tgz
 tar -zxvf data.tgz 
 ```
 

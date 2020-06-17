@@ -144,8 +144,6 @@ importance of this task this level of enrichment is of great practical
 use, reducing the number of false experimental leads per true positive
 from many thousands down to tens or hundreds.
 
-![](05_benchmark_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
-
 **Figure 5.3:** Performance of `ampir` compared with three existing AMP
 prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al.,
 2018), AMP Scanner (Veltri et al., 2018). Results for iAMPpred are not
