@@ -88,6 +88,13 @@ echo raw_data/benchmarking/results/iamppred/ampir_precursor.csv >> data_list
 echo raw_data/benchmarking/results/dbamp/20200403_060324.anti_finish.txt >> data_list
 echo raw_data/benchmarking/results/iamppred/ampir_mature.csv >> data_list
 
+echo raw_data/case_studies/centipede.xlsx
+echo raw_data/case_studies/o_margaretae_uniprot.blastp
+echo raw_data/case_studies/o_margaretae_aa.fasta
+echo raw_data/case_studies/uniprot-organism_odorrana+keyword__Antimicrobial+\[KW-0929\]_.fasta
+echo raw_data/case_studies/o_margaretae_na.fasta
+
+
 # Cache files to speed things up
 echo cache/ref_predictions_ampir.rds >> data_list
 echo cache/ampir_genome_roc.rds >> data_list

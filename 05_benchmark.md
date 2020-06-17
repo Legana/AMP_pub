@@ -213,3 +213,42 @@ set
 | Detection Prevalence |          1.00 |             0.08 |         0.52 |  0.14 |     0.96 |
 | Balanced Accuracy    |          0.50 |             0.88 |         0.70 |  0.46 |     0.47 |
 | AUC                  |          0.85 |             0.97 |         0.82 |  0.52 |     0.50 |
+
+## Running time
+
+Benchmarking the computational speed of AMP predictors is difficult to
+do in a completely objective fashion. This is because many predictors
+are available only through web servers, in which case the performance
+depends on unknown factors such as server load and configuration. Here
+we present some approximate benchmarks for the speed of ampir,
+ampscanner v2 and ampep based on a complete Human proteome dataset
+(74811 proteins). Performance of iamppred could not be evaluated with
+this dataset as we found that it was unable to handle large numbers of
+input sequences.
+
+*ampscanner v2*: Maximum file upload size is 50Mb so it was necessary to
+divide the job into two parts. A stopwatch was used to measure runtime.
+Timing was started after the upload step had finished so as not to
+include internet connectivity speed in the test. The reported run time
+is the sum of runtimes for both parts of the dataset.
+
+*ampep*: ampep was run using MATLAB R2019a on an Intel Xeon processor
+with 40 CPUs but runtime reflects single core performance since ampep
+did not appear to have a multi-core capability. *ampir*: ampir was run
+using the same Intel Xeon processor as was used for the ampep benchmark.
+Since ampir is capable of multicore operation we measured its runtime as
+a function of core-count (see figure 5.4). In Table 5.5 the runtime of
+ampir with a single core is shown. ampir provides comparable performance
+to ampscan v2 when run with 4 cores.
+
+**Table 5.5:** Run time performance on the Human Proteome
+
+| Program    | Runtime (s) |
+| ---------- | ----------- |
+| ampscan v2 | 195         |
+| ampep      | 1223        |
+| ampir      | 469         |
+
+![](05_benchmark_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+**Figure 5.4** Performance of ampir as a function of core count when
+running `predict_amps()` on a dataset of 77000 proteins.
