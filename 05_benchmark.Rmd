@@ -82,9 +82,23 @@ compress_model <- function(model){
 precursor_model <- compress_model(readRDS("raw_data/ampir_models/tuned_precursor_imbal.rds"))
 mature_model <- compress_model(readRDS("raw_data/ampir_models/tuned_mature.rds"))
 
-xbench <- read_faa("raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta")
-ampir_bench <- read_faa("raw_data/benchmarking/datasets/ampir/mature_eval.fasta")
-ampir_prec_bench <- read_faa("raw_data/benchmarking/datasets/ampir/precursor_eval.fasta")
+benchmark_fasta_files <- c("raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta",
+                           "raw_data/benchmarking/datasets/ampir/mature_eval.fasta",
+                           "raw_data/benchmarking/datasets/ampir/precursor_eval.fasta",
+                           "raw_data/benchmarking/datasets/ampir/mature_train.fasta",
+                           "raw_data/benchmarking/datasets/ampir/precursor_train.fasta")
+
+ampir_benchmark_cachenames <- c("cache/xbench_ampir_raw.rds",
+                                "cache/ampir_bench_raw.rds",
+                                "cache/ampir_prec_bench_raw.rds",
+                                "cache/ampir_train_raw.rds",
+                                "cache/ampir_prec_train_raw.rds")
+
+ampir_benchmark_info <- data.frame(fasta=benchmark_fasta_files,cache=ampir_benchmark_cachenames,
+                                   name=c("Xiao","mature_eval","precursor_eval","mature_train","precursor_train"),
+                                   stringsAsFactors = FALSE)
+
+benchmark_faa_data <- lapply(ampir_benchmark_info$fasta,read_faa)
 
 predict_bench <- function(cachename,benchdata){
   if ( file.exists(cachename) ){
@@ -98,140 +112,166 @@ predict_bench <- function(cachename,benchdata){
   xbench_ampir_raw
 }
 
-xbench_ampir_raw <- predict_bench("cache/xbench_ampir_raw.rds",xbench)
-ampir_bench_raw <- predict_bench("cache/ampir_bench_raw.rds",ampir_bench)
-ampir_prec_bench_raw <- predict_bench("cache/ampir_prec_bench_raw.rds",ampir_prec_bench )
+raw_bench_results <- lapply(1:nrow(ampir_benchmark_info),function(i){  predict_bench(ampir_benchmark_info$cache[i], benchmark_faa_data[[i]]) })
+names(raw_bench_results) <- ampir_benchmark_info$name
 
-xbench_ampir <- xbench_ampir_raw %>% 
-  mutate(actual = ifelse(grepl(seq_name,pattern = "^AP"), "Tg", "Bg")) %>% 
-  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
+get_pattern <- function(data){
+  if ( sum(grepl(data$seq_name,pattern="_Tg$"))==0 ){
+    pat="^AP"
+  } else {
+    pat="_Tg$"
+  }
+  return(pat)
+}
 
+annotate_classes <- function(raw_bench){
+  pat <- get_pattern(raw_bench)
+  raw_bench %>% 
+    mutate(actual = ifelse(grepl(seq_name,pattern = pat), "Tg", "Bg")) %>% 
+    mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg")) %>%
+    mutate(actual = factor(actual), predicted = factor(predicted))
+}
 
-ampir_bench <- ampir_bench_raw %>% 
-  mutate(actual = ifelse(grepl(seq_name,pattern = "_Tg"), "Tg", "Bg")) %>% 
-  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
+ampir_bench_raw <- lapply(raw_bench_results,annotate_classes)
 
+make_roc_curve <- function(anno_bench_results,name){
+  roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(mdl){
+    as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, anno_bench_results %>% filter(model==mdl)))) %>%
+    add_column(model = mdl)
+  })) %>% 
+    add_column(benchmark = name)
+  roc
+}
 
-ampir_prec_bench <- ampir_prec_bench_raw %>% 
-  mutate(actual = ifelse(grepl(seq_name,pattern = "_Tg"), "Tg", "Bg")) %>% 
-  mutate(predicted = ifelse(prob_AMP>0.5, "Tg","Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
-
-
-ampir_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(mdl){
-  as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_ampir %>% filter(model==mdl)))) %>%
-  add_column(model = mdl)
-})) %>% add_column(benchmark = "Xiao")
-
-ampir_bench_roc <- do.call(rbind,lapply(c("ampir_precursor","ampir_mature"),function(mdl){
-  as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, ampir_bench %>% filter(model==mdl)))) %>%
-  add_column(model = mdl)
-})) %>% add_column(benchmark = "ampir")
+ampir_rocs <- lapply(names(ampir_bench_raw),function(n){ make_roc_curve(ampir_bench_raw[[n]],n) } )
+ampir_rocs_long <- do.call(rbind,ampir_rocs)
 ```
 
 
 
 ```{r}
-# ampep
-xbench_ampep <- read_csv("raw_data/benchmarking/results/ampep/ampep_iamp2l_bench.txt") %>%
-  mutate(actual = ifelse(grepl(Row,pattern = "^AP"), "Tg", "Bg")) %>% 
-  rename(prob_AMP = score) %>%
-  mutate(predicted = ifelse(prediction == 1, "Tg", "Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
+ampep_result_files <- c("raw_data/benchmarking/results/ampep/ampep_iamp2l_bench.txt",
+                           "raw_data/benchmarking/results/ampep/mature_eval_ampep.txt",
+                           "raw_data/benchmarking/results/ampep/precursor_eval_ampep.txt",
+                           "raw_data/benchmarking/results/ampep/precursor_train_ampep.txt",
+                           "raw_data/benchmarking/results/ampep/mature_train_ampep.txt")
+names(ampep_result_files) <- c("Xiao","mature_eval","precursor_eval","precursor_train","mature_train")
 
-ampir_bench_ampep <- read_csv("raw_data/benchmarking/results/ampep/mature_eval_ampep.txt") %>% 
-  mutate(actual = ifelse(grepl(Row,pattern = "^AP"), "Tg", "Bg")) %>% 
-  rename(prob_AMP = score) %>% 
-  mutate(predicted = ifelse(prediction == 1, "Tg", "Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
+annotate_classes_ampep <- function(raw_bench){
+  pat <- get_pattern(raw_bench)
+  raw_bench %>% 
+    mutate(actual = ifelse(grepl(seq_name,pattern = pat), "Tg", "Bg")) %>% 
+    mutate(predicted = ifelse(prediction==1, "Tg","Bg")) %>%
+    mutate(actual = factor(actual), predicted = factor(predicted))
+}
 
-ampir_prec_bench_ampep <- read_csv("raw_data/benchmarking/results/ampep/precursor_eval_ampep.txt") %>% 
-  mutate(actual = ifelse(grepl(Row,pattern = "_Tg$"), "Tg", "Bg")) %>% 
-  rename(prob_AMP = score) %>% 
-  mutate(predicted = ifelse(prediction == 1, "Tg", "Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
+make_roc_curve_ampep <- function(xbench_ampep,name){
+  as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_ampep))) %>%
+  add_column(model = "ampep") %>% add_column(benchmark = name)
+}
 
-ampep_roc <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_ampep))) %>%
-  add_column(model = "ampep") %>% add_column(benchmark = "Xiao")
+ampep_bench_raw <- lapply(names(ampep_result_files),function(n) { 
+  read_csv(ampep_result_files[n]) %>% 
+    rename(seq_name=Row) %>% 
+    rename(prob_AMP = score) %>% 
+    annotate_classes_ampep()})
+names(ampep_bench_raw) <- names(ampep_result_files)
 
-ampep_roc_ampir <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, ampir_bench_ampep))) %>%
-  add_column(model = "ampep") %>% add_column(benchmark = "ampir")
+ampep_rocs <- lapply(names(ampep_bench_raw), function(n) { make_roc_curve_ampep(ampep_bench_raw[[n]],n)})
+ampep_rocs_long <- do.call(rbind,ampep_rocs)
 ```
 
 ```{r}
 # ampscannerv2
-xbench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/iamp2l/1585811335833_Prediction_Summary.csv") %>% 
-  mutate(actual = ifelse(grepl(SeqID,pattern = "^AP"), "Tg", "Bg")) %>% 
-  rename(prob_AMP = Prediction_Probability) %>%
-  mutate(predicted = ifelse(Prediction_Class == "AMP", "Tg", "Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
+
+ampscanv2_result_files <- c("raw_data/benchmarking/results/ampscanv2/iamp2l/1585811335833_Prediction_Summary.csv",
+                            "raw_data/benchmarking/results/ampscanv2/ampir/1588756293516_Prediction_Summary.csv",
+                            "raw_data/benchmarking/results/ampscanv2/ampir_prec/1588756490979_Prediction_Summary.csv",
+                            "raw_data/benchmarking/results/ampscanv2/ampir/1592431117418_Prediction_Summary.csv",
+                            "raw_data/benchmarking/results/ampscanv2/ampir_prec/1592432311616_Prediction_Summary.csv"
+                            )
+
+names(ampscanv2_result_files) <- c("Xiao","mature_eval","precursor_eval","mature_train","precursor_train")
+
+annotate_classes_ampscanv2 <- function(raw_bench){
+
+  pat <- get_pattern(raw_bench)
   
-
-ampir_bench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/ampir/1588756293516_Prediction_Summary.csv") %>% 
-  mutate(actual = ifelse(grepl(SeqID,pattern = "^AP"), "Tg", "Bg")) %>% 
+  
+  raw_bench %>% mutate(actual = ifelse(grepl(seq_name,pattern = pat), "Tg", "Bg")) %>% 
   rename(prob_AMP = Prediction_Probability) %>%
   mutate(predicted = ifelse(Prediction_Class == "AMP", "Tg", "Bg")) %>%
   mutate(actual = factor(actual), predicted = factor(predicted))
+}
 
-ampir_prec_bench_ampscanv2 <- read_csv("raw_data/benchmarking/results/ampscanv2/ampir_prec/1588756490979_Prediction_Summary.csv") %>% 
-  mutate(actual = ifelse(grepl(SeqID,pattern = "_Tg$"), "Tg", "Bg")) %>% 
-  rename(prob_AMP = Prediction_Probability) %>%
-  mutate(predicted = ifelse(Prediction_Class == "AMP", "Tg", "Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
+ampscanv2_bench_raw <- lapply(names(ampscanv2_result_files),function(n){
+  read_csv(ampscanv2_result_files[n]) %>% 
+    rename(seq_name=SeqID) %>% 
+    annotate_classes_ampscanv2()
+})
+names(ampscanv2_bench_raw) <- names(ampscanv2_result_files)
 
-ampscan_roc <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_ampscanv2))) %>%
-  add_column(model = "ampscannerv2") %>% add_column(benchmark = "Xiao")
+make_roc_curve_ampscanv2 <- function(xbench_ampscanv2,name){
+  as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_ampscanv2))) %>%
+  add_column(model = "ampscannerv2") %>% add_column(benchmark = name)
+}
 
-ampscan_roc_ampir <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, ampir_bench_ampscanv2))) %>%
-  add_column(model = "ampscannerv2") %>% add_column(benchmark = "ampir")
+ampscanv2_rocs <- lapply(names(ampscanv2_bench_raw), function(n){ make_roc_curve_ampscanv2(ampscanv2_bench_raw[[n]],n)})
+ampscanv2_rocs_long <- do.call(rbind,ampscanv2_rocs)
 ```
 
 
 ```{r}
-xbench_iampred <- read_csv("raw_data/benchmarking/results/iamppred/iamp2l_bench.csv") %>% 
-  mutate(actual = ifelse(grepl(name_fasta,pattern = "^AP"), "Tg", "Bg")) %>% 
+iampred_result_files <- c("raw_data/benchmarking/results/iamppred/iamp2l_bench.csv",
+                          "raw_data/benchmarking/results/iamppred/ampir_mature.csv",
+                          "raw_data/benchmarking/results/iamppred/ampir_precursor.csv")
+names(iampred_result_files) <- c("Xiao","mature_eval","precursor_eval")
+
+annotate_classes_iampred <- function(raw_bench){
+  pat <- get_pattern(raw_bench)
+
+  raw_bench %>% mutate(actual = ifelse(grepl(seq_name,pattern = pat), "Tg", "Bg")) %>% 
   mutate(prob_AMP = pmax(antibacterial,antiviral,antifungal)) %>%
   mutate(predicted = ifelse(prob_AMP >= 0.5, "Tg", "Bg")) %>%
   mutate(actual = factor(actual), predicted = factor(predicted))
+}
 
-ampir_bench_iampred <- read_tsv("raw_data/benchmarking/results/iamppred/ampir_mature.csv") %>% 
-    mutate(actual = ifelse(grepl(name_fasta,pattern = "^AP"), "Tg", "Bg")) %>% 
-  mutate(prob_AMP = pmax(antibacterial,antiviral,antifungal)) %>%
-  mutate(predicted = ifelse(prob_AMP >= 0.5, "Tg", "Bg")) %>%
-  mutate(actual = factor(actual), predicted = factor(predicted))
+iampred_bench_raw <- lapply(names(iampred_result_files),function(n){
+  if(n=="Xiao"){
+    readfunc=read_csv
+    } else {
+    readfunc=read_tsv
+    }
+  readfunc(iampred_result_files[n]) %>% 
+    rename(seq_name=name_fasta) %>% 
+    annotate_classes_iampred()
+})
+names(iampred_bench_raw) <- names(iampred_result_files)
 
-ampir_prec_bench_iampred <- read_tsv("raw_data/benchmarking/results/iamppred/ampir_precursor.csv") %>%
-   mutate(actual = ifelse(grepl(name_fasta,pattern = "_Tg$"), "Tg", "Bg")) %>%
-   mutate(prob_AMP = pmax(antibacterial,antiviral,antifungal)) %>%
-   mutate(predicted = ifelse(prob_AMP >= 0.5, "Tg", "Bg")) %>%
-   mutate(actual = factor(actual), predicted = factor(predicted))
+make_roc_curve_iampred <- function(xbench_iampred,name){
+  as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_iampred))) %>%
+  add_column(model = "iamppred") %>% add_column(benchmark = name)
+}
 
-iampred_roc <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, xbench_iampred))) %>%
-  add_column(model = "iamppred") %>% add_column(benchmark = "Xiao")
-
-iampred_roc_ampir <- as.data.frame(t(sapply(c(seq(0.01, 0.99, 0.01),seq(0.99, 0.990, 0.001)), calc_cm_metrics, ampir_bench_iampred))) %>%
-  add_column(model = "iamppred") %>% add_column(benchmark = "ampir")
+iampred_rocs <- lapply(names(iampred_bench_raw), function(n){ make_roc_curve_iampred(iampred_bench_raw[[n]],n)})
+iampred_rocs_long <- do.call(rbind,iampred_rocs)
 ```
 
 
 ```{r}
-models_roc_mature <- rbind(ampir_roc,ampir_bench_roc, 
-                    ampep_roc,ampep_roc_ampir,
-                    ampscan_roc,ampscan_roc_ampir,
-                    iampred_roc,iampred_roc_ampir)
-```
+models_roc_mature <- rbind(ampir_rocs_long,ampep_rocs_long,ampscanv2_rocs_long,
+                    iampred_rocs_long)
 
-
-```{r}
-ggplot(models_roc_mature) + 
+models_roc_mature %>% 
+  filter(benchmark %in% c("Xiao","mature_eval")) %>% 
+  mutate(mpbench = ifelse(benchmark=="Xiao","Xiao","ampir mature peptide")) %>% 
+  ggplot() + 
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
-  xlim(0,1) + facet_wrap(~benchmark) +
+  xlim(0,1) + facet_wrap(~mpbench) +
   labs(x = "False positive rate", y = "True positive rate")
 ```
 
-**Figure 5.1:** Performance of a range of AMP predictors against two mature peptide testing datasets.  
+**Figure 5.1:** Performance of a range of AMP predictors against two mature peptide testing datasets.
 
 ### Real Genome Benchmark
 
@@ -324,18 +364,29 @@ ampep_genome_roc <- get_genome_roc(ampep_genome_bench,"ampep")
 ```
 
 ```{r}
+library(cowplot)
 genome_rocs <- rbind(ampir_genome_roc,ampscan_genome_roc,ampep_genome_roc)
 
-ggplot(genome_rocs) + 
+fpr_plot <- ggplot(genome_rocs) + 
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
   xlim(0,1) +
   facet_wrap(~organism) +
-  labs(x= "False positive rate", y = "True positive rate")
+  labs(x= "False positive rate", y = "Recall") + theme(legend.position = "bottom", legend.title = element_blank())
+
+sr_plot <- ggplot(genome_rocs) + 
+  geom_line(aes(x = Precision, y = Recall, colour = model)) + 
+  facet_wrap(~organism) +
+  labs(x= "Precision", y = "Sensitivity") + theme(legend.position = "none")
+
+plot_grid(sr_plot,fpr_plot, ncol = 1, rel_heights = c(1,1.5))
 ```
 
-**Figure 5.2:** Performance of various AMP predictors in classifying whole proteome data for Human and *Arabidopsis*. 
 
-In Figure 5.2 we show ROC curves for all predictors on the Human and *Arabidopsis* data but it is important to remember that in this context the low false positive regime is especially important. This is because of the extremely low frequency of true positives in the data (less than 1%). This is explored further in Figure 5.3 but for now it is important to note that `ampscanner v2` is not shown in Figure 5.3 because its ROC curve does not extend into this important regime despite the fact that it otherwise appears to perform very well. `AmPEP` and `ampir_mature` both perform very poorly reflecting the emphasis of their training data on mature peptides rather than precursor proteins.
+**Figure 5.2:** Performance of various AMP predictors in classifying whole proteome data for Human and *Arabidopsis*. Performance is shown as a balance of sensitivity and precision (top row) and as a ROC curve (second row). 
+
+In Figure 5.2 (first row) we show how various predictors perform on genome-scanning data as a tradeoff between sensitivity (proportion of AMPs detected among all AMPs present in the dataset) and precision (proportion of true positives compared with all positive results).  This shows that in order to obtain a high precision it is necessary to discard many true AMPs (low sensitivity).  Note that the `ampir_precursor` model clearly outperforms all other models in this context.
+
+In Figure 5.2 (second row) we show ROC curves for all predictors on the Human and *Arabidopsis* data but it is important to remember that in this context the low false positive regime is especially important. This is because of the extremely low frequency of true positives in the data (less than 1%). This is explored further in Figure 5.3 but for now it is important to note that `ampscanner v2` is not shown in Figure 5.3 because its ROC curve does not extend into this important regime despite the fact that it otherwise appears to perform very well. `AmPEP` and `ampir_mature` both perform very poorly reflecting the emphasis of their training data on mature peptides rather than precursor proteins.
 
 In order to properly capture the real-world performance of predictors on genome scans we use a plot that emphasises the absolute numbers of true and false positives. On this measure (shown in Figure 5.3) it can be seen that genome-wide prediction of AMPs is still an imperfectly solved problem. Although the `ampir` precursor model clearly performs far better than any other predictors, none were able to predict more than 50% of true AMPs while controlling false positives to under 500. Nevertheless, given the difficulties in identifying AMPs and the importance of this task this level of enrichment is of great practical use, reducing the number of false experimental leads per true positive from many thousands down to tens or hundreds. 
 
@@ -393,61 +444,57 @@ ggsave("figures/benchmarks.eps", width = 178,units = "mm", height = 80,dpi = 600
 ## Performance Statistics
 
 ```{r}
-get_performance_stats <- function(test_results){
-  x_cm_prec <- confusionMatrix(factor(test_results$predicted), factor(test_results$actual), positive = "Tg")
+calc_performance_stats <- function(test_results){
+    x_cm_prec <- confusionMatrix(factor(test_results$predicted), factor(test_results$actual), positive = "Tg")
   
   xrc_prec <- roc(test_results$actual, test_results$prob_AMP) 
   c(x_cm_prec$byClass,AUC=as.numeric(xrc_prec$auc))
 }
 
-# ampir
-xbench_ampir_prec <- filter(xbench_ampir, model == "ampir_precursor")
-xbench_ampir_mature <- filter(xbench_ampir, model == "ampir_mature")
+get_bench_list <- function(bench_name){
+    lall <- list(ampir_mature=ampir_bench_raw[[bench_name]] %>% filter(model=="ampir_mature"),
+                    ampir_precursor=ampir_bench_raw[[bench_name]] %>% filter(model=="ampir_precursor"),
+                    ampscannerv2=ampscanv2_bench_raw[[bench_name]],
+                    ampep=ampep_bench_raw[[bench_name]])
 
-xbench_data <- list(ampir_mature=xbench_ampir_mature,
-                    ampir_precursor=xbench_ampir_prec,
-                    ampscannerv2=xbench_ampscanv2,
-                    ampep=xbench_ampep,
-                    iamppred=xbench_iampred)
+    if ( bench_name %in% names(iampred_bench_raw) ){
+      lall[["iampred"]] <- iampred_bench_raw[[bench_name]]
+    }
+  lall
+}
 
-xbench_stats <- sapply(xbench_data,get_performance_stats)
+get_bench_stats <- function(bench_name){
+  bench_data <- get_bench_list(bench_name)
+  sapply(bench_data,calc_performance_stats) %>% as.data.frame() %>% 
+    add_column(dataset=bench_name)
+}
 ```
-
-
-```{r}
-ampir_bench_data <- list(ampir_mature = ampir_bench %>% filter(model=="ampir_mature"),
-                         ampir_precursor = ampir_bench %>% filter(model=="ampir_precursor"),
-                         ampscannerv2=ampir_bench_ampscanv2,
-                         ampep=ampir_bench_ampep,
-                         iamppred = ampir_bench_iampred)
-ampir_bench_stats <- sapply(ampir_bench_data,get_performance_stats)
-```
-
-```{r}
-ampir_prec_bench_data <- list(ampir_mature = ampir_prec_bench %>% filter(model=="ampir_mature"),
-                         ampir_precursor = ampir_prec_bench %>% filter(model=="ampir_precursor"),
-                         ampscannerv2=ampir_prec_bench_ampscanv2,
-                         ampep=ampir_prec_bench_ampep,
-                         iamppred = ampir_prec_bench_iampred)
-
-
-ampir_prec_bench_stats <- sapply(ampir_prec_bench_data,get_performance_stats)
-```
-
 
 **Table 5.2:** Model performance on Xiao et al. benchmark dataset
 ```{r}
-knitr::kable(xbench_stats, digits = 2)
+knitr::kable(get_bench_stats("Xiao") %>% select(-dataset), digits = 2)
 ```
 
 **Table 5.3:** Model performance on `ampir_mature` test set
 ```{r}
-knitr::kable(ampir_bench_stats, digits = 2)
+knitr::kable(get_bench_stats("mature_eval") %>% select(-dataset), digits = 2)
 ```
 
 **Table 5.4:** Model performance on `ampir_precursor` test set
 ```{r}
-knitr::kable(ampir_prec_bench_stats, digits = 2)
+knitr::kable(get_bench_stats("precursor_eval") %>% select(-dataset), digits = 2)
+```
+
+**Table 5.5:** Model performance on the ampir mature __training__ data
+
+```{r}
+knitr::kable(get_bench_stats("mature_train") %>% select(-dataset), digits = 2)
+```
+
+**Table 5.6:** Model performance on the ampir precursor __training__ data
+
+```{r}
+knitr::kable(get_bench_stats("precursor_train") %>% select(-dataset), digits = 2)
 ```
 
 
@@ -459,22 +506,25 @@ Benchmarking the computational speed of AMP predictors is difficult to do in a c
 *ampscanner v2*: Maximum file upload size is 50Mb so it was necessary to divide the job into two parts. A stopwatch was used to measure runtime.  Timing was started after the upload step had finished so as not to include internet connectivity speed in the test.  The reported run time is the sum of runtimes for both parts of the dataset.
 
 *ampep*: ampep was run using MATLAB R2019a on an Intel Xeon processor with 40 CPUs but runtime reflects single core performance since ampep did not appear to have a multi-core capability. 
-*ampir*: ampir was run using the same Intel Xeon processor as was used for the ampep benchmark. Since ampir is capable of multicore operation we measured its runtime as a function of core-count (see figure 5.4).  In Table 5.5 the runtime of ampir with a single core is shown.  ampir provides comparable performance to ampscan v2 when run with 4 cores.
+*ampir*: ampir was run using the same Intel Xeon processor as was used for the ampep benchmark. Since ampir is capable of multicore operation we measured its runtime as a function of core-count (see figure 5.4).  In Table 5.7 the runtime of ampir with a single core is shown.  ampir provides comparable performance to ampscan v2 when run with 4 cores.
 
-**Table 5.5:** Run time performance on the Human Proteome
+**Table 5.7:** Run time performance on the Human Proteome
 
-Program     | Runtime (s)
------------ | ---------------
-ampscan v2 | 195
-ampep | 1223
-ampir | 469
-
+Program     | Number of Cores | Runtime (s)
+----------- | --------------- | --------------
+ampscan v2 | Unknown |  195
+ampep | 1 | 1223
+ampir | 1 | 469
+ampir | 4 | 218
+ampir | 8 | 110
 
 ```{r}
 ampir_human_bench_runtimes <- data.frame(cores=c(1,2,4,8,16,32), time=c(469,323,218,110,69,47))
 ggplot(ampir_human_bench_runtimes,aes(x=cores,y=time)) + geom_line() + geom_point() + xlab("Number of cores") + ylab("Elapsed time (s)")
 ```
+
 **Figure 5.4** Performance of ampir as a function of core count when running `predict_amps()` on a dataset of 77000 proteins. 
+
 
 
 
