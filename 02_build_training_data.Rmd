@@ -201,8 +201,14 @@ For each model we evaluate its performance using the 20% of training data that w
 mature_test <- read_rds("raw_data/ampir_train_test/featuresTest_mature.rds")
 tg_bg_mature %>% filter(seq_name %in% mature_test$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/mature_eval.fasta")
 
+mature_train <- read_rds("raw_data/ampir_train_test/featuresTrain_mature.rds")
+tg_bg_mature %>% filter(seq_name %in% mature_train$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/mature_train.fasta")
+
 precursor_test <- read_rds("raw_data/ampir_train_test/featuresTest_precursor_imbal.rds")
 tg_bg_imbal %>% filter(seq_name %in% precursor_test$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/precursor_eval.fasta")
+
+precursor_train <- read_rds("raw_data/ampir_train_test/featuresTrain_precursor_imbal.rds")
+tg_bg_imbal %>% filter(seq_name %in% precursor_train$seq_name) %>% unite(seq_name,seq_name,Label) %>% df_to_faa("raw_data/benchmarking/datasets/ampir/precursor_train.fasta")
 ```
 
 

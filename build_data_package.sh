@@ -65,6 +65,8 @@ echo raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx >> d
 echo raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta >> data_list
 echo raw_data/benchmarking/datasets/ampir/mature_eval.fasta >> data_list
 echo raw_data/benchmarking/datasets/ampir/precursor_eval.fasta >> data_list
+echo raw_data/benchmarking/datasets/ampir/mature_train.fasta >> data_list
+echo raw_data/benchmarking/datasets/ampir/precursor_train.fasta >> data_list
 
 # benchmark results
 echo raw_data/benchmarking/results/ampep/ampep_iamp2l_bench.txt >> data_list
@@ -72,6 +74,8 @@ echo raw_data/benchmarking/results/ampep/arath_ampep.txt >> data_list
 echo raw_data/benchmarking/results/ampep/human_ampep.txt >> data_list
 echo raw_data/benchmarking/results/ampep/mature_eval_ampep.txt >> data_list
 echo raw_data/benchmarking/results/ampep/precursor_eval_ampep.txt >> data_list
+echo raw_data/benchmarking/results/ampep/mature_train_ampep.txt >> data_list
+echo raw_data/benchmarking/results/ampep/precursor_train_ampep.txt >> data_list
 
 
 echo raw_data/benchmarking/results/ampscanv2/arath/1585718632256_Prediction_Summary.csv >> data_list
@@ -79,14 +83,25 @@ echo raw_data/benchmarking/results/ampscanv2/arath/1585718071814_Prediction_Summ
 echo raw_data/benchmarking/results/ampscanv2/human/1585707195821_Prediction_Summary.csv >> data_list
 echo raw_data/benchmarking/results/ampscanv2/human/1585707368321_Prediction_Summary.csv >> data_list
 echo raw_data/benchmarking/results/ampscanv2/iamp2l/1585811335833_Prediction_Summary.csv >> data_list
-echo raw_data/benchmarking/results/ampscanv2/ampir/1588756293516_Prediction_Summary.csv >> data_list
+#Test
+echo raw_data/benchmarking/results/ampscanv2/ampir/1588756293516_Prediction_Summary.csv >> data_list 
 echo raw_data/benchmarking/results/ampscanv2/ampir_prec/1588756490979_Prediction_Summary.csv >> data_list
+#Train
+echo raw_data/benchmarking/results/ampscanv2/ampir/1592431117418_Prediction_Summary.csv >> data_list
+echo raw_data/benchmarking/results/ampscanv2/ampir_prec/1592432311616_Prediction_Summary.csv >> data_list
 
 
 echo raw_data/benchmarking/results/iamppred/iamp2l_bench.csv >> data_list
 echo raw_data/benchmarking/results/iamppred/ampir_precursor.csv >> data_list
 echo raw_data/benchmarking/results/dbamp/20200403_060324.anti_finish.txt >> data_list
 echo raw_data/benchmarking/results/iamppred/ampir_mature.csv >> data_list
+
+echo raw_data/case_studies/centipede.xlsx
+echo raw_data/case_studies/o_margaretae_uniprot.blastp
+echo raw_data/case_studies/o_margaretae_aa.fasta
+echo raw_data/case_studies/uniprot-organism_odorrana+keyword__Antimicrobial+\[KW-0929\]_.fasta
+echo raw_data/case_studies/o_margaretae_na.fasta
+
 
 # Cache files to speed things up
 echo cache/ref_predictions_ampir.rds >> data_list

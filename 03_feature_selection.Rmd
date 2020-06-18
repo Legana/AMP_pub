@@ -18,10 +18,10 @@ As an indication of features that are likely to be useful for classification we 
 For both sets of data it is clear that higher order lambda values from the Pseudo-amino acid composition seem to show little difference between target and background (this is not true of low order values though). For both precursor and mature peptide models we used all physicochemical predictors, all Xc1 predictors and the first two Xc2 predictors.
 
 ```{r, fig.height=20}
-features_tg_bg_1 <- read_rds("raw_data/ampir_train_test/features_precursor.rds")
+features_tg_bg_1 <- read_rds("raw_data/ampir_train_test/featuresTrain_precursor_imbal.rds")
 features_bg_tg_1_long <- features_tg_bg_1 %>% gather(key = "Feature","Value",-seq_name,-Label) %>% add_column(database="precursors")
 
-features_tg_bg_mature <- read_rds("raw_data/ampir_train_test/features_mature.rds")
+features_tg_bg_mature <- read_rds("raw_data/ampir_train_test/featuresTrain_mature.rds")
 features_bg_tg_mature_long <- features_tg_bg_mature %>% gather(key = "Feature","Value",-seq_name,-Label) %>% add_column(database="mature")
 
 features_long <- rbind(features_bg_tg_1_long,features_bg_tg_mature_long)

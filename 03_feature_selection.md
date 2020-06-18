@@ -45,7 +45,7 @@ not remove any features on the basis of correlation since this is
 unlikely to negatively affect model performance.
 
     ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-    ## -0.45928 -0.07624  0.11473  0.16738  0.35693  0.87868
+    ## -0.48038 -0.09127  0.11464  0.14507  0.33461  0.86378
 
 ## Recursive feature elimination (RFE)
 

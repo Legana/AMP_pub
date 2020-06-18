@@ -16,6 +16,8 @@ This repository contains code used for the
     [04\_tune\_model.Rmd](04_tune_model.Rmd)
   - [Benchmarking](05_benchmark.md) : Rmd file
     [05\_benchmark.Rmd](05_benchmark.Rmd)
+  - [Case studies](06_case_studies.md) : Rmd file
+    [06\_case\_studies.Rmd](06_case_studies.Rmd)
 
 The files required to run the code in these Rmd files can be obtained
 [here](https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY) or by

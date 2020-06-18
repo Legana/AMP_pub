@@ -17,6 +17,7 @@ This repository contains code used for the [ampir](https://github.com/Legana/amp
 - [Feature selection analysis](03_feature_selection.md) : Rmd file [03_feature_selection.Rmd](03_feature_selection.Rmd)
 - [Model tuning](04_tune_model.md) : Rmd file [04_tune_model.Rmd](04_tune_model.Rmd)
 - [Benchmarking](05_benchmark.md) : Rmd file [05_benchmark.Rmd](05_benchmark.Rmd)
+- [Case studies](06_case_studies.md) : Rmd file [06_case_studies.Rmd](06_case_studies.Rmd)
 
 The files required to run the code in these Rmd files can be obtained [here](https://cloudstor.aarnet.edu.au/plus/s/qha2IliJ8flTrWY) or by using the command:
 

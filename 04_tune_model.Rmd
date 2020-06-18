@@ -33,7 +33,7 @@ And for the precursor model:
 tuning_data <- readRDS("raw_data/ampir_models/tuned_precursor_imbal.rds")
 
 trellis.par.set(caretTheme())
-plot(tuning_data)
+plot(tuning_data, metric = "Kappa")
 ```
 
 Best tune:
