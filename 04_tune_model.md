@@ -1,8 +1,6 @@
 Model tuning
 ================
 
-    ## Warning: package 'lattice' was built under R version 3.6.2
-
 The default models included with `ampir` are both SVMs with radial
 kernel and have two tuning parameters, sigma and C (cost). Optimal
 values for these tuning parameters were obtained by using model tuning
