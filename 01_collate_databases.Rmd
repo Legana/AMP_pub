@@ -160,6 +160,8 @@ uniprot_peptides %>%
   geom_density(aes(colour=signal)) + 
   facet_wrap(~maturity, scales = "free", ncol = 1) + xlim(0,500) +
   labs(x = "Sequence length", y = "Density", colour = "Signal\npeptide")
+
+ggsave("figures/swissprot_signal.png", height = 6, width = 7)
 ```
 
 
