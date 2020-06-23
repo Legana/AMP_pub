@@ -11,12 +11,12 @@ process is continued until a pure fraction is obtained for chemical
 analysis. This “bioassay guided fractionation” approach is time
 consuming and requires a large amount of starting material. An
 alternative, and more recent approach is to start by sequencing the
-transcriptome (or genome) of an organism and use in-silico analyses to
+transcriptome (or genome) of an organism and use *in silico* analyses to
 identify a relatively small number of candidates. These candidate
 sequences are then used to synthesise peptides to allow testing of
 antibacterial activity. `ampir` is designed to fit into this latter type
-of pipeline as one of the in-silico steps. Recent successful examples
-demonstrating the overall principle of this technique include;
+of pipeline as one of the *in silico* steps. Recent successful examples
+demonstrating the overall principle of this technique include:
 
   - A study by [Kim et
     al 2016](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155304)
@@ -26,18 +26,18 @@ demonstrating the overall principle of this technique include;
     al 2014](https://pubmed.ncbi.nlm.nih.gov/24652097/) which identified
     10 novel AMPs in the centipede, *Scolopendra subspinipes mutilans*
 
-Both these studies used a long sequence of in-silico steps to go from
+Both these studies used a long sequence of *in silico* steps to go from
 around 70-80k transcripts in the whole transcriptome down to a short
-list of around 20 candidate sequences. Key steps include;
+list of around 20 candidate sequences. Key steps include:
 
 1.  Screening based on physicochemical properties
 2.  Removal of homologs to known AMPs
-3.  Differential expression (eg upregulated in response to bacterial
+3.  Differential expression (e.g. upregulated in response to bacterial
     challenge).
 
 ### Does `ampir` correctly predict verified AMPs in the centipede?
 
-`ampir` comes with two predictive models, one called `mature` is
+`ampir` comes with two predictive models, one called `mature`, which is
 designed to work with mature peptides whereas another called `precursor`
 is designed to work with full length precursor sequences as input.
 
@@ -51,7 +51,7 @@ of the synthesised product) but we do expect that the majority should be
 classified as AMPs by `ampir`.
 
 The mature peptides from Yoo et al are provided in the file
-`centipede.xlsx` which we can read in as follows;
+`centipede.xlsx` which we can read in as follows:
 
 ``` r
 library(tidyverse)
@@ -73,7 +73,7 @@ information
 
 To run `ampir` we need the `Seq` column as well as a column with unique
 names for each sequence (we will use `PepID`). The data can be prepared
-for input to `ampir` as follows;
+for input to `ampir` as follows:
 
 ``` r
 library(ampir)
@@ -106,7 +106,7 @@ probability that the sequence is an AMP.
 
 To look at the overall performance of `ampir` we plot the density of
 `prob_AMP` values along the range from 0 to 1. This shows that although
-`ampir` correctly predicts almost all peptides are AMPs it is unable to
+`ampir` correctly predicts almost all peptides are AMPs, it is unable to
 tell whether these would pass verification or not.
 
 ``` r
@@ -125,7 +125,7 @@ frogs in the genus *Odorrana*. *Odorrana* is a diverse genus of frogs
 native to East Asia. Their skin secretions have proven to be a rich
 source of novel antimicrobial peptides, many of which have been
 synthesised and assayed to demonstrate activity against bacteria. There
-are currently 53 reviewed and 95 unreviewed entries in Uniprot for
+are currently 53 reviewed and 95 unreviewed entries in UniProt for
 *Odorrana* and the keyword “Antimicrobial”.
 
 Discovery of AMPs in *Odorana* exemplifies the potential use case for
@@ -137,13 +137,23 @@ Unfortunately none of these sequences have confirmed antibacterial
 activity (due to lack of testing) but since *Odorrana* is a diverse
 genus we were able to identify 10 *O. margaretae* sequences that are
 close homologs of AMPs from other *Odorrana* species. Given that there
-are at least 100 AMPs in the Human proteome and over 200 in Arabidopsis
-this is almost certainly a vast underestimate of the true number of AMPs
-in *O. margaretae*. For our purposes it is sufficient to demonstrate the
-utility of `ampir` as an early step in an AMP discovery pipeline.
+are at least 100 AMPs in the Human proteome and over 200 in *Arabidopsis
+thaliana* this is almost certainly a vast underestimate of the true
+number of AMPs in *O. margaretae*. For our purposes it is sufficient to
+demonstrate the utility of `ampir` as an early step in an AMP discovery
+pipeline.
+
+**Required Data**: The code examples shown below assume that you have
+downloaded and unpacked the `AMP_pub` data package.  
+The following two command-line steps are not shown for brevity:
+
+1.  Predicting protein sequences from the *O. margaretae* transcriptome
+    [01\_transdecoder.sh](raw_data/case_studies/01_transdecoder.sh)
+2.  Detecting *Odorrana* AMP homologs in *O. margaretae*
+    [02\_blastmatch.sh](raw_data/case_studies/02_blastmatch.sh)
 
 Firstly we identify the set of known AMPs in *O. margaretae* by
-importing blast results showing matches between *O. margaretae* and
+importing BLAST results showing matches between *O. margaretae* and
 known *Odorrana*
 AMPs.
 
@@ -195,11 +205,11 @@ omarg_aa_ampir <- predict_amps(omarg_aa,n_cores=6, model = "precursor")
 
 Finally we plot the distribution of `prob_AMP` scores for the whole
 transcriptome and for AMP homologs. This plot suggests that by using
-`ampir` as an initial pipeline step with a cut-off (`prob_AMP`\>0.5) the
-search space for AMPs can be reduced from around 77000 to just 5000.
-With so few verified AMPs for this organism it is difficult to determine
-whether a higher cut-off (eg prob\_AMP\>0.9) could be used to provide
-greater specificity.
+`ampir` as an initial pipeline step with a cut-off (`prob_AMP` \>0.5)
+the search space for AMPs can be reduced from around 77,000 to just
+5,000. With so few verified AMPs for this organism it is difficult to
+determine whether a higher cut-off (e.g. `prob_AMP` \>0.9) could be used
+to provide greater specificity.
 
 ``` r
 omarg_aa_ampir_plot <- omarg_aa_ampir %>% 
