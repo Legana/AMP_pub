@@ -379,12 +379,14 @@ sr_plot <- ggplot(genome_rocs) +
   labs(x= "Precision", y = "Sensitivity") + theme(legend.position = "none")
 
 plot_grid(sr_plot,fpr_plot, ncol = 1, rel_heights = c(1,1.5))
+
+ggsave("figures/genome_rocs.png")
 ```
 
 
 **Figure 5.2:** Performance of various AMP predictors in classifying whole proteome data for Human and *Arabidopsis*. Performance is shown as a balance of sensitivity and precision (top row) and as a ROC curve (second row). 
 
-In Figure 5.2 (first row) we show how various predictors perform on genome-scanning data as a tradeoff between sensitivity (proportion of AMPs detected among all AMPs present in the dataset) and precision (proportion of true positives compared with all positive results).  This shows that in order to obtain a high precision it is necessary to discard many true AMPs (low sensitivity).  Note that the `ampir_precursor` model clearly outperforms all other models in this context.
+In Figure 5.2 (first row) we show how various predictors perform on genome-scanning data as a tradeoff between sensitivity (proportion of AMPs detected among all AMPs present in the dataset) and precision (proportion of true positives compared with all positive results). This shows that in order to obtain a high precision it is necessary to discard many true AMPs (low sensitivity). Note that the `ampir_precursor` model clearly outperforms all other models in this context.
 
 In Figure 5.2 (second row) we show ROC curves for all predictors on the Human and *Arabidopsis* data but it is important to remember that in this context the low false positive regime is especially important. This is because of the extremely low frequency of true positives in the data (less than 1%). This is explored further in Figure 5.3 but for now it is important to note that `ampscanner v2` is not shown in Figure 5.3 because its ROC curve does not extend into this important regime despite the fact that it otherwise appears to perform very well. `AmPEP` and `ampir_mature` both perform very poorly reflecting the emphasis of their training data on mature peptides rather than precursor proteins.
 
@@ -410,7 +412,7 @@ pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)",
   theme(strip.background = element_blank(), strip.placement = "outside", strip.text = element_text(size = 10)) +
   theme(axis.text = element_text(size=8))
 
-pp <- ggplot(models_roc_mature %>% filter(benchmark=="mature_train")) + 
+pp <- ggplot(models_roc_mature %>% filter(benchmark=="mature_eval")) + 
   geom_line(aes(x = FPR, y = Recall, colour = model),size=1.1) + 
   labs(x= "False positive rate", y = "True positive rate") +
   scale_color_manual(values = model_colors, labels = model_names, name="") +
