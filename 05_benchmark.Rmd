@@ -371,7 +371,7 @@ fpr_plot <- ggplot(genome_rocs) +
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
   xlim(0,1) +
   facet_wrap(~organism) +
-  labs(x= "False positive rate", y = "Recall") + theme(legend.position = "bottom", legend.title = element_blank())
+  labs(x= "False positive rate", y = "True positive rate") + theme(legend.position = "bottom", legend.title = element_blank())
 
 sr_plot <- ggplot(genome_rocs) + 
   geom_line(aes(x = Precision, y = Recall, colour = model)) + 
@@ -410,7 +410,7 @@ pg <- genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)",
   theme(strip.background = element_blank(), strip.placement = "outside", strip.text = element_text(size = 10)) +
   theme(axis.text = element_text(size=8))
 
-pp <- ggplot(models_roc_mature %>% filter(benchmark=="ampir")) + 
+pp <- ggplot(models_roc_mature %>% filter(benchmark=="mature_train")) + 
   geom_line(aes(x = FPR, y = Recall, colour = model),size=1.1) + 
   labs(x= "False positive rate", y = "True positive rate") +
   scale_color_manual(values = model_colors, labels = model_names, name="") +
@@ -433,12 +433,13 @@ prow3 <- annotate_figure(prow2, fig.lab = "C", fig.lab.pos = "top.right")
 
 prow4 <- plot_grid(prow3,legend_b, ncol = 1,rel_heights = c(1,0.1))
 
+prow4
 
 ggsave(plot = prow4, filename = "figures/benchmarks.png", width = 178,units = "mm", height = 80,dpi = 600)
 ggsave("figures/benchmarks.eps", width = 178,units = "mm", height = 80,dpi = 600)
 ```
 
-**Figure 5.3:** Performance of `ampir` compared with three existing AMP prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al., 2018), AMP Scanner (Veltri et al., 2018). Results for iAMPpred are not shown for parts A and B because it was impractical to run on large numbers of sequences. Parts A and B are scaled so that the limits of the y-axis show the full complement of known AMPs in each genome (291 for *Arabidopsis*, 101 for Human), and the limits of the x-axis are restricted to emphasise behaviour in the low false positive (FP) regime (FP < 500) because this is most relevant in whole genome scans. Part C is a receiver operating characteristic (ROC) curve based on the `ampir` reserved testing data. 
+**Figure 5.3:** Performance of `ampir` compared with three existing AMP prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al., 2018), AMP Scanner (Veltri et al., 2018). Results for iAMPpred are not shown for parts A and B because it was impractical to run on large numbers of sequences. Parts A and B are scaled so that the limits of the y-axis show the full complement of known AMPs in each genome (291 for *Arabidopsis*, 101 for Human), and the limits of the x-axis are restricted to emphasise behaviour in the low false positive (FP) regime (FP < 500) because this is most relevant in whole genome scans. Part C is a receiver operating characteristic (ROC) curve based on the `ampir_mature` reserved testing data. 
 
 
 ## Performance Statistics
@@ -501,12 +502,14 @@ knitr::kable(get_bench_stats("precursor_train") %>% select(-dataset), digits = 2
 
 ## Running time
 
-Benchmarking the computational speed of AMP predictors is difficult to do in a completely objective fashion.  This is because many predictors are available only through web servers, in which case the performance depends on unknown factors such as server load and configuration. Here we present some approximate benchmarks for the speed of ampir, ampscanner v2 and ampep based on a complete Human proteome dataset (74811 proteins). Performance of iamppred could not be evaluated with this dataset as we found that it was unable to handle large numbers of input sequences.
+Benchmarking the computational speed of AMP predictors is difficult to do in a completely objective fashion. This is because many predictors are available only through web servers, in which case the performance depends on unknown factors such as server load and configuration. Here we present some approximate benchmarks for the speed of `ampir`, `ampscanner v2` and `ampep` based on a complete Human proteome dataset (74,811 proteins). Performance of `iamppred` could not be evaluated with this dataset as we found that it was unable to handle large numbers of input sequences.
 
-*ampscanner v2*: Maximum file upload size is 50Mb so it was necessary to divide the job into two parts. A stopwatch was used to measure runtime.  Timing was started after the upload step had finished so as not to include internet connectivity speed in the test.  The reported run time is the sum of runtimes for both parts of the dataset.
+*ampscanner v2*: Maximum file upload size is 50Mb so it was necessary to divide the job into two parts. A stopwatch was used to measure runtime. Timing was started after the upload step had finished so as not to include internet connectivity speed in the test. The reported run time is the sum of runtimes for both parts of the dataset.
 
-*ampep*: ampep was run using MATLAB R2019a on an Intel Xeon processor with 40 CPUs but runtime reflects single core performance since ampep did not appear to have a multi-core capability. 
-*ampir*: ampir was run using the same Intel Xeon processor as was used for the ampep benchmark. Since ampir is capable of multicore operation we measured its runtime as a function of core-count (see figure 5.4).  In Table 5.7 the runtime of ampir with a single core is shown.  ampir provides comparable performance to ampscan v2 when run with 4 cores.
+*ampep*: `ampep` was run using MATLAB R2019a on an Intel Xeon processor with 40 CPUs but runtime reflects single core performance since ampep did not appear to have a multi-core capability. 
+
+
+*ampir*: `ampir` was run using the same Intel Xeon processor as was used for the `ampep` benchmark. Since `ampir` is capable of multicore operation we measured its runtime as a function of core-count (see Figure 5.4). In Table 5.7 the runtime of `ampir` with a single core is shown. `ampir` provides comparable performance to `ampscanner v2` when run with 4 cores.
 
 **Table 5.7:** Run time performance on the Human Proteome
 
@@ -520,10 +523,15 @@ ampir | 8 | 110
 
 ```{r}
 ampir_human_bench_runtimes <- data.frame(cores=c(1,2,4,8,16,32), time=c(469,323,218,110,69,47))
-ggplot(ampir_human_bench_runtimes,aes(x=cores,y=time)) + geom_line() + geom_point() + xlab("Number of cores") + ylab("Elapsed time (s)")
+
+ampir_human_runtime_plot <- ggplot(ampir_human_bench_runtimes,aes(x=cores,y=time)) + geom_line() + geom_point() + xlab("Number of cores") + ylab("Elapsed time (s)")
+
+ampir_human_runtime_plot
+
+ggsave("figures/ampir_runtime.png")
 ```
 
-**Figure 5.4** Performance of ampir as a function of core count when running `predict_amps()` on a dataset of 77000 proteins. 
+**Figure 5.4** Performance of ampir as a function of core count when running `predict_amps()` on a dataset of 77,000 proteins. 
 
 
 

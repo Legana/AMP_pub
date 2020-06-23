@@ -155,6 +155,8 @@ importance of this task this level of enrichment is of great practical
 use, reducing the number of false experimental leads per true positive
 from many thousands down to tens or hundreds.
 
+![](05_benchmark_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
 **Figure 5.3:** Performance of `ampir` compared with three existing AMP
 prediction models iAMPpred (Meher et al., 2017), AmPEP (Bhadra et al.,
 2018), AMP Scanner (Veltri et al., 2018). Results for iAMPpred are not
@@ -164,8 +166,8 @@ y-axis show the full complement of known AMPs in each genome (291 for
 *Arabidopsis*, 101 for Human), and the limits of the x-axis are
 restricted to emphasise behaviour in the low false positive (FP) regime
 (FP \< 500) because this is most relevant in whole genome scans. Part C
-is a receiver operating characteristic (ROC) curve based on the `ampir`
-reserved testing data.
+is a receiver operating characteristic (ROC) curve based on the
+`ampir_mature` reserved testing data.
 
 ## Performance Statistics
 
@@ -265,9 +267,9 @@ Benchmarking the computational speed of AMP predictors is difficult to
 do in a completely objective fashion. This is because many predictors
 are available only through web servers, in which case the performance
 depends on unknown factors such as server load and configuration. Here
-we present some approximate benchmarks for the speed of ampir,
-ampscanner v2 and ampep based on a complete Human proteome dataset
-(74811 proteins). Performance of iamppred could not be evaluated with
+we present some approximate benchmarks for the speed of `ampir`,
+`ampscanner v2` and `ampep` based on a complete Human proteome dataset
+(74,811 proteins). Performance of `iamppred` could not be evaluated with
 this dataset as we found that it was unable to handle large numbers of
 input sequences.
 
@@ -277,14 +279,16 @@ Timing was started after the upload step had finished so as not to
 include internet connectivity speed in the test. The reported run time
 is the sum of runtimes for both parts of the dataset.
 
-*ampep*: ampep was run using MATLAB R2019a on an Intel Xeon processor
+*ampep*: `ampep` was run using MATLAB R2019a on an Intel Xeon processor
 with 40 CPUs but runtime reflects single core performance since ampep
-did not appear to have a multi-core capability. *ampir*: ampir was run
-using the same Intel Xeon processor as was used for the ampep benchmark.
-Since ampir is capable of multicore operation we measured its runtime as
-a function of core-count (see figure 5.4). In Table 5.7 the runtime of
-ampir with a single core is shown. ampir provides comparable performance
-to ampscan v2 when run with 4 cores.
+did not appear to have a multi-core capability.
+
+*ampir*: `ampir` was run using the same Intel Xeon processor as was used
+for the `ampep` benchmark. Since `ampir` is capable of multicore
+operation we measured its runtime as a function of core-count (see
+Figure 5.4). In Table 5.7 the runtime of `ampir` with a single core is
+shown. `ampir` provides comparable performance to `ampscanner v2` when
+run with 4 cores.
 
 **Table 5.7:** Run time performance on the Human Proteome
 
@@ -299,4 +303,4 @@ to ampscan v2 when run with 4 cores.
 ![](05_benchmark_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 **Figure 5.4** Performance of ampir as a function of core count when
-running `predict_amps()` on a dataset of 77000 proteins.
+running `predict_amps()` on a dataset of 77,000 proteins.
