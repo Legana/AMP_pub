@@ -79,8 +79,8 @@ Discovery of AMPs in *Odorana* exemplifies the potential use case for ampir. To 
 The code examples shown below assume that you have downloaded and unpacked the `AMP_pub` data package.  
 The following two command-line steps are not shown for brevity:
 
-1. Predicting protein sequences from the *O. margaretae* transcriptome [01_transdecoder.sh](raw_data/case_studies/01_transdecoder.sh)
-2. Detecting *Odorrana* AMP homologs in *O. margaretae* [02_blastmatch.sh](raw_data/case_studies/02_blastmatch.sh)
+1. Predicting protein sequences from the *O. margaretae* transcriptome [01_transdecoder.sh](scripts/01_transdecoder.sh)
+2. Detecting *Odorrana* AMP homologs in *O. margaretae* [02_blastmatch.sh](scripts/02_blastmatch.sh)
 
 
 Firstly we identify the set of known AMPs in *O. margaretae* by importing BLAST results showing matches between *O. margaretae* and known *Odorrana* AMPs.
