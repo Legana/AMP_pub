@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # AMP prediction
 
-This repository contains code used for the [ampir](https://github.com/Legana/ampir) R package paper 
+This repository contains code used for the [ampir](https://github.com/Legana/ampir) R package paper published in the *Bioinformatics* journal as [btaa653](https://academic.oup.com/bioinformatics/article-abstract/doi/10.1093/bioinformatics/btaa653/5873588)
 
 - [Collate data](01_collate_databases.md) : Rmd file [01_collate_databases.Rmd](01_collate_databases.Rmd)
 - [Build training sets](02_build_training_data.md) : Rmd file [02_build_training_data.Rmd](02_build_training_data.Rmd)

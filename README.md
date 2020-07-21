@@ -4,7 +4,9 @@
 # AMP prediction
 
 This repository contains code used for the
-[ampir](https://github.com/Legana/ampir) R package paper
+[ampir](https://github.com/Legana/ampir) R package paper published in
+the *Bioinformatics* journal as
+[btaa653](https://academic.oup.com/bioinformatics/article-abstract/doi/10.1093/bioinformatics/btaa653/5873588)
 
   - [Collate data](01_collate_databases.md) : Rmd file
     [01\_collate\_databases.Rmd](01_collate_databases.Rmd)
