@@ -69,3 +69,9 @@ appear to be important to model performance according to
     ## [17] "Xc1.N"          "Xc1.P"          "Xc1.Q"          "Xc1.R"         
     ## [21] "Xc1.S"          "Xc1.T"          "Xc1.V"          "Xc1.W"         
     ## [25] "Xc1.Y"
+
+## AMP Precursor vs mature sequences
+
+Comparing physicochemical properties
+
+![](03_feature_selection_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->

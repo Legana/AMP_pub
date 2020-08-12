@@ -111,4 +111,24 @@ svmProfile <- readRDS("raw_data/ampir_train_test/rfe_precursor.rds")
 predictors(svmProfile)
 ```
 
+## AMP Precursor vs mature sequences
+
+Comparing physicochemical properties
+
+
+```{r, echo = FALSE}
+ggplot(features_long %>% filter(Label=="Tg",Feature == c("Amphiphilicity", "Mw", "Charge", "Hydrophobicity", "pI")),aes(x=Value)) + 
+  geom_density(aes(colour=database)) +
+  scale_colour_manual(values = c("blueviolet", "forestgreen"),
+                      labels = c("Mature", "Precursor")) +
+  facet_wrap(~Feature, scales = "free", ncol = 1) +
+  labs(x= "Feature", y = "Density", colour = "") +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.background = element_blank(),
+        legend.key = element_rect(fill = "white"),
+        axis.line = element_line(colour = "grey"))
+
+ggsave("figures/precursor_vs_mature.png")
+```
 
