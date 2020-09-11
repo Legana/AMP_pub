@@ -188,15 +188,14 @@ for all proteins in UniProt. The following filters are then applied:
 This leaves an initial database with 2061 entries, of which 61 are
 unreviewed.
 
-As a final step we write the database to a FASTA file and then use
-`cd-hit` to cluster sequences to 90% identity, keeping only a single
-representative sequence for each cluster. This reduces the database size
-but roughly maintains the same length
-distribution.
-
 ``` bash
 cd-hit -i raw_data/amp_databases/ampir_positive.fasta -o raw_data/amp_databases/ampir_positive90.fasta -c 0.90 -g 1
 ```
+
+As a final step we write the database to a FASTA file and then use
+`cd-hit` to cluster sequences to 90% identity, keeping only a single
+representative sequence for each cluster. This reduces the database size
+(to 1483 sequences) but roughly maintains the same length distribution.
 
 Certain organisms are particularly well annotated for AMPs. We find that
 our final database contains a large number of *Arabidopsis*, human,
