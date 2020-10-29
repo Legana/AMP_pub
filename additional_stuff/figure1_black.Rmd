@@ -13,7 +13,7 @@ genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)","Homo 
   ggplot() + 
   geom_line(aes(x = FP, y = TP, colour = model),size=1.1) + 
   xlim(0,500) +
-  scale_fill_manual(values=c("#E69f00", "#56B4E9", "#D55E00",  "#CC79A7")) +
+#  scale_fill_manual(values=c("#E69F00", "#56B4E9", "#D55E00",  "#CC79A7")) +
   labs(x = "False Positives", y = "True Positives", colour = "") +
   facet_wrap(~organism, scales = "free_y", nrow = 1) + 
   theme(legend.position = "bottom",
@@ -30,7 +30,8 @@ genome_rocs %>% mutate(organism = ifelse(organism=="Homo sapiens (Human)","Homo 
         panel.background = element_rect(fill = "black"),
         axis.line = element_line(colour = "grey"),
         axis.text = element_text(colour="grey", size = 10),
-        axis.title = element_text(colour="white", size = 14)) 
+        axis.title = element_text(colour="white", size = 14)) +
+   scale_color_manual(values=c("#CC79A7", "#56B4E9", "#D55E00", "#F0E442")) 
 
 ggsave("figure_1_black.png", width = 7, height = 5,dpi = 600)
 

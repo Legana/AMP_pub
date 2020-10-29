@@ -268,10 +268,33 @@ models_roc_mature %>%
   ggplot() + 
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
   xlim(0,1) + facet_wrap(~mpbench) +
-  labs(x = "False positive rate", y = "True positive rate")
+  labs(x = "False positive rate", y = "True positive rate", colour = "")
 ```
 
 **Figure 5.1:** Performance of a range of AMP predictors against two mature peptide testing datasets.
+
+```{r}
+models_roc <- rbind(ampir_rocs_long,ampep_rocs_long,ampscanv2_rocs_long,
+                    iampred_rocs_long)
+
+models_roc %>% 
+  filter(benchmark %in% c("precursor_eval","mature_eval")) %>% 
+  mutate(mpbench = ifelse(benchmark=="precursor_eval","Precursor test set","Mature test set")) %>% 
+  ggplot() + 
+  geom_line(aes(x = FPR, y = Recall, colour = model)) + 
+  xlim(0,1) + facet_wrap(~mpbench) +
+  labs(x = "False positive rate", y = "True positive rate", colour = "") +
+  theme_black() +
+  scale_color_manual(values=c("#CC79A7", "#56B4E9", "#D55E00", "#F0E442", "#999999"))
+
+ggsave("additional_stuff/ampir_testset.png", width = 7.3, height = 5, dpi = 600)
+
+```
+
+**Figure 5.1.2:** Performance of a range of AMP predictors against ampir's test sets
+
+
+
 
 ### Real Genome Benchmark
 
