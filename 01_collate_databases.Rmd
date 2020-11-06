@@ -102,6 +102,16 @@ AMPs were downloaded from UniProt on 14-April-2020 using the search term: "keywo
 combined <- rbind(apd,dramp,dbamp,swissprot)
 ```
 
+```{r, eval = FALSE}
+ggplot(swissprot, aes(x = length)) + 
+  geom_histogram(binwidth = 3) +
+  xlim(0,200) +
+  labs(x = "Sequence length", y = "Frequency") +
+  theme_pubclean() 
+
+#ggsave("additional_stuff/sp_amps_len.png", height = 3, width = 4)
+```
+
 ## Summary of AMP databases
 
 One of the most striking differences between AMP databases becomes clear simply by looking at the length distributions. The `APD` and `DRAMP` databases emphasise short peptides (mostly < 50 amino acids) which reflects their focus on mature peptides rather than full length precursor proteins.
