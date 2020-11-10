@@ -103,13 +103,42 @@ combined <- rbind(apd,dramp,dbamp,swissprot)
 ```
 
 ```{r, eval = FALSE}
+library(ggforce)
+
+df <- data.frame(gr = rep(1:5, 1),
+                 val = runif(5, 10,20))
+
+ggplot(df, aes(gr, val)) +
+  geom_bar(stat = "identity") +
+  geom_ellipse(aes(x0=2, y0= 10,
+                   a = .5, b= 10,
+                   angle = 0, m1=5,
+                   m2=5)) #+
+  # geom_ellipse(aes(x0=4, y0=10,
+  #                  a= .5, b = 9,
+  #                  angle=0,
+  #                  m1=2, m2=5))
+
+
 ggplot(swissprot, aes(x = length)) + 
-  geom_histogram(binwidth = 3) +
+  geom_histogram(binwidth = 3, color="black", fill="azure4") +
   xlim(0,200) +
   labs(x = "Sequence length", y = "Frequency") +
-  theme_pubclean() 
+  theme_pubclean() +
+  geom_ellipse(aes(x0 = 30, y0 = 100,
+                   a = 23, b = 100, #a = width of ellipse #b = length 
+                   angle = 0, 
+                   m1 = 5, m2 = 5), # modify shape outline
+               size = .3, linetype = "dashed", color = "purple") + 
+  geom_ellipse(aes(x0 = 80, y0 = 100,
+                   a = 25, b = 100,
+                   angle = 0,
+                   m1 = 5),
+               size = .3, linetype = "dotted", color = "blue")
+  
+  
 
-#ggsave("additional_stuff/sp_amps_len.png", height = 3, width = 4)
+ggsave("additional_stuff/sp_amps_len.png", height = 3, width = 4)
 ```
 
 ## Summary of AMP databases
@@ -117,7 +146,7 @@ ggplot(swissprot, aes(x = length)) +
 One of the most striking differences between AMP databases becomes clear simply by looking at the length distributions. The `APD` and `DRAMP` databases emphasise short peptides (mostly < 50 amino acids) which reflects their focus on mature peptides rather than full length precursor proteins.
 
 ```{r}
-ggplot(combined,aes(x=length)) + geom_histogram(binwidth = 3) +
+ggplot(combined,aes(x=length)) + geom_histogram(binwidth = 3, color="black", fill="azure4") +
   facet_wrap(~database, scales = "free_y", ncol = 1) +
   labs(x = "Sequence length", y = "Frequency") + xlim(0,300) +
   theme_pubclean()
@@ -169,7 +198,9 @@ uniprot_peptides %>%
   ggplot(aes(x=Length)) + 
   geom_density(aes(colour=signal)) + 
   facet_wrap(~maturity, scales = "free", ncol = 1) + xlim(0,500) +
-  labs(x = "Sequence length", y = "Density", colour = "Signal\npeptide")
+  labs(x = "Sequence length", y = "Density", colour = "Signal peptide") +
+  xlim(0,300) +
+  theme_pubclean()
 
 ggsave("figures/swissprot_signal.png", height = 6, width = 7)
 ```
