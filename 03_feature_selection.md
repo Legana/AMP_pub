@@ -20,7 +20,7 @@ predictors, all Xc1 predictors and the first two Xc2 predictors.
 
 **Figure 3.1:** Feature distributions for precursor training data
 
-![](03_feature_selection_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](03_feature_selection_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 **Figure 3.2:** Feature distributions for mature peptide training data
 
@@ -31,7 +31,7 @@ some (but imperfect) power to separate the two classes. This gives an
 indication of how well models will perform in general but does not
 capture the capabilities of supervised learning methods like SVM.
 
-![](03_feature_selection_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](03_feature_selection_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 **Figure 3.3:** PCA with marginal density plots showing the ability of
 this unsupervised clustering method to separate classes. The plot shows
@@ -40,7 +40,7 @@ data from the precursor training set
 ## Correlated Predictors
 
 Although a small number show these predictors are correlated there are
-none with near-perfect correlation (max cor \< 0.9). We therefore did
+none with near-perfect correlation (max cor &lt; 0.9). We therefore did
 not remove any features on the basis of correlation since this is
 unlikely to negatively affect model performance.
 
@@ -59,8 +59,7 @@ obtained with 20-30 predictors.
 The set of features identified as optimal by RFE includes all bulk
 physicochemical properties as well as most simple amino acid composition
 measures. Higher order pseudoamino-acid composition measures do not
-appear to be important to model performance according to
-    RFE.
+appear to be important to model performance according to RFE.
 
     ##  [1] "Amphiphilicity" "Charge"         "Hydrophobicity" "Mw"            
     ##  [5] "pI"             "Xc1.A"          "Xc1.C"          "Xc1.D"         
@@ -74,4 +73,4 @@ appear to be important to model performance according to
 
 Comparing physicochemical properties
 
-![](03_feature_selection_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](03_feature_selection_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->

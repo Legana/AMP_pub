@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, eval = TRUE, warning = FALS
 ```{r, echo=FALSE}
 library(caret)
 library(tidyverse)
+library(ggpubr)
 set.seed(10)
 ```
 
@@ -26,22 +27,58 @@ features_bg_tg_mature_long <- features_tg_bg_mature %>% gather(key = "Feature","
 
 features_long <- rbind(features_bg_tg_1_long,features_bg_tg_mature_long)
 
-ggplot(features_long %>% filter(database=="precursors"),aes(x=Value)) + 
+ggplot(features_long %>% filter(database=="precursors") %>%
+         mutate(Feature_fac=factor(Feature, levels=unique(Feature))) ,aes(x=Value)) + 
   geom_density(aes(color=Label)) + 
-  facet_wrap(~Feature, scales = "free", ncol = 3) +
-  labs(x= "Feature", y = "Density") +
-  scale_color_discrete(name = "", labels = c("Background", "Target"))
+  facet_wrap(~Feature_fac, scales = "free", ncol = 3) +
+  labs(x= "Feature", y = "Density", colour = "") +
+  scale_colour_manual(values = c("blueviolet", "forestgreen"),
+                      labels = c("Negative", "Positive")) +
+  theme_pubclean()
 ```
 
 **Figure 3.1:** Feature distributions for precursor training data
 
+```{r, echo = FALSE, eval = FALSE}
+
+# splitting up feature plots to export as original ones are too big
+
+#without lambda
+features_without_lambda <- ggplot(features_long %>% filter(database=="precursors", !grepl("Xc2", Feature)),aes(x=Value)) + 
+  geom_density(aes(color=Label)) + 
+  facet_wrap(~Feature, scales = "free", ncol = 4) +
+  labs(x= "Feature", y = "Density", colour = "") +
+  scale_colour_manual(values = c("blueviolet", "forestgreen"),
+                      labels = c("Negative", "Positive")) +
+  theme_pubclean()
+
+ggsave("additional_stuff/features_no_lambda.png", features_without_lambda, width = 200, height = 250, units = "mm")
+
+# lambda only 
+features_lamda_only <- features_long %>%
+  filter(database=="precursors", grepl("Xc2", Feature)) %>%
+  mutate(Feature_fac=factor(Feature, levels=unique(Feature))) %>%
+  ggplot(aes(x=Value)) + 
+  geom_density(aes(color=Label)) + 
+  facet_wrap(~Feature_fac, scales = "free", ncol = 3) +
+  labs(x= "Feature", y = "Density", colour = "") +
+  scale_colour_manual(values = c("blueviolet", "forestgreen"),
+                      labels = c("Negative", "Positive")) +
+  theme_pubclean()
+
+ggsave("additional_stuff/features_lambda.png", features_lamda_only, width = 200, height = 250, units = "mm")
+```
+
 
 ```{r, fig.height=20}
-ggplot(features_long %>% filter(database=="mature"),aes(x=Value)) + 
+ggplot(features_long %>% filter(database=="mature") %>%
+       mutate(Feature_fac=factor(Feature, levels=unique(Feature))) ,aes(x=Value)) + 
   geom_density(aes(color=Label)) + 
-  facet_wrap(~Feature, scales = "free", ncol = 3) +
+  facet_wrap(~Feature_fac, scales = "free", ncol = 3) +
   labs(x= "Feature", y = "Density") +
-  scale_color_discrete(name = "", labels = c("Background", "Target"))
+  scale_color_discrete(name = "", labels = c("Background", "Target")) +
+  scale_colour_manual(values = c("blueviolet", "forestgreen"))
+  
 ```
 
 **Figure 3.2:** Feature distributions for mature peptide training data
