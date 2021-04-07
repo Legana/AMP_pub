@@ -1,4 +1,4 @@
-for i in $(seq -s ' ' 1 220);do
+for i in $(seq -s ' ' 1 221);do
 
 curl "http://dramp.cpu-bioinfor.org/browse/NaturalData.php?&end=5&begin=1&pageNow=${i}" -o p${i}.html
 amp_ids=$(cat p${i}.html | grep -oE '(DRAMP[0-9]+)' | sort -u | tr '\n' ' ' | sed 's/ /%20/g')
