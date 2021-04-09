@@ -15,11 +15,11 @@ library(ggpubr)
 
 ## Public AMP databases
 
-The following databases were accessed as of March 2020. All `ampir` models were trained using data from one or more of these databases (see details below). 
+The following databases were accessed in April 2021. All `ampir` models were trained using data from one or more of these databases (see details below). 
 
 Four recently updated antimicrobial peptide (AMP) databases were used:
 
-* [APD 3](http://aps.unmc.edu/AP/) by [Wang et al. 2016](https://academic.oup.com/nar/article/44/D1/D1087/2503090) 
+* [APD 3](https://wangapd3.com/main.php) by [Wang et al. 2016](https://academic.oup.com/nar/article/44/D1/D1087/2503090) 
 * [DRAMP 2.0](http://dramp.cpu-bioinfor.org/) by [Kang et al. 2019](https://www.ncbi.nlm.nih.gov/pubmed/31409791).
 * [dbAMP](http://140.138.77.240/~dbamp/index.php) by [Jhong et al. 2018](https://www.ncbi.nlm.nih.gov/pubmed/30380085)
 * [UniProt](https://www.uniprot.org/uniprot/?query=keyword%3A%22Antimicrobial+%5BKW-0929%5D%22&sort=score) using the keyword "Antimicrobial [KW-0929]".
@@ -28,29 +28,30 @@ Raw downloads for these databases are included in the data distribution. After u
 
 | Database Name | File |
 | ------------------------ | --------------- |
-| APD 3 | `raw_data/amp_databases/APD_032020.xlsx` |
+| APD 3 | `raw_data/amp_databases/APD_sequence_release_09142020.fasta` |
 | DRAMP Natural | `raw_data/amp_databases/dramp_nat_tidy.fasta` |
 | dbAMP | `raw_data/amp_databases/dbAMPv1.4.xlsx` |
 | UniProt | `raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx` |
 
 
-
 ### APD
 
 ```{r}
-apd <- readxl::read_excel("raw_data/amp_databases/APD_032020.xlsx", col_names = c("ID","description","seq")) %>% 
+apd <- readxl::read_excel("raw_data/amp_databases/APD_07042021.xlsx", col_names = c("ID","description","seq")) %>%
   mutate(uniprot = str_match(description,"(^[A-Z][0-9][A-Z,0-9]*),")[,2]) %>% 
   mutate(length = nchar(seq)) %>% 
   add_column(database = "APD")
 ```
 
 
-The [Antimicrobial Peptide Database](http://aps.unmc.edu/AP/main.php) appears to be regularly updated and contained `r nrow(apd)` AMPs in March 2020. An outdated (2017) AMP sequence list is downloadable from http://aps.unmc.edu/AP/downloads.php which currently contains 2,338 sequences. To include the updated AMP list, the [web query interface](http://aps.unmc.edu/AP/database/query_input.php) was used to obtain the full 3,177 AMPs along with sufficient metadata to filter unwanted entries. 
+The [Antimicrobial Peptide Database](https://wangapd3.com/main.php) appears to be regularly updated. An AMP sequence FASTA file from September 2020 is downloadable from the [APD download page](https://wangapd3.com/downloads.php) which currently contains 3,167 sequences. To include a more updated AMP (October 2020) list, the [web query interface](https://wangapd3.com/database/query_input.php) was used to obtain the full 3,257 AMPs along with sufficient metadata to filter unwanted entries. 
+
+
 
 ### DRAMP
 
 ```{r}
-dramp <- read_faa("raw_data/amp_databases/dramp_nat_tidy.fasta") %>% 
+dramp <- read_faa("raw_data/amp_databases/dramp_nat_tidy042021.fasta") %>% 
   separate(seq_name,into = c("ID","description"),sep = "\\|") %>% 
   add_column(uniprot = NA) %>% 
   mutate(length = nchar(seq_aa)) %>% 
@@ -59,7 +60,7 @@ dramp <- read_faa("raw_data/amp_databases/dramp_nat_tidy.fasta") %>%
 ```
 
 
-[DRAMP's download page](http://dramp.cpu-bioinfor.org/downloads/) provides access to a general AMP dataset (which contains both natural and synthetic AMPs). This general dataset was posted on 06/08/2019 but according to the "news and events" section, the [natural dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php) has been updated several times since then. Because the natural dataset contains the AMPs we are interested in and is also more regularly updated (it currently contains `r nrow(dramp)` sequences), the natural AMP data was obtained using a [scrape script](scripts/scrape_dramp.sh).
+[DRAMP's download page](http://dramp.cpu-bioinfor.org/downloads/) provides access to download a general AMP dataset (which contains both natural and synthetic AMPs). However, there is also a [natural dataset](http://dramp.cpu-bioinfor.org/browse/NaturalData.php). Because the natural dataset contains the AMPs we are interested in and is likely more regularly updated (it currently contains `r nrow(dramp)` sequences), the natural AMP data was obtained using a [scrape script](scripts/scrape_dramp.sh). 
 
 
 ### dbAMP 
@@ -73,10 +74,14 @@ dbamp <- readxl::read_excel("raw_data/amp_databases/dbAMPv1.4.xlsx") %>%
 # Note that the reported length in dbamp does not always match the number of characters in the amino acid sequence.
 # We fix the length field to reflect this
 dbamp <- dbamp %>% mutate(length = nchar(seq))
+
+
 ```
 
 
 The latest release of dbAMP is from 06/2019 and was downloaded from their [download page](http://140.138.77.240/~dbamp/download.php). It contains `r nrow(dbamp)` experimentally verified natural AMPs (synthetic AMPs were removed).
+
+**note: Unable to access dbAMP database on 7 April 2021 (website unavailable) and was therefore unable an updated version of this database**
 
 ```{bash, include=FALSE, eval = FALSE}
 wget http://140.138.77.240/~dbamp/download/dbAMPv1.4.tar.gz -O raw_data/amp_databases/dbAMPv1.4.tar.gz
@@ -87,16 +92,17 @@ tar -xf raw_data/amp_databases/dbAMPv1.4.tar.gz -C raw_data/amp_databases
 
 ```{r}
 uniprot <- readxl::read_excel("raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx")
+uniprot <- read_tsv("raw_data/amp_databases/uniprot-keyword Antimicrobial+[KW-0929]_042021.tab")
 
 swissprot <- uniprot %>% 
   filter(Status == "reviewed") %>% 
   rename(uniprot = Entry) %>% 
-  select(ID = `Entry name`,description = `Protein names`, seq = Sequence,uniprot, length = Length) %>% 
+  select(ID = `Entry name`, description = `Protein names`, seq = Sequence, uniprot, length = Length) %>% 
   add_column(database = "SwissProt")
 ```
 
 
-AMPs were downloaded from UniProt on 14-April-2020 using the search term: "keyword:Antimicrobial [KW-0929]".  This included `r uniprot %>% filter(Status=="reviewed") %>% nrow()` reviewed and `r uniprot %>% filter(Status=="unreviewed") %>% nrow()` unreviewed proteins.
+AMPs were downloaded from UniProt on 09-April-2021 using the search term: "keyword:Antimicrobial [KW-0929]".  This included `r uniprot %>% filter(Status=="reviewed") %>% nrow()` reviewed and `r uniprot %>% filter(Status=="unreviewed") %>% nrow()` unreviewed proteins.
 
 ```{r}
 combined <- rbind(apd,dramp,dbamp,swissprot)
@@ -123,7 +129,7 @@ ggplot(swissprot, aes(x = length)) +
   
   
 
-ggsave("additional_stuff/sp_amps_len.png", height = 3, width = 4)
+ggsave("figures/sp_amps_len.png", height = 3, width = 4)
 ```
 
 ## Summary of AMP databases
