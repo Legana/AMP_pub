@@ -16,6 +16,13 @@ echo raw_data/amp_databases/dbAMPv1.4.xlsx >> data_list
 echo raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.xlsx >> data_list
 echo raw_data/amp_databases/uniprot-keyword__Antimicrobial+[KW-0929]_.fasta >> data_list
 
+# updated AMP databases (April 2021)
+
+echo raw_data/amp_databases/dramp_nat_tidy042021.fasta >> data_list
+echo raw_data/amp_databases/APD_07042021.xlsx >> data_list
+echo raw_data/amp_databases/uniprot-keyword Antimicrobial+[KW-0929]_042021.tab >> data_list
+
+
 echo raw_data/amp_databases/trian_ne_set9894_for_ampep_sever.fasta >> data_list
 echo raw_data/amp_databases/trian_po_set3298_for_ampep_sever.fasta >> data_list
 
