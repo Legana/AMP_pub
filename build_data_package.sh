@@ -67,8 +67,9 @@ echo raw_data/ampir_train_test/rfe_precursor.rds >> data_list
 
 # benchmark data
 #
-echo raw_data/benchmarking/datasets/arath/uniprot-proteome_up000006548.xlsx >> data_list
-echo raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx >> data_list
+echo raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.tab >> data_list
+echo raw_data/benchmarking/datasets/arath/uniprot-proteome_UP000006548.tab >> data_list
+
 echo raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta >> data_list
 echo raw_data/benchmarking/datasets/ampir/mature_eval.fasta >> data_list
 echo raw_data/benchmarking/datasets/ampir/precursor_eval.fasta >> data_list
@@ -113,6 +114,20 @@ echo raw_data/case_studies/o_margaretae_na.fasta >> data_list
 # Cache files to speed things up
 echo cache/ref_predictions_ampir.rds >> data_list
 echo cache/ampir_genome_roc.rds >> data_list
+
+#ampir v1.1.0 data (model updated 9 April 2021)
+
+echo ampir_v1.1.0_data/v1.1_featuresTest_mature.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_featuresTest_precursor_imbal.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_featuresTest_precursor_imbal_nobench.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_featuresTrain_mature.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_featuresTrain_precursor_imbal.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_featuresTrain_precursor_imbal_nobench.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_features_mature.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_features_mature.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_features_precursor_imbal_nobench.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_imbal_pos_neg_seqs.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_mature_pos_neg_seqs.rds >> data_list
 
 tar -zcvf data_amp_pub.tgz -T data_list
 
