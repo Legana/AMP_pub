@@ -52,7 +52,7 @@ features_without_lambda <- ggplot(features_long %>% filter(database=="precursors
                       labels = c("Negative", "Positive")) +
   theme_pubclean()
 
-ggsave("additional_stuff/features_no_lambda.png", features_without_lambda, width = 200, height = 250, units = "mm")
+ggsave("figures/features_no_lambda.png", features_without_lambda, width = 200, height = 250, units = "mm")
 
 # lambda only 
 features_lamda_only <- features_long %>%
@@ -66,7 +66,7 @@ features_lamda_only <- features_long %>%
                       labels = c("Negative", "Positive")) +
   theme_pubclean()
 
-ggsave("additional_stuff/features_lambda.png", features_lamda_only, width = 200, height = 250, units = "mm")
+ggsave("figures/features_lambda.png", features_lamda_only, width = 200, height = 250, units = "mm")
 ```
 
 
