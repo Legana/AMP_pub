@@ -22,7 +22,7 @@ non-AMP proteins in a genome. The filtering is as follows:
 3.  Check that no sequences in the background dataset contain
     non-standard amino acids.
 4.  Remove sequences with AMP-like lengths 50 AA, and very large lengths
-    (\>500 AA)
+    (&gt;500 AA)
 5.  Randomly sample the background data so that AMP:non-AMP ratio is
     1:10
 
@@ -71,10 +71,8 @@ obtained simply by using a size range filter on the SwissProt data:
 
 1.  Use non-AMP sequences clustered to 90% identity from SwissProt as a
     starting point
-2.  Keep only sequences \>10 AA and \<40 AA
+2.  Keep only sequences &gt;10 AA and &lt;40 AA
 3.  Remove non-standard amino acids
-
-<!-- end list -->
 
 ``` bash
 comm -23 \
@@ -91,8 +89,7 @@ target (positive) data. Since there are relatively few mature peptides
 of this type available in SwissProt this could reflect acquisition bias
 towards peptides of academic or industrial interest such as
 neuropeptides. As SwissProt grows to become more representative it
-should be possible to improve both positive and negative datasets
-here.
+should be possible to improve both positive and negative datasets here.
 
 ![](02_build_training_data_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
@@ -105,7 +102,7 @@ proteins in the background data.
 
 1.  Use non-AMP sequences clustered to 90% identity from SwissProt as a
     starting point
-2.  Keep only sequences \>20 AA and \<100 AA
+2.  Keep only sequences &gt;20 AA and &lt;100 AA
 3.  Remove sequences with non-standard amino acids
 4.  Sample this dataset randomly so that it is balanced (same number of
     peptides as the positive data)
@@ -128,7 +125,7 @@ created are:
 
 For the precursor model we evaluate its performance using whole genome
 scans based on the Human proteome (UniProt: `UP000005640`) and
-*Arabidopsis* proteome (UniProt: `up000006548`). For model evaluation
+*Arabidopsis* proteome (UniProt: `UP000006548`). For model evaluation
 purposes only we generate training data where proteins from either of
 these databases are removed.
 

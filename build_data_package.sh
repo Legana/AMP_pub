@@ -119,12 +119,10 @@ echo cache/ampir_genome_roc.rds >> data_list
 
 echo ampir_v1.1.0_data/v1.1_featuresTest_mature.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_featuresTest_precursor_imbal.rds >> data_list
-echo ampir_v1.1.0_data/v1.1_featuresTest_precursor_imbal_nobench.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_featuresTrain_mature.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_featuresTrain_precursor_imbal.rds >> data_list
-echo ampir_v1.1.0_data/v1.1_featuresTrain_precursor_imbal_nobench.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_features_mature.rds >> data_list
-echo ampir_v1.1.0_data/v1.1_features_mature.rds >> data_list
+echo ampir_v1.1.0_data/v1.1_features_precursor_imbal.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_features_precursor_imbal_nobench.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_imbal_pos_neg_seqs.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_mature_pos_neg_seqs.rds >> data_list

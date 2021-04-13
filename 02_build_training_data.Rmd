@@ -154,6 +154,8 @@ features_tg_bg_imbal <- ampir:::calculate_features(tg_bg_imbal) %>%
   add_column(Label = tg_bg_imbal$Label)
 
 export_training_and_test(features_tg_bg_imbal,"precursor_imbal")
+
+saveRDS(tg_bg_imbal, "cache/imbal_pos_neg_seqs.rds")
 ```
 
 
@@ -167,6 +169,7 @@ features_mature <- ampir:::calculate_features(tg_bg_mature, min_len = 10) %>%
 
 export_training_and_test(features_mature,"mature")
 
+saveRDS(tg_bg_mature, "cache/mature_pos_neg_seqs.rds")
 
 # Legacy for mature peptides
 #
@@ -182,13 +185,13 @@ export_training_and_test(features_legacy,"legacy")
 
 ## Benchmarking Data
 
-For the precursor model we evaluate its performance using whole genome scans based on the Human proteome (UniProt: `UP000005640`) and *Arabidopsis* proteome (UniProt: `up000006548`). For model evaluation purposes only we generate training data where proteins from either of these databases are removed.
+For the precursor model we evaluate its performance using whole genome scans based on the Human proteome (UniProt: `UP000005640`) and *Arabidopsis* proteome (UniProt: `UP000006548`). For model evaluation purposes only we generate training data where proteins from either of these databases are removed.
 
 ```{r, eval=FALSE}
 #For whole genome benchmarking we remove Human and Arabidopsis data
 
-human_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx",guess_max = 10000)
-arath_proteome <- readxl::read_excel("raw_data/benchmarking/datasets/arath/uniprot-proteome_up000006548.xlsx",guess_max = 40000)
+human_proteome <- read_tsv("raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.tab")
+arath_proteome <- read_tsv("raw_data/benchmarking/datasets/arath/uniprot-proteome_UP000006548.tab")
 
 names_to_exclude <- c(human_proteome$Entry,arath_proteome$Entry)
 
