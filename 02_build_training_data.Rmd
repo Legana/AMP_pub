@@ -58,6 +58,22 @@ bg_raw <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>%
   sample_n(10*nrow(tg))
 ```
 
+**Also create a negative dataset which has equal amount of sequences to the positive dataset, to train a balanced model**
+```{r, eval=FALSE}
+bg_raw_even <- read_faa("raw_data/amp_databases/ampir_negative90.fasta") %>%
+  add_column(Label = "Bg") %>% 
+  filter(grepl(seq_aa,pattern='^[ARNDCEQGHILKMFPSTWYV]+$')) %>% 
+  filter(nchar(seq_aa) > 50) %>% filter(nchar(seq_aa) < 500) %>% 
+  sample_n(nrow(tg))
+
+tg_bg_bal <- rbind(tg,bg_raw_even)
+
+features_tg_bg_bal <- ampir:::calculate_features(tg_bg_bal) %>% 
+  add_column(Label = tg_bg_bal$Label)
+
+saveRDS(features_tg_bg_bal, "cache/features_precursor_bal.rds")
+```
+
 ## Mature Peptide Background Dataset
 
 As a background dataset for mature peptides the ideal would be to take mature peptides from SwissProt that are not AMPs. We could use the Peptide field to find instances which correspond to mature peptides but there are very few such peptides verified and they tend to be neuropeptides and toxins. A broader range of small peptides can be obtained simply by using a size range filter on the SwissProt data: 
