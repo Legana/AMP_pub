@@ -121,13 +121,12 @@ ggplot(swissprot, aes(x = length)) +
                    angle = 0, 
                    m1 = 5, m2 = 5), # modify shape outline
                size = .3, linetype = "dashed", color = "purple") + 
-  geom_ellipse(aes(x0 = 80, y0 = 100,
-                   a = 25, b = 100,
+  geom_ellipse(aes(x0 = 130, y0 = 100,
+                   a = 74, b = 100,
                    angle = 0,
-                   m1 = 5),
+                   m1 = 7),
                size = .3, linetype = "dotted", color = "blue")
-  
-  
+
 
 ggsave("figures/sp_amps_len.png", height = 3, width = 4)
 ```
