@@ -138,8 +138,14 @@ One of the most striking differences between AMP databases becomes clear simply 
 ```{r}
 ggplot(combined,aes(x=length)) + geom_histogram(binwidth = 3, color="black", fill="azure4") +
   facet_wrap(~database, scales = "free_y", ncol = 1) +
-  labs(x = "Sequence length", y = "Frequency") + xlim(0,300) +
-  theme_pubclean()
+  labs(x = "Sequence length", y = "Frequency")  +
+  theme_bw() +
+  theme(panel.grid.minor.y = element_blank()) +
+  scale_x_continuous(breaks = c(0, 50, 100, 200, 300), limits = c(0,300)) +
+  geom_vline(xintercept = 53, linetype = "dashed")
+
+
+
 ggsave("figures/amp_lengths.png", height = 6, width = 6)
 ```
 
