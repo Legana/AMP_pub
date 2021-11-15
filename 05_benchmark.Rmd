@@ -284,10 +284,17 @@ models_roc %>%
   geom_line(aes(x = FPR, y = Recall, colour = model)) + 
   xlim(0,1) + facet_wrap(~mpbench) +
   labs(x = "False positive rate", y = "True positive rate", colour = "") +
-  theme_black() +
-  scale_color_manual(values=c("#CC79A7", "#56B4E9", "#D55E00", "#F0E442", "#999999"))
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_colour_manual(breaks = c("ampir_precursor", "ampir_mature", "ampep", "ampscannerv2", "iamppred"),
+                      labels = c("ampir precursor", "ampir mature", "AmPEP", "AMP Scanner", "iAMPpred"),
+                      values = c("blueviolet", "forestgreen", "cyan", "goldenrod2", "darkorange3"))
+                      
+  
+  
+#  scale_color_manual(values=c("#CC79A7", "#56B4E9", "#D55E00", "#F0E442", "#999999"))
 
-ggsave("additional_stuff/ampir_testset.png", width = 7.3, height = 5, dpi = 600)
+ggsave("figures/ampir_testset.png", width = 7.3, height = 5, dpi = 600)
 
 ```
 
