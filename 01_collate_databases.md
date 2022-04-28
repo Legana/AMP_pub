@@ -71,7 +71,7 @@ and 42745 unreviewed proteins.
 
 One of the most striking differences between AMP databases becomes clear
 simply by looking at the length distributions. The `APD` and `DRAMP`
-databases emphasise short peptides (mostly &lt; 50 amino acids) which
+databases emphasise short peptides (mostly \< 50 amino acids) which
 reflects their focus on mature peptides rather than full length
 precursor proteins.
 
@@ -105,10 +105,10 @@ mature product.
 
 ![](01_collate_databases_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
-SwissProt also includes a small number of larger proteins (&gt;500 AA)
+SwissProt also includes a small number of larger proteins (\>500 AA)
 that are listed under the keyword Antimicrobial but are very different
 from classical AMPs. These include some large viral proteins
-(e.g. [EXLYS\_BPDPK](https://www.uniprot.org/uniprot/Q8SCY1)) which show
+(e.g. [EXLYS_BPDPK](https://www.uniprot.org/uniprot/Q8SCY1)) which show
 evidence of antibacterial activity but their mode of action and vast
 difference in size make them outliers from the point of view of building
 a machine learning model.
@@ -176,11 +176,11 @@ for all proteins in UniProt. The following filters are then applied:
 1.  Exclude all mature peptides
 2.  Exclude unreviewed proteins unless they also appear in APD, DRAMP or
     dbAMP
-3.  Remove proteins with lengths &lt; 50 AA since these might be mature
+3.  Remove proteins with lengths \< 50 AA since these might be mature
     peptides included in APD, DRAMP or dbAMP
-4.  Remove very large proteins (&gt;500 AA) since these are likely to
-    have very different physicochemical properties and are not amenable
-    to prediction by this method
+4.  Remove very large proteins (\>500 AA) since these are likely to have
+    very different physicochemical properties and are not amenable to
+    prediction by this method
 5.  Remove identical sequences
 6.  Remove sequences with nonstandard amino acids
 
@@ -200,14 +200,14 @@ Certain organisms are particularly well annotated for AMPs. We find that
 our final database contains a large number of *Arabidopsis*, human,
 mouse, chicken and rat sequences.
 
-| Organism                               | nentries | n90\_entries |
-|:---------------------------------------|---------:|-------------:|
-| Arabidopsis thaliana (Mouse-ear cress) |      289 |          281 |
-| Mus musculus (Mouse)                   |       96 |           77 |
-| Homo sapiens (Human)                   |       85 |           59 |
-| Rattus norvegicus (Rat)                |       65 |           52 |
-| Bos taurus (Bovine)                    |       45 |           34 |
-| Gallus gallus (Chicken)                |       23 |           19 |
+| Organism                               | nentries | n90_entries |
+|:---------------------------------------|---------:|------------:|
+| Arabidopsis thaliana (Mouse-ear cress) |      289 |         281 |
+| Mus musculus (Mouse)                   |       96 |          77 |
+| Homo sapiens (Human)                   |       85 |          59 |
+| Rattus norvegicus (Rat)                |       65 |          52 |
+| Bos taurus (Bovine)                    |       45 |          34 |
+| Gallus gallus (Chicken)                |       23 |          19 |
 
 ### Database files
 
@@ -225,9 +225,9 @@ physicochemical properties since they are the active molecules.
 For this approach we build a database as follows:
 
 1.  Include all AMPs from the APD, DRAMP and dbAMP databases with
-    lengths &gt;10 AA and &lt; 60 AA
-2.  Include mature peptides from SwissProt (also with length &gt;10 AA
-    and &lt;60 AA)
+    lengths \>10 AA and \< 60 AA
+2.  Include mature peptides from SwissProt (also with length \>10 AA and
+    \<60 AA)
 3.  Remove sequences that are identical or that contain non-standard
     amino acids
 

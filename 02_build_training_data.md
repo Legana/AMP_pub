@@ -6,9 +6,9 @@ training set consisting of confirmed “positive” AMP (or precursor)
 sequences and also a background (or “negative”) dataset consisting of
 non-AMP sequences. Construction of these training data is a critical
 step and has an enormous effect on the performance of the predictor. In
-[01\_collate\_databases](01_collate_databases.md) the process of
-positive dataset construction is decribed. Here we describe how the
-background data and overall training sets are built.
+[01_collate_databases](01_collate_databases.md) the process of positive
+dataset construction is decribed. Here we describe how the background
+data and overall training sets are built.
 
 ## Precursor Background Dataset
 
@@ -22,7 +22,7 @@ non-AMP proteins in a genome. The filtering is as follows:
 3.  Check that no sequences in the background dataset contain
     non-standard amino acids.
 4.  Remove sequences with AMP-like lengths 50 AA, and very large lengths
-    (&gt;500 AA)
+    (\>500 AA)
 5.  Randomly sample the background data so that AMP:non-AMP ratio is
     1:10
 
@@ -60,6 +60,9 @@ comm -23 \
 **Steps 3, 4 and 5** are fairly trivial. Length filters are applied and
 sequences with non-standard AAs removed
 
+**Also create a negative dataset which has equal amount of sequences to
+the positive dataset, to train a balanced model**
+
 ## Mature Peptide Background Dataset
 
 As a background dataset for mature peptides the ideal would be to take
@@ -71,7 +74,7 @@ obtained simply by using a size range filter on the SwissProt data:
 
 1.  Use non-AMP sequences clustered to 90% identity from SwissProt as a
     starting point
-2.  Keep only sequences &gt;10 AA and &lt;40 AA
+2.  Keep only sequences \>10 AA and \<40 AA
 3.  Remove non-standard amino acids
 
 ``` bash
@@ -91,7 +94,7 @@ towards peptides of academic or industrial interest such as
 neuropeptides. As SwissProt grows to become more representative it
 should be possible to improve both positive and negative datasets here.
 
-![](02_build_training_data_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](02_build_training_data_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ## Legacy Background Dataset
 
@@ -102,7 +105,7 @@ proteins in the background data.
 
 1.  Use non-AMP sequences clustered to 90% identity from SwissProt as a
     starting point
-2.  Keep only sequences &gt;20 AA and &lt;100 AA
+2.  Keep only sequences \>20 AA and \<100 AA
 3.  Remove sequences with non-standard amino acids
 4.  Sample this dataset randomly so that it is balanced (same number of
     peptides as the positive data)

@@ -20,12 +20,13 @@ For both sets of data it is clear that higher order lambda values from the Pseud
 
 ```{r, fig.height=20}
 features_tg_bg_1 <- read_rds("raw_data/ampir_train_test/featuresTrain_precursor_imbal.rds")
-features_bg_tg_1_long <- features_tg_bg_1 %>% gather(key = "Feature","Value",-seq_name,-Label) %>% add_column(database="precursors")
+features_bg_tg_1_long <- features_tg_bg_1 %>% gather(key = "Feature","Value",-seq_name,-Label, -seq_aa) %>% add_column(database="precursors")
 
 features_tg_bg_mature <- read_rds("raw_data/ampir_train_test/featuresTrain_mature.rds")
-features_bg_tg_mature_long <- features_tg_bg_mature %>% gather(key = "Feature","Value",-seq_name,-Label) %>% add_column(database="mature")
+features_bg_tg_mature_long <- features_tg_bg_mature %>% gather(key = "Feature","Value",-seq_name,-Label, -seq_aa) %>% add_column(database="mature")
 
 features_long <- rbind(features_bg_tg_1_long,features_bg_tg_mature_long)
+
 
 ggplot(features_long %>% filter(database=="precursors") %>%
          mutate(Feature_fac=factor(Feature, levels=unique(Feature))) ,aes(x=Value)) + 
@@ -88,7 +89,7 @@ ggplot(features_long %>% filter(database=="mature") %>%
 Principal component analysis (PCA) suggests that these predictors have some (but imperfect) power to separate the two classes. This gives an indication of how well models will perform in general but does not capture the capabilities of supervised learning methods like SVM.
 
 ```{r, message=FALSE, warning=FALSE}
-pca_features_1 <- features_tg_bg_1[,-c(1,46)]
+pca_features_1 <- features_tg_bg_1[,-c(1,c(46,48))]
 rownames(pca_features_1) <- features_tg_bg_1$seq_name
 pca_1 <- prcomp(pca_features_1, scale. = TRUE)
 pca_1_plot <- pca_1$x %>% as.data.frame() %>%  rownames_to_column("seq_name") %>% left_join(features_tg_bg_1)
@@ -133,7 +134,7 @@ plot_grid(first_col, second_col, ncol = 2, rel_widths = c(3, 1))
 Although a small number show these predictors are correlated there are none with near-perfect correlation (max cor < 0.9). We therefore did not remove any features on the basis of correlation since this is unlikely to negatively affect model performance. 
 
 ```{r}
-featuresCM <- cor(features_tg_bg_1[,-c(1,46)])
+featuresCM <- cor(features_tg_bg_1[,-c(1,c(46,48))])
 summary(featuresCM[upper.tri(featuresCM)])
 ```
 

@@ -43,17 +43,11 @@ echo raw_data/amp_databases/uniprot-length_[0+TO+60]+NOT+keyword__Antimicrobial+
 echo raw_data/amp_databases/ampir_mature_negative90.fasta >> data_list
 
 # Precalculated training and test feature sets
-echo raw_data/ampir_train_test/features_precursor.rds >> data_list
-echo raw_data/ampir_train_test/features_mature.rds >> data_list
 echo raw_data/ampir_train_test/featuresTest_mature.rds >> data_list
 echo raw_data/ampir_train_test/featuresTrain_mature.rds >> data_list
-
-
-echo raw_data/ampir_train_test/features_precursor_imbal.rds >> data_list
 echo raw_data/ampir_train_test/featuresTest_precursor_imbal.rds >> data_list
 echo raw_data/ampir_train_test/featuresTrain_precursor_imbal.rds >> data_list         
 
-echo raw_data/ampir_train_test/features_precursor_imbal_nobench.rds >> data_list
 
 
 # RFE and tuned model results
@@ -126,6 +120,11 @@ echo ampir_v1.1.0_data/v1.1_features_precursor_imbal.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_features_precursor_imbal_nobench.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_imbal_pos_neg_seqs.rds >> data_list
 echo ampir_v1.1.0_data/v1.1_mature_pos_neg_seqs.rds >> data_list
+echo ampir_v1.1.0_data/tuned_mature_full.rds >> data_list
+echo ampir_v1.1.0_data/tuned_mature.rds >> data_list
+echo ampir_v1.1.0_data/tuned_precursor_imbal_full.rds >> data_list
+echo ampir_v1.1.0_data/tuned_precursor_imbal_nobench.rds >> data_list
+echo ampir_v1.1.0_data/tuned_precursor_imbal.rds >> data_list
 
 tar -zcvf data_amp_pub.tgz -T data_list
 

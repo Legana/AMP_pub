@@ -40,12 +40,12 @@ data from the precursor training set
 ## Correlated Predictors
 
 Although a small number show these predictors are correlated there are
-none with near-perfect correlation (max cor &lt; 0.9). We therefore did
+none with near-perfect correlation (max cor \< 0.9). We therefore did
 not remove any features on the basis of correlation since this is
 unlikely to negatively affect model performance.
 
     ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-    ## -0.48038 -0.09127  0.11464  0.14507  0.33461  0.86378
+    ## -0.47868 -0.08884  0.11589  0.15282  0.33477  0.99758
 
 ## Recursive feature elimination (RFE)
 
