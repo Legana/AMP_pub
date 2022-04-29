@@ -18,13 +18,13 @@ antibacterial activity. `ampir` is designed to fit into this latter type
 of pipeline as one of the *in silico* steps. Recent successful examples
 demonstrating the overall principle of this technique include:
 
-  - A study by [Kim et
-    al 2016](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155304)
+-   A study by [Kim et al
+    2016](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155304)
     which identified 11 AMPs with strong antibacterial activity in the
     American cockroach.
-  - A study by [Yoo et
-    al 2014](https://pubmed.ncbi.nlm.nih.gov/24652097/) which identified
-    10 novel AMPs in the centipede, *Scolopendra subspinipes mutilans*
+-   A study by [Yoo et al
+    2014](https://pubmed.ncbi.nlm.nih.gov/24652097/) which identified 10
+    novel AMPs in the centipede, *Scolopendra subspinipes mutilans*
 
 Both these studies used a long sequence of *in silico* steps to go from
 around 70-80k transcripts in the whole transcriptome down to a short
@@ -59,17 +59,16 @@ library(tidyverse)
 centipede_peps <- readxl::read_excel("raw_data/case_studies/centipede.xlsx")
 ```
 
-This dataset has the following
-information
+This dataset has the following information
 
-| ESTID             | PepID    | Seq                                          | Verified   |
-| :---------------- | :------- | :------------------------------------------- | :--------- |
-| Unigene34794\_All | SmAE\_P1 | KKKHRQFLGIRNYYKEFIPNLSDITSPLHVLLKK           | verified   |
-| Unigene45899\_All | SmAE\_P2 | RKLWWRLAAVLTCKSIVKYGHGGERLIEPSSSWFPPKFPSG    | unverified |
-| Unigene30751\_All | SmAE\_P3 | QDCPGVRDHLVRGALDLGGVANRTTSRSKYGTKKPKK        | unverified |
-| Unigene39330\_All | SmAE\_P4 | GPGETGKKRKRELVSSQLGHLVGRKKISKALSQKISEIWGD    | unverified |
-| Unigene22235\_All | SmAE\_P5 | YGGGYGYRRPYYGGYHGGYYRRPYYYGGYYGGGYKYKHWGCRFF | verified   |
-| NA                | SmAE\_P6 | YGGGYGYRRPYYGGYHGGYYRRPYYYGGYYGGGYKYKHWGCRFF | verified   |
+| ESTID            | PepID   | Seq                                          | Verified   |
+|:-----------------|:--------|:---------------------------------------------|:-----------|
+| Unigene34794_All | SmAE_P1 | KKKHRQFLGIRNYYKEFIPNLSDITSPLHVLLKK           | verified   |
+| Unigene45899_All | SmAE_P2 | RKLWWRLAAVLTCKSIVKYGHGGERLIEPSSSWFPPKFPSG    | unverified |
+| Unigene30751_All | SmAE_P3 | QDCPGVRDHLVRGALDLGGVANRTTSRSKYGTKKPKK        | unverified |
+| Unigene39330_All | SmAE_P4 | GPGETGKKRKRELVSSQLGHLVGRKKISKALSQKISEIWGD    | unverified |
+| Unigene22235_All | SmAE_P5 | YGGGYGYRRPYYGGYHGGYYRRPYYYGGYYGGGYKYKHWGCRFF | verified   |
+| NA               | SmAE_P6 | YGGGYGYRRPYYGGYHGGYYRRPYYYGGYYGGGYKYKHWGCRFF | verified   |
 
 To run `ampir` we need the `Seq` column as well as a column with unique
 names for each sequence (we will use `PepID`). The data can be prepared
@@ -91,14 +90,14 @@ centipede_ampir <- predict_amps(centipede_ampir_in, model = "mature")
 head(centipede_ampir) %>% knitr::kable()
 ```
 
-| PepID    | Seq                                          | prob\_AMP |
-| :------- | :------------------------------------------- | --------: |
-| SmAE\_P1 | KKKHRQFLGIRNYYKEFIPNLSDITSPLHVLLKK           | 0.2517037 |
-| SmAE\_P2 | RKLWWRLAAVLTCKSIVKYGHGGERLIEPSSSWFPPKFPSG    | 0.8095988 |
-| SmAE\_P3 | QDCPGVRDHLVRGALDLGGVANRTTSRSKYGTKKPKK        | 0.6712972 |
-| SmAE\_P4 | GPGETGKKRKRELVSSQLGHLVGRKKISKALSQKISEIWGD    | 0.9601201 |
-| SmAE\_P5 | YGGGYGYRRPYYGGYHGGYYRRPYYYGGYYGGGYKYKHWGCRFF | 0.7109342 |
-| SmAE\_P6 | YGGGYGYRRPYYGGYHGGYYRRPYYYGGYYGGGYKYKHWGCRFF | 0.7109342 |
+| PepID   | Seq                                          |  prob_AMP |
+|:--------|:---------------------------------------------|----------:|
+| SmAE_P1 | KKKHRQFLGIRNYYKEFIPNLSDITSPLHVLLKK           | 0.2861474 |
+| SmAE_P2 | RKLWWRLAAVLTCKSIVKYGHGGERLIEPSSSWFPPKFPSG    | 0.8081439 |
+| SmAE_P3 | QDCPGVRDHLVRGALDLGGVANRTTSRSKYGTKKPKK        | 0.6778932 |
+| SmAE_P4 | GPGETGKKRKRELVSSQLGHLVGRKKISKALSQKISEIWGD    | 0.9585819 |
+| SmAE_P5 | YGGGYGYRRPYYGGYHGGYYRRPYYYGGYYGGGYKYKHWGCRFF | 0.7131284 |
+| SmAE_P6 | YGGGYGYRRPYYGGYHGGYYRRPYYYGGYYGGGYKYKHWGCRFF | 0.7131284 |
 
 Note that the outputs from ampir include the original columns of the
 input data as well as a new column called `prob_AMP` which contains the
@@ -131,8 +130,8 @@ are currently 53 reviewed and 95 unreviewed entries in UniProt for
 Discovery of AMPs in *Odorana* exemplifies the potential use case for
 ampir. To demonstrate its use we obtained complete transcriptome
 sequences for *Odorrana margaretae* from supplementary material provided
-in [Qiao et
-al 2013](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0075211).
+in [Qiao et al
+2013](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0075211).
 Unfortunately none of these sequences have confirmed antibacterial
 activity (due to lack of testing) but since *Odorrana* is a diverse
 genus we were able to identify 10 *O. margaretae* sequences that are
@@ -148,14 +147,13 @@ downloaded and unpacked the `AMP_pub` data package.
 The following two command-line steps are not shown for brevity:
 
 1.  Predicting protein sequences from the *O. margaretae* transcriptome
-    [01\_transdecoder.sh](raw_data/case_studies/01_transdecoder.sh)
+    [01_transdecoder.sh](scripts/01_transdecoder.sh)
 2.  Detecting *Odorrana* AMP homologs in *O. margaretae*
-    [02\_blastmatch.sh](raw_data/case_studies/02_blastmatch.sh)
+    [02_blastmatch.sh](scripts/02_blastmatch.sh)
 
 Firstly we identify the set of known AMPs in *O. margaretae* by
 importing BLAST results showing matches between *O. margaretae* and
-known *Odorrana*
-AMPs.
+known *Odorrana* AMPs.
 
 ``` r
 blast_colnames <- c('qaccver','saccver','pident','length','mismatch','gapopen','qstart','qend','sstart','send','evalue','bitscore')
@@ -184,14 +182,14 @@ omarg_aa <-  omarg_aa %>% mutate(seq_name = str_match(seq_name,"^[^\\ ]*")[,1])
 head(omarg_aa) %>% knitr::kable()
 ```
 
-| seq\_name                           | seq\_aa                                                                                                                                                                                                                                                                                                      |
-| :---------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| odorranaTranscripts\_10000\_515.p1  | MEAEQSTEGGQSQVSENPHSEYGLTDNVERIVENEKASTEKASKQKVDLQALPTRAYLDQTVVPILLQGLSVLAKERPPNPIEFLASYLLKNKAQFEDRS                                                                                                                                                                                                         |
-| odorranaTranscripts\_10002\_1290.p1 | MDAPWELAGGLCCTHRGIITDGNNSPGAKLGINFDGNRSLMAWLWRPWLVIGSDVFGQGIVTTRDCSTSPIQPHVIRGMVDRWDLGAREVVVIFGYLAV                                                                                                                                                                                                          |
-| odorranaTranscripts\_10003\_792.p2  | MTVNITQLLAPVEVELSAINPSPPILFTIKKPPPPIIPFFRQFCLPVQKC                                                                                                                                                                                                                                                           |
-| odorranaTranscripts\_10004\_2529.p1 | MQLIGPGCRLPAGANILKERRQETVHFAKLIFSWLVNKMKLCSLSLPSFYAHDWMSKVNTVSPFH                                                                                                                                                                                                                                            |
-| odorranaTranscripts\_10004\_2529.p2 | MQFDPEVARPQPSLCFEVHSHLQIHPYGDYMQEPQWGGVRCPRLAATGSPIESTGRMLAPFS                                                                                                                                                                                                                                               |
-| odorranaTranscripts\_10005\_1223.p1 | SSEEVLNLRFPLHRACRDGDLHCLRSLLQGPPGNTAQQLGKEDSCYGWTPIHWAAHFGKLECLVQLVGAGCSVNASTTRFAQTPAHIAAFGGHPHCLMWLIQAGANVNKQDYVGETPVHKAARAGSLDCLKALVSNGGQIDFKNASGLTAADLAHSQGFTECAQFLLNLQNSQLNGFYCTNSLNGVPQNASSHLNGGINHRKRSFHDLEASVVKKLRTEMNSFGTEYMTGRLEEDDSMHVENHSDISGGIGQFSDRCCNIPMIEDLKPQESTSNRPTDANNFTVSATQTPFRCISQYAYF |
+| seq_name                          | seq_aa                                                                                                                                                                                                                                                                                                       |
+|:----------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| odorranaTranscripts_10000_515.p1  | MEAEQSTEGGQSQVSENPHSEYGLTDNVERIVENEKASTEKASKQKVDLQALPTRAYLDQTVVPILLQGLSVLAKERPPNPIEFLASYLLKNKAQFEDRS                                                                                                                                                                                                         |
+| odorranaTranscripts_10002_1290.p1 | MDAPWELAGGLCCTHRGIITDGNNSPGAKLGINFDGNRSLMAWLWRPWLVIGSDVFGQGIVTTRDCSTSPIQPHVIRGMVDRWDLGAREVVVIFGYLAV                                                                                                                                                                                                          |
+| odorranaTranscripts_10003_792.p2  | MTVNITQLLAPVEVELSAINPSPPILFTIKKPPPPIIPFFRQFCLPVQKC                                                                                                                                                                                                                                                           |
+| odorranaTranscripts_10004_2529.p1 | MQLIGPGCRLPAGANILKERRQETVHFAKLIFSWLVNKMKLCSLSLPSFYAHDWMSKVNTVSPFH                                                                                                                                                                                                                                            |
+| odorranaTranscripts_10004_2529.p2 | MQFDPEVARPQPSLCFEVHSHLQIHPYGDYMQEPQWGGVRCPRLAATGSPIESTGRMLAPFS                                                                                                                                                                                                                                               |
+| odorranaTranscripts_10005_1223.p1 | SSEEVLNLRFPLHRACRDGDLHCLRSLLQGPPGNTAQQLGKEDSCYGWTPIHWAAHFGKLECLVQLVGAGCSVNASTTRFAQTPAHIAAFGGHPHCLMWLIQAGANVNKQDYVGETPVHKAARAGSLDCLKALVSNGGQIDFKNASGLTAADLAHSQGFTECAQFLLNLQNSQLNGFYCTNSLNGVPQNASSHLNGGINHRKRSFHDLEASVVKKLRTEMNSFGTEYMTGRLEEDDSMHVENHSDISGGIGQFSDRCCNIPMIEDLKPQESTSNRPTDANNFTVSATQTPFRCISQYAYF |
 
 Now we use the `predict_amps()` function in `ampir` to predict AMPs.
 Since these are full length proteins we use the “precursor” model and
@@ -208,7 +206,7 @@ transcriptome and for AMP homologs. This plot suggests that by using
 `ampir` as an initial pipeline step with a cut-off (`prob_AMP` \>0.5)
 the search space for AMPs can be reduced from around 77,000 to just
 5,000. With so few verified AMPs for this organism it is difficult to
-determine whether a higher cut-off (e.g. `prob_AMP` \>0.9) could be used
+determine whether a higher cut-off (e.g. `prob_AMP` \>0.9) could be used
 to provide greater specificity.
 
 ``` r

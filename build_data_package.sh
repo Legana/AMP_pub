@@ -63,6 +63,8 @@ echo raw_data/ampir_train_test/rfe_precursor.rds >> data_list
 #
 echo raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.tab >> data_list
 echo raw_data/benchmarking/datasets/arath/uniprot-proteome_UP000006548.tab >> data_list
+echo raw_data/benchmarking/datasets/human/uniprot-proteome_UP000005640.xlsx >> data_list
+echo raw_data/benchmarking/datasets/arath/uniprot-proteome_UP000006548.xlsx >> data_list
 
 echo raw_data/benchmarking/datasets/iamp2l/iamp2l_bench.fasta >> data_list
 echo raw_data/benchmarking/datasets/ampir/mature_eval.fasta >> data_list
