@@ -30,11 +30,11 @@ the *Bioinformatics* journal as
     [test_models.Rmd](test_models.Rmd)
 
 The files required to run the code in these Rmd files can be obtained
-[here](https://cloudstor.aarnet.edu.au/plus/s/ZYQAURCovsOf8q6) or by
+[here](http://data.qld.edu.au/public/Q5999/Legana/AMP_pub/data.tgz) or by
 using the command:
 
 ``` bash
-wget 'https://cloudstor.aarnet.edu.au/plus/s/ZYQAURCovsOf8q6/download' -O data.tgz
+wget 'http://data.qld.edu.au/public/Q5999/Legana/AMP_pub/data.tgz' -O data.tgz
 tar -zxvf data.tgz 
 ```
 
